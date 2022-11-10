@@ -1,11 +1,8 @@
-""""""""""""""""""""""
-"    Vundle Setup    "
-"                    "
-""""""""""""""""""""""
+""" vundle setup """
+
 set nocompatible
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
-
 call vundle#begin()
 
 " main vundle plugin
@@ -24,10 +21,8 @@ call vundle#end()
 filetype plugin indent on
 
 
-"""""""""""""""""""""""""""
-"    NERDTree Settings    "
-"                         "
-"""""""""""""""""""""""""""
+""" nerdtree settings """
+
 " auto open the tree view
 autocmd vimenter * NERDTree
 
@@ -42,10 +37,8 @@ let NERDTreeShowHidden=1
 map <C-n> :NERDTreeToggle<CR>
 
 
-""""""""""""""""""""""
-"    Key Mappings    "
-"                    "
-""""""""""""""""""""""
+""" key mappings """
+
 " easier method for switching between windows
 map <C-j> <C-W>j
 map <C-k> <C-W>k
@@ -59,10 +52,8 @@ imap jk <Esc>
 command Q qa
 
 
-"""""""""""""""""""""""""
-"    Editor Settings    "
-"                       "
-"""""""""""""""""""""""""
+""" editor settings """
+
 " fix backspace behavior
 set backspace=eol,start,indent
 set backspace=2
@@ -82,10 +73,8 @@ set tabstop=2
 set wrap
 
 
-"""""""""""""""""""""""""
-"    Search Settings    "
-"                       "
-"""""""""""""""""""""""""
+""" search settings """
+
 " ignore case when searching
 set ignorecase
 
@@ -99,10 +88,8 @@ set hlsearch
 set incsearch
 
 
-"""""""""""""""""""""""
-"    View Settings    "
-"                     "
-"""""""""""""""""""""""
+""" view settings """
+
 " enable syntax highlighting
 syntax enable
 
@@ -118,3 +105,4 @@ set ruler
 
 " set colorscheme
 colo noir
+
