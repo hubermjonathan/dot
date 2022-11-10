@@ -1,11 +1,11 @@
 # load zsh files
-for conf in "$HOME/.config/zsh/"*.zsh; do
-  source "${conf}"
+for config in "$HOME/.config/zsh/"*.zsh; do
+  source "${config}"
 done
 
-for conf in "$HOME/"*.zsh; do
-  source "${conf}"
+for config in "$HOME/"*.zsh; do
+  source "${config}"
 done
 
-unset conf
+unset config
 
