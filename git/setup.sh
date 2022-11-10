@@ -27,4 +27,3 @@ else
   echo "💻 ssh key already exists ⏭️"
 fi
 
-

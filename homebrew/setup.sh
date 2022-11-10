@@ -8,3 +8,7 @@ else
   echo "🔧 homebrew already installed ⏭️"
 fi
 
+# load brewfiles
+brew bundle --quiet --file homebrew/Brewfile.base --no-lock
+echo "⏳ loaded brewfiles ✅"
+

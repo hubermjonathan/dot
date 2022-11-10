@@ -21,4 +21,3 @@ mkdir "$HOME/.vim/colors"
 cp vim/noir.vim "$HOME/.vim/colors/noir.vim"
 echo "📝 copied noir.vim ✅"
 
-
