@@ -13,6 +13,7 @@ cp git/.gitignore "$HOME/.gitignore"
 git config --global user.name "Jon Huber"
 git config --global user.email "hubermjonathan@gmail.com"
 git config --global pager.branch false
+git config --global pager.log false
 git config --global pull.rebase false
 git config --global core.excludesfile "$HOME/.gitignore"
 echo "📝 wrote .gitconfig ✅"

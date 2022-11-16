@@ -19,3 +19,8 @@ mkdir "$HOME/.config/zsh"
 cp zsh/shared.zsh "$HOME/.config/zsh/shared.zsh"
 echo "📝 copied shared.zsh ✅"
 
+if [[ $(uname -m) == "arm64" ]]; then
+  cp zsh/homebrew.zsh "$HOME/.config/zsh/homebrew.zsh"
+  echo "📝 copied homebrew.zsh (apple silicon) ✅"
+fi
+

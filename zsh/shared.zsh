@@ -31,6 +31,9 @@ function gc() {
 function gca() {
   git commit --amend -m $1
 }
+function gt() {
+  git tag -a $1 $2 -m $1
+}
 alias gs="git status"
 alias gd="git diff ."
 alias gsw="git switch"
