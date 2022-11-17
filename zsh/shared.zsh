@@ -1,12 +1,3 @@
-# oh my zsh
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="minimal"
-DISABLE_AUTO_TITLE="true"
-zstyle ":omz:update" mode auto
-zstyle ":omz:update" frequency 14
-plugins=()
-source $ZSH/oh-my-zsh.sh
-
 # tab renaming
 tab() {
   echno -ne "\033]0;$*\007"
