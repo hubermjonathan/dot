@@ -21,10 +21,10 @@ echo "📝 wrote .gitconfig ✅"
 # create ssh key
 if [[ ! -e "$HOME/.ssh/id_ed25519" ]]; then
   ssh-keygen -t ed25519 -C "hubermjonathan@gmail.com" -f "$HOME/.ssh/id_ed25519" -N "" -q
-  cat "$HOME/.ssh/id_ed25519.pub" | pbcopy
   echo "💻 created ssh key and copied to clipboard ✅:"
-  echo "add it to github here -> https://github.com/settings/ssh/new"
 else
   echo "💻 ssh key already exists ⏭️"
 fi
+cat "$HOME/.ssh/id_ed25519.pub" | pbcopy
+echo "add it to github here -> https://github.com/settings/ssh/new"
 
