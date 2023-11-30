@@ -37,6 +37,11 @@ function gca() {
 function gt() {
   git tag -a $1 $2 -m $1
 }
+function gm() {
+  branch=$(git symbolic-ref --short -q HEAD)
+  git checkout master
+  git branch -D $branch
+}
 alias gs="git status"
 alias gd="git diff ."
 alias gsw="git switch"
