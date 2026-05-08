@@ -1,0 +1,49 @@
+# dotfiles
+
+Personal macOS configuration managed by `dot`, a Go CLI that handles symlinks, app installation, and health checks.
+
+## Quick Start (New Machine)
+
+```bash
+git clone https://github.com/hubermjonathan/dotfiles ~/Code/dotfiles
+cd ~/Code/dotfiles
+./bootstrap.sh
+```
+
+## Usage
+
+```bash
+dot              # Interactive — pick modules to set up
+dot link         # Create all symlinks
+dot install      # Install all deps and apps
+dot doctor       # Check health (add --fix to auto-repair)
+dot status       # Show module states
+dot init <name>  # Create a new module
+```
+
+## Adding a New Tool
+
+```bash
+dot init mytool
+# Edit modules/mytool/module.toml — add links, deps, apps
+# Drop config files in modules/mytool/
+dot link mytool
+```
+
+## Zsh Config
+
+Drop `.zsh` files in `modules/zsh/conf.d/` — they're sourced automatically on shell start. No module.toml edit needed.
+
+## Modules
+
+| Module | Description |
+|--------|-------------|
+| git | Git config + SSH key |
+| zsh | Shell config (conf.d auto-discovery) |
+| vim | Vim + Vundle + noir theme |
+| homebrew | Brewfile |
+| raycast | Raycast config |
+| ghostty | Ghostty terminal |
+| tmux | Terminal multiplexer |
+| claude | Claude Code config |
+| apps | Standalone applications (alttab, karabiner, spotify, meetingbar) |
