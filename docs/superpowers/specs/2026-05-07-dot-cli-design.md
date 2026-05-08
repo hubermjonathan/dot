@@ -15,7 +15,6 @@ Replace the current copy-based shell scripts with a Go CLI (`dot`) that manages 
 | `dot doctor [--fix]` | Health check; shows issues + fix actions. `--fix` auto-repairs everything |
 | `dot status` | Overview of module states (linked/unlinked/broken/new) |
 | `dot init <name>` | Scaffold a new module directory with empty module.toml |
-| `dot help <command>` | LLM-friendly command reference (structured, parseable output) |
 
 ### Interactive Mode (`dot`)
 
@@ -27,24 +26,7 @@ When invoked with no subcommand, presents a Bubble Tea multi-select showing all 
 2. For each module checks: symlinks correct, brew deps installed, cask apps installed, custom health checks pass, new files in module dir not yet declared
 3. Prints grouped report: module → issues → what fix would do
 4. With `--fix`: executes all fix actions (create symlinks, install packages, run post_link commands)
-5. `new_file` issues are informational only (no auto-fix) — doctor suggests adding them to module.toml
-
-### `dot help` — LLM-Readable Documentation
-
-`dot help <command>` outputs structured documentation designed for LLMs to parse. Format:
-
-```
-COMMAND: dot <name>
-SYNOPSIS: dot <name> [flags] [args]
-DESCRIPTION: <what it does>
-FLAGS: <flag descriptions>
-EXAMPLES:
-  $ dot link git zsh
-  $ dot doctor --fix
-RELATED: <other relevant commands>
-```
-
-This allows a fresh Claude Code session to run `dot help` and learn the full CLI surface without reading source code.
+5. `new_file` issues are informational only (no auto-fix) — doctor suggests adding them to module.toml. Files inside directory-linked dirs (like `conf.d/`) are exempt — they're covered by the directory symlink.
 
 ### Execution Model
 
@@ -78,11 +60,12 @@ modules/
 │   └── .gitignore
 ├── zsh/
 │   ├── module.toml
-│   ├── .zshrc
-│   ├── git.zsh          (to be created — split from shared.zsh)
-│   ├── work.zsh         (to be created — user's work-specific aliases)
-│   ├── shared.zsh
-│   └── homebrew.zsh
+│   ├── .zshrc           (sources all *.zsh from ~/.config/zsh/)
+│   └── conf.d/          (directory symlinked to ~/.config/zsh — drop files here)
+│       ├── git.zsh
+│       ├── work.zsh
+│       ├── shared.zsh
+│       └── homebrew.zsh
 ├── vim/
 │   ├── module.toml
 │   ├── .vimrc
@@ -147,6 +130,33 @@ provision = [
 ]
 ```
 
+### Zsh Module — Auto-Discovery Pattern
+
+The zsh module uses a directory symlink instead of individual file symlinks:
+
+```toml
+# modules/zsh/module.toml
+[module]
+name = "zsh"
+description = "Zsh shell configuration"
+
+[links]
+".zshrc" = "~/.zshrc"
+"conf.d" = "~/.config/zsh"    # Directory symlink
+
+[deps]
+brew = ["zsh"]
+```
+
+The `.zshrc` sources everything in `~/.config/zsh/`:
+```zsh
+for config in "$HOME/.config/zsh/"*.zsh; do
+  source "${config}"
+done
+```
+
+To add new shell config: drop a `.zsh` file in `modules/zsh/conf.d/`. It's immediately active — no module.toml edit, no re-linking.
+
 ### Module Discovery
 
 The CLI walks `modules/` at runtime, reads each `module.toml`, and builds the module list. No central registry file to maintain.
@@ -162,7 +172,6 @@ cmd/dot/
 ├── doctor.go            # dot doctor
 ├── status.go            # dot status
 ├── init_cmd.go          # dot init
-├── help_cmd.go          # dot help (LLM-friendly docs)
 └── interactive.go       # dot (no args) — Bubble Tea TUI
 
 internal/
@@ -264,7 +273,6 @@ Each CLAUDE.md should be:
 - Under 40 lines
 - Focus on "how to contribute here" not "what this does"
 - Include gotchas and non-obvious conventions
-- Reference `dot help` for runtime docs
 
 ### README.md
 
@@ -274,19 +282,15 @@ Human-facing documentation at repo root:
 - How to add a new tool/module
 - Available `dot` commands (brief)
 
-### `dot help` for LLMs
-
-A fresh Claude Code session can run `dot help` (all commands) or `dot help <cmd>` (specific) to learn the CLI without reading source. This is the primary way LLMs learn to use the tool at runtime.
-
 ## Migration Plan
 
 ### Files that exist today → move to modules/
 
 | Current location | New location | Notes |
 |-----------------|--------------|-------|
-| `zsh/.zshrc` | `modules/zsh/.zshrc` | Exists |
-| `zsh/shared.zsh` | `modules/zsh/shared.zsh` | Will be split: git aliases → `git.zsh` |
-| `zsh/homebrew.zsh` | `modules/zsh/homebrew.zsh` | Exists |
+| `zsh/.zshrc` | `modules/zsh/.zshrc` | Rewrite to source glob from `~/.config/zsh/` |
+| `zsh/shared.zsh` | `modules/zsh/conf.d/shared.zsh` | Split: git aliases → `git.zsh` |
+| `zsh/homebrew.zsh` | `modules/zsh/conf.d/homebrew.zsh` | Exists |
 | `git/.gitignore` | `modules/git/.gitignore` | Exists |
 | `vim/.vimrc` | `modules/vim/.vimrc` | Exists |
 | `vim/noir.vim` | `modules/vim/noir.vim` | Exists |
@@ -298,8 +302,8 @@ A fresh Claude Code session can run `dot help` (all commands) or `dot help <cmd>
 | File | Purpose |
 |------|---------|
 | `modules/git/.gitconfig` | Static gitconfig (replaces dynamic `git config` commands) |
-| `modules/zsh/git.zsh` | Git aliases extracted from shared.zsh |
-| `modules/zsh/work.zsh` | Placeholder for work-specific shell config |
+| `modules/zsh/conf.d/git.zsh` | Git aliases extracted from shared.zsh |
+| `modules/zsh/conf.d/work.zsh` | Placeholder for work-specific shell config |
 | `modules/ghostty/config` | Ghostty terminal config |
 | `modules/tmux/.tmux.conf` | Tmux configuration |
 | `modules/claude/` | Claude Code config files |
@@ -338,12 +342,11 @@ The `.gitconfig` becomes a static file symlinked to `~/.gitconfig`. Any settings
 - [ ] `dot doctor --fix` resolves all fixable issues automatically
 - [ ] `dot status` shows clear overview of module states
 - [ ] `dot init <name>` scaffolds new module directory
-- [ ] `dot help` provides LLM-parseable command documentation
 - [ ] Adding a new tool = create module dir + module.toml + config files (no other changes needed)
 - [ ] Existing configs (git, zsh, vim, homebrew, raycast) migrated to new module structure
 - [ ] New modules added: ghostty, claude, tmux, apps
 - [ ] bootstrap.sh works on a fresh macOS machine
 - [ ] Backup existing files before replacing with symlinks
+- [ ] Zsh module uses conf.d/ directory symlink — new .zsh files auto-load
 - [ ] CLAUDE.md files at repo root, cmd/dot/, internal/, modules/
 - [ ] README.md with human-facing documentation
-- [ ] `dot help` output is structured enough for LLMs to learn the CLI
