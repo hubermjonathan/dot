@@ -1,6 +1,8 @@
 package linker_test
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"testing"
@@ -61,7 +63,9 @@ func TestLink_BacksUpExistingFile(t *testing.T) {
 	}
 
 	// Check backup exists
-	backupFile := filepath.Join(backupDir, "target.txt")
+	sum := sha256.Sum256([]byte(target))
+	suffix := hex.EncodeToString(sum[:])[:6]
+	backupFile := filepath.Join(backupDir, "target.txt."+suffix)
 	data, err := os.ReadFile(backupFile)
 	if err != nil {
 		t.Fatal(err)

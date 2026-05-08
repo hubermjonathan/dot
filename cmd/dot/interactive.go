@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/hubermjonathan/dotfiles/internal/linker"
@@ -58,7 +59,13 @@ func getModuleState(mod *module.Module) string {
 		return "no-links"
 	}
 	linked, broken := 0, 0
-	for source, target := range mod.Links {
+	keys := make([]string, 0, len(mod.Links))
+	for k := range mod.Links {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, source := range keys {
+		target := mod.Links[source]
 		sourcePath := filepath.Join(mod.Path, source)
 		targetPath := expandHome(target)
 		status := linker.Verify(sourcePath, targetPath)

@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"sort"
 	"strings"
 
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
+	"github.com/hubermjonathan/dotfiles/internal/pathutil"
 )
 
 type Issue struct {
@@ -55,21 +57,19 @@ func ParseCheck(check string) func() error {
 	return nil
 }
 
-func ExpandHome(path string) string {
-	if strings.HasPrefix(path, "~/") {
-		home, _ := os.UserHomeDir()
-		return home + path[1:]
-	}
-	return path
-}
-
 func Check(mod *module.Module) []Issue {
 	var issues []Issue
 
 	// Check symlinks
-	for source, target := range mod.Links {
+	keys := make([]string, 0, len(mod.Links))
+	for k := range mod.Links {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, source := range keys {
+		target := mod.Links[source]
 		sourcePath := fmt.Sprintf("%s/%s", mod.Path, source)
-		targetPath := ExpandHome(target)
+		targetPath := pathutil.ExpandHome(target)
 		status := linker.Verify(sourcePath, targetPath)
 		if status != linker.StatusOK {
 			src := sourcePath
@@ -88,7 +88,7 @@ func Check(mod *module.Module) []Issue {
 
 	// Check health
 	for _, h := range mod.Health {
-		check := ParseCheck(strings.Replace(h, "~", ExpandHome("~"), 1))
+		check := ParseCheck(strings.Replace(h, "~", pathutil.ExpandHome("~"), 1))
 		if check == nil {
 			continue
 		}

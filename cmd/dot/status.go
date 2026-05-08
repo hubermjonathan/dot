@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
 
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ func init() {
 }
 
 func runStatus(cmd *cobra.Command, args []string) error {
-	modules, err := getModules(nil)
+	modules, err := getModules(args)
 	if err != nil {
 		return err
 	}
@@ -27,7 +28,13 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	for _, mod := range modules {
 		linked, broken, missing := 0, 0, 0
 		total := len(mod.Links)
-		for source, target := range mod.Links {
+		keys := make([]string, 0, len(mod.Links))
+		for k := range mod.Links {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, source := range keys {
+			target := mod.Links[source]
 			sourcePath := filepath.Join(mod.Path, source)
 			targetPath := expandHome(target)
 			status := linker.Verify(sourcePath, targetPath)

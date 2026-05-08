@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/hubermjonathan/dotfiles/internal/installer"
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
+	"github.com/hubermjonathan/dotfiles/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -30,10 +34,16 @@ func runLink(cmd *cobra.Command, args []string) error {
 	var failures int
 	for _, mod := range modules {
 		fmt.Printf("linking %s\n", mod.Name)
-		for source, target := range mod.Links {
+		keys := make([]string, 0, len(mod.Links))
+		for k := range mod.Links {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, source := range keys {
+			target := mod.Links[source]
 			sourcePath := filepath.Join(mod.Path, source)
-			targetPath := expandHome(target)
-			backupDir := filepath.Join(expandHome("~/.dotfiles-backup"), mod.Name)
+			targetPath := pathutil.ExpandHome(target)
+			backupDir := filepath.Join(pathutil.ExpandHome("~/.dotfiles-backup"), mod.Name)
 			result, err := linker.Link(sourcePath, targetPath, backupDir)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "  error: %s → %s: %v\n", source, target, err)
@@ -57,7 +67,7 @@ func runLink(cmd *cobra.Command, args []string) error {
 	}
 
 	if failures > 0 {
-		os.Exit(1)
+		return fmt.Errorf("%d operation(s) failed", failures)
 	}
 	return nil
 }
@@ -65,11 +75,7 @@ func runLink(cmd *cobra.Command, args []string) error {
 // Shared helpers used by all commands
 
 func expandHome(path string) string {
-	if len(path) > 1 && path[:2] == "~/" {
-		home, _ := os.UserHomeDir()
-		return home + path[1:]
-	}
-	return path
+	return pathutil.ExpandHome(path)
 }
 
 func getModules(filter []string) ([]*module.Module, error) {
@@ -95,13 +101,15 @@ func getModules(filter []string) ([]*module.Module, error) {
 }
 
 func getRepoRoot() string {
-	exe, _ := os.Executable()
-	dir := filepath.Dir(exe)
-	for d := dir; d != "/"; d = filepath.Dir(d) {
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err == nil {
+		return strings.TrimSpace(string(out))
+	}
+	cwd, _ := os.Getwd()
+	for d := cwd; d != "/"; d = filepath.Dir(d) {
 		if _, err := os.Stat(filepath.Join(d, "modules")); err == nil {
 			return d
 		}
 	}
-	cwd, _ := os.Getwd()
 	return cwd
 }

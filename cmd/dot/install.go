@@ -44,7 +44,7 @@ func runInstall(cmd *cobra.Command, args []string) error {
 	}
 
 	if failures > 0 {
-		os.Exit(1)
+		return fmt.Errorf("%d operation(s) failed", failures)
 	}
 	return nil
 }

@@ -45,24 +45,21 @@ func InstallCask(casks []string) error {
 	return nil
 }
 
-func RunProvision(commands []string) []error {
+func runCommands(commands []string, label string) []error {
 	var errs []error
 	for _, c := range commands {
 		cmd := exec.Command("sh", "-c", c)
 		if err := cmd.Run(); err != nil {
-			errs = append(errs, fmt.Errorf("provision %q failed: %w", c, err))
+			errs = append(errs, fmt.Errorf("%s %q failed: %w", label, c, err))
 		}
 	}
 	return errs
 }
 
+func RunProvision(commands []string) []error {
+	return runCommands(commands, "provision")
+}
+
 func RunPostLink(commands []string) []error {
-	var errs []error
-	for _, c := range commands {
-		cmd := exec.Command("sh", "-c", c)
-		if err := cmd.Run(); err != nil {
-			errs = append(errs, fmt.Errorf("post_link %q failed: %w", c, err))
-		}
-	}
-	return errs
+	return runCommands(commands, "post_link")
 }
