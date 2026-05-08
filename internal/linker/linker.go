@@ -1,6 +1,8 @@
 package linker
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -105,6 +107,8 @@ func backup(target, backupDir string) error {
 	if err := os.MkdirAll(backupDir, 0755); err != nil {
 		return err
 	}
-	backupPath := filepath.Join(backupDir, filepath.Base(target))
+	sum := sha256.Sum256([]byte(target))
+	suffix := hex.EncodeToString(sum[:])[:6]
+	backupPath := filepath.Join(backupDir, filepath.Base(target)+"."+suffix)
 	return os.Rename(target, backupPath)
 }
