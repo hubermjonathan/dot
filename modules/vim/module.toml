@@ -1,0 +1,12 @@
+[module]
+name = "vim"
+description = "Vim editor configuration"
+
+[links]
+".vimrc" = "~/.vimrc"
+"noir.vim" = "~/.vim/colors/noir.vim"
+
+[setup]
+post_link = [
+  "test -d ~/.vim/bundle/Vundle.vim || git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim",
+]

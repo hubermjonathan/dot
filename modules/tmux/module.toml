@@ -1,0 +1,9 @@
+[module]
+name = "tmux"
+description = "Terminal multiplexer"
+
+[links]
+".tmux.conf" = "~/.tmux.conf"
+
+[deps]
+brew = ["tmux"]
