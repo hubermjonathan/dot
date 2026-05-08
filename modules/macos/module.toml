@@ -1,0 +1,24 @@
+[module]
+name = "macos"
+description = "macOS system preferences"
+
+[links]
+"wallpaper.jpg" = "~/.config/macos/wallpaper.jpg"
+
+[deps]
+brew = ["desktoppr"]
+
+[setup]
+post_link = [
+  "defaults write NSGlobalDomain AppleInterfaceStyle -string Dark",
+  "defaults write com.apple.dock autohide -bool true",
+  "defaults write com.apple.dock magnification -bool false",
+  "defaults write com.apple.dock wvous-tl-corner -int 0",
+  "defaults write com.apple.dock wvous-tr-corner -int 0",
+  "defaults write com.apple.dock wvous-bl-corner -int 0",
+  "defaults write com.apple.dock wvous-br-corner -int 4",
+  "defaults write com.apple.menuextra.clock ShowSeconds -bool true",
+  "desktoppr ~/.config/macos/wallpaper.jpg",
+  "killall Dock",
+  "killall SystemUIServer",
+]
