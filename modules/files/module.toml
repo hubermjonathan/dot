@@ -1,0 +1,7 @@
+[module]
+name = "files"
+description = "Common files shared across machines"
+
+[links]
+"profile-picture.jpg" = "~/Documents/Images/profile-picture.jpg"
+"zoom-background.jpg" = "~/Documents/Images/zoom-background.jpg"
