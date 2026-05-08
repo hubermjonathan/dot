@@ -1,0 +1,10 @@
+[module]
+name = "zsh"
+description = "Zsh shell configuration"
+
+[links]
+".zshrc" = "~/.zshrc"
+"conf.d" = "~/.config/zsh"
+
+[deps]
+brew = ["zsh"]

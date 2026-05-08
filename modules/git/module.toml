@@ -1,0 +1,23 @@
+[module]
+name = "git"
+description = "Git configuration and SSH key"
+
+[links]
+".gitconfig" = "~/.gitconfig"
+".gitignore" = "~/.gitignore"
+
+[deps]
+brew = ["git"]
+
+[health]
+checks = [
+  "file_exists:~/.ssh/id_ed25519",
+]
+
+[setup]
+post_link = [
+  "git config --global core.excludesfile ~/.gitignore",
+]
+provision = [
+  "ssh-keygen -t ed25519 -C 'hubermjonathan@gmail.com' -f ~/.ssh/id_ed25519 -N '' -q",
+]

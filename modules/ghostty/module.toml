@@ -1,0 +1,9 @@
+[module]
+name = "ghostty"
+description = "Ghostty terminal emulator"
+
+[links]
+"config" = "~/.config/ghostty/config"
+
+[apps]
+cask = ["ghostty"]

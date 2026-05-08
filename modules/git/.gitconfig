@@ -1,0 +1,8 @@
+[user]
+	name = Jon Huber
+	email = hubermjonathan@gmail.com
+[pager]
+	branch = false
+	log = false
+[pull]
+	rebase = false
