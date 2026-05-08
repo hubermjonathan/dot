@@ -1,12 +1,12 @@
-# dotfiles
+# dot
 
 Personal macOS configuration managed by `dot`, a Go CLI that handles symlinks, app installation, and health checks.
 
 ## Quick Start (New Machine)
 
 ```bash
-git clone https://github.com/hubermjonathan/dotfiles ~/Code/dotfiles
-cd ~/Code/dotfiles
+git clone https://github.com/hubermjonathan/dot
+cd dot
 ./bootstrap.sh
 ```
 
@@ -46,4 +46,5 @@ Drop `.zsh` files in `modules/zsh/conf.d/` — they're sourced automatically on 
 | ghostty | Ghostty terminal |
 | tmux | Terminal multiplexer |
 | claude | Claude Code config |
-| apps | Standalone applications (alttab, karabiner, spotify, meetingbar) |
+| macos | macOS system preferences |
+| apps | Standalone applications (alt-tab, bitwarden, karabiner, spotify, meetingbar) |
