@@ -3,4 +3,4 @@ name = "apps"
 description = "Applications"
 
 [apps]
-cask = ["alttab", "karabiner-elements", "spotify", "meetingbar"]
+cask = ["alttab", "google-chrome", "karabiner-elements", "meetingbar", "spotify"]
