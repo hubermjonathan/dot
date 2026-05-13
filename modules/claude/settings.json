@@ -1,20 +1,8 @@
 {
   "awsAuthRefresh": "aws sso login --profile dev",
+  "editorMode": "normal",
   "enabledPlugins": {
-    "atlassian@claude-plugins-official": true,
-    "caveman@caveman": true,
-    "claude-api@anthropic-agent-skills": true,
-    "claude-md-management@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "ou-git-workflows@ou-claude-plugins": true,
-    "playwright@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "superpowers-extended-cc@superpowers-extended-cc-marketplace": true,
-    "superpowers@claude-plugins-official": true
+    "caveman@caveman": true
   },
   "env": {
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/bxi2s9x695ho",
@@ -36,33 +24,9 @@
     "OTEL_RESOURCE_ATTRIBUTES": "team=eng-connect,user.email=jon.huber@offerup.com"
   },
   "extraKnownMarketplaces": {
-    "anthropic-agent-skills": {
-      "source": {
-        "repo": "anthropics/skills",
-        "source": "github"
-      }
-    },
-    "aws-claude-code-plugins": {
-      "source": {
-        "repo": "aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock",
-        "source": "github"
-      }
-    },
     "caveman": {
       "source": {
         "repo": "JuliusBrussee/caveman",
-        "source": "github"
-      }
-    },
-    "ou-claude-plugins": {
-      "source": {
-        "repo": "OfferUp/claude-plugins-ou",
-        "source": "github"
-      }
-    },
-    "superpowers-extended-cc-marketplace": {
-      "source": {
-        "repo": "pcvelz/superpowers",
         "source": "github"
       }
     }
@@ -112,21 +76,10 @@
   },
   "model": "opus",
   "otelHeadersHelper": "~/.claude/otel-helper.sh",
-  "permissions": {
-    "allow": [
-      "Bash(bq query:*)",
-      "Bash(bq ls:*)",
-      "Bash(bq show:*)",
-      "Bash(bq head:*)"
-    ],
-    "defaultMode": "auto",
-    "deny": [
-      "Bash(curl:*)",
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/**)"
-    ]
-  },
+  "permissions": {},
   "skipAutoPermissionPrompt": true,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "worktree": {
+    "baseRef": "fresh"
+  }
 }
