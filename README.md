@@ -21,6 +21,12 @@ dot status       # Show module states
 dot init <name>  # Create a new module
 ```
 
+## Build
+
+```bash
+go build -o bin/dot ./cmd/dot
+```
+
 ## Adding a New Tool
 
 ```bash
