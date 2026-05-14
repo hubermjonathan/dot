@@ -1,7 +1,11 @@
-# CLAUDE.md
-
-- use conventional commits in the format "type: description", keeping the total commit message to at most 50 characters
-- use conventional commit in the format "type(scope): description", for pr titles, where scope is the impacted service, keeping the total message to at most 50 characters
-- for each pr, the service version should be bumped accordingly, version can be found in terraform/published.json
+- git branch names should follow the format `jon/<1-5-word-kebab-task-desc>`
+- worktree names should follow the format `<1-5-word-kebab-task-desc>`
+- use conventional commits in the format `type: description`, keeping the total commit message to at most 50 characters
+- for pr titles, use conventional commit in the format `type(scope): description`, where scope is the impacted service(s), keeping the total message to at most 75 characters
+- for each pr, the service version should be bumped accordingly, version can be found in terraform/published.json, gql should instead use `yarn changeset`
 - do not add yourself as a commit co-author
-
+- session naming: rename session to `[PR#-]<1-5-word-kebab-task-desc>` BEFORE your first code change (edit/write/bash that modifies files) or worktree enter
+  - applies to ALL sessions (interactive and background)
+  - prefix with PR# only when working on an existing PR (e.g. `1234-fix-token-expiry`)
+  - no prefix for new work (e.g. `refactor-collision`)
+  - if task is ambiguous, rename after first clarifying question is answered
