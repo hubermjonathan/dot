@@ -4,7 +4,7 @@
 - for pr titles, use conventional commit in the format `type(scope): description`, where scope is the impacted service(s), keeping the total message to at most 75 characters
 - for each pr, the service version should be bumped accordingly, version can be found in terraform/published.json, gql should instead use `yarn changeset`
 - do not add yourself as a commit co-author
-- session naming: rename session to `[PR#-]<1-5-word-kebab-task-desc>` BEFORE your first code change (edit/write/bash that modifies files)
+- session naming: rename session to `[PR#-]<1-5-word-kebab-task-desc>` BEFORE your first code change (edit/write/bash that modifies files) or worktree enter
   - applies to ALL sessions (interactive and background)
   - prefix with PR# only when working on an existing PR (e.g. `1234-fix-token-expiry`)
   - no prefix for new work (e.g. `refactor-collision`)
