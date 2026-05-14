@@ -1,6 +1,7 @@
 {
   "awsAuthRefresh": "aws sso login --profile dev",
   "editorMode": "normal",
+  "effortLevel": "xhigh",
   "enabledPlugins": {
     "caveman@caveman": true
   },
@@ -39,7 +40,7 @@
       {
         "hooks": [
           {
-            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Auto-activate: invoke the 'caveman:caveman ultra' skill before your first response.\"}}'",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Auto-activate: invoke the caveman:caveman ultra skill before your first response. RENAME SESSION: per CLAUDE.md, rename to [PR#-]<1-5-word-kebab-task-desc> BEFORE first code change.\"}}'",
             "type": "command"
           }
         ]
@@ -80,9 +81,9 @@
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline-command.sh",
-    "refreshInterval": 10
+    "command": "bash ~/.claude/statusline-command.sh",
+    "refreshInterval": 10,
+    "type": "command"
   },
   "worktree": {
     "baseRef": "fresh"
