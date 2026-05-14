@@ -3,15 +3,7 @@
   "editorMode": "normal",
   "effortLevel": "xhigh",
   "enabledPlugins": {
-    "atlassian@claude-plugins-official": true,
-    "caveman@caveman": true,
-    "commit-commands@claude-plugins-official": true,
-    "datadog@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
+    "caveman@caveman": true
   },
   "env": {
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/bxi2s9x695ho",
@@ -33,33 +25,9 @@
     "OTEL_RESOURCE_ATTRIBUTES": "team=eng-connect,user.email=jon.huber@offerup.com"
   },
   "extraKnownMarketplaces": {
-    "anthropic-agent-skills": {
-      "source": {
-        "repo": "anthropics/skills",
-        "source": "github"
-      }
-    },
-    "aws-claude-code-plugins": {
-      "source": {
-        "repo": "aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock",
-        "source": "github"
-      }
-    },
     "caveman": {
       "source": {
         "repo": "JuliusBrussee/caveman",
-        "source": "github"
-      }
-    },
-    "ou-claude-plugins": {
-      "source": {
-        "repo": "OfferUp/claude-plugins-ou",
-        "source": "github"
-      }
-    },
-    "superpowers-extended-cc-marketplace": {
-      "source": {
-        "repo": "pcvelz/superpowers",
         "source": "github"
       }
     }
@@ -109,21 +77,7 @@
   },
   "model": "opus",
   "otelHeadersHelper": "~/.claude/otel-helper.sh",
-  "permissions": {
-    "allow": [
-      "Bash(bq query:*)",
-      "Bash(bq ls:*)",
-      "Bash(bq show:*)",
-      "Bash(bq head:*)"
-    ],
-    "defaultMode": "bypassPermissions",
-    "deny": [
-      "Bash(curl:*)",
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./secrets/**)"
-    ]
-  },
+  "permissions": {},
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "statusLine": {
