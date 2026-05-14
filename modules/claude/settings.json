@@ -79,6 +79,11 @@
   "permissions": {},
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh",
+    "refreshInterval": 10
+  },
   "worktree": {
     "baseRef": "fresh"
   }
