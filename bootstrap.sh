@@ -19,6 +19,9 @@ cd "$(dirname "$0")"
 echo "building dot..."
 go build -o bin/dot ./cmd/dot
 
+# Force homebrew onto the PATH
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 # Install everything then link configs
 echo "running dot install..."
 ./bin/dot install
