@@ -22,8 +22,8 @@ post_link = [
   "defaults write com.apple.dock wvous-bl-corner -int 0",
   "defaults write com.apple.dock wvous-br-corner -int 4",
   "defaults write com.apple.menuextra.clock ShowSeconds -bool true",
-  "defaults write com.apple.WindowManager StandardHideWidgets -bool true",
-  "defaults write com.apple.WindowManager StageManagerHideWidgets -bool true",
+  "defaults write com.apple.WindowManager showStandardWidgets -bool false",
+  "defaults write com.apple.WindowManager showStageManagerWidgets -bool false",
   "defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false",
   "defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true",
   "defaults write com.google.Chrome NSUserKeyEquivalents -dict-add 'New Tab to the Right' '@~t'",
@@ -32,4 +32,5 @@ post_link = [
   "sudo dscl . create /Users/$USER Picture ~/Documents/Images/profile-picture.jpg",
   "killall Dock",
   "killall SystemUIServer",
+  "killall WindowManager",
 ]
