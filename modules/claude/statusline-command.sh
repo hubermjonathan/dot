@@ -10,6 +10,7 @@ eval "$(echo "$input" | jq -r '
   "worktree=" + ((.worktree.name // "") | @sh) + " " +
   "model_raw=" + ((.model.id // .model.display_name // "") | @sh) + " " +
   "ctx_used=" + ((.context_window.used_percentage // "") | tostring | @sh) + " " +
+  "cost_usd=" + ((.cost.total_cost_usd // "") | tostring | @sh) + " " +
   "session_name=" + ((.session_name // "") | @sh) + " " +
   "wt_branch=" + ((.worktree.branch // "") | @sh)
 ')"
@@ -47,6 +48,9 @@ if [ "$effort" = "null" ]; then effort=""; fi
 
 # context
 if [ "$ctx_used" = "null" ] || [ "$ctx_used" = "" ]; then ctx_used=""; fi
+
+# cost
+if [ "$cost_usd" = "null" ] || [ "$cost_usd" = "" ]; then cost_usd=""; fi
 
 # session name
 if [ "$session_name" = "null" ]; then session_name=""; fi
@@ -92,6 +96,7 @@ C_JIRA="\033[38;2;139;233;253m"   # cyan
 C_MODEL="\033[38;2;248;248;242m"  # foreground
 C_EFFORT="\033[38;2;255;184;108m" # orange
 C_CTX="\033[38;2;80;250;123m"     # green
+C_COST="\033[38;2;241;250;140m"   # yellow
 C_PIPE="\033[38;2;98;114;164m"    # comment gray
 C_RESET="\033[0m"
 
@@ -129,6 +134,10 @@ if [ -n "$ctx_used" ]; then
     ctx_color="${C_CTX}"                   # green
   fi
   line2_parts+=("${ctx_color}${ctx_int}%${C_RESET}")
+fi
+if [ -n "$cost_usd" ]; then
+  cost_fmt=$(printf '$%.2f' "$cost_usd")
+  line2_parts+=("${C_COST}${cost_fmt}${C_RESET}")
 fi
 if [ -n "$session_name" ]; then
   line2_parts+=("${C_PIPE}${session_name}${C_RESET}")
