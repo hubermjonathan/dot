@@ -19,5 +19,5 @@ post_link = [
   "git config --global core.excludesfile ~/.gitignore",
 ]
 provision = [
-  "ssh-keygen -t ed25519 -C 'hubermjonathan@gmail.com' -f ~/.ssh/id_ed25519 -N '' -q",
+  "if [ ! -f ~/.ssh/id_ed25519 ]; then ssh-keygen -t ed25519 -C 'hubermjonathan@gmail.com' -f ~/.ssh/id_ed25519 -N '' -q; else echo 'SSH key already exists, skipping...'; fi",
 ]

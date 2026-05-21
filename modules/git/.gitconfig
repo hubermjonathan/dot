@@ -1,8 +1,10 @@
 [user]
 	name = Jon Huber
-	email = hubermjonathan@gmail.com
+	email = jon.huber@offerup.com
 [pager]
 	branch = false
 	log = false
 [pull]
 	rebase = false
+[core]
+	excludesfile = /Users/jon.huber/.gitignore

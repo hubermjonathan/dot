@@ -2,6 +2,7 @@ package installer
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -23,8 +24,8 @@ func InstallBrew(formulae []string) error {
 	}
 	args := BuildBrewArgs(formulae)
 	cmd := exec.Command("brew", args...)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("brew install failed: %w", err)
 	}
@@ -37,8 +38,8 @@ func InstallCask(casks []string) error {
 	}
 	args := BuildCaskArgs(casks)
 	cmd := exec.Command("brew", args...)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("brew cask install failed: %w", err)
 	}
@@ -49,6 +50,8 @@ func runCommands(commands []string, label string) []error {
 	var errs []error
 	for _, c := range commands {
 		cmd := exec.Command("sh", "-c", c)
+                cmd.Stdout = os.Stdout
+                cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
 			errs = append(errs, fmt.Errorf("%s %q failed: %w", label, c, err))
 		}

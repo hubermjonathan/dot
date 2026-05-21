@@ -1,10 +1,5 @@
 {
   "awsAuthRefresh": "aws sso login --profile dev",
-  "editorMode": "normal",
-  "effortLevel": "xhigh",
-  "enabledPlugins": {
-    "caveman@caveman": true
-  },
   "env": {
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/bxi2s9x695ho",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/yoyhj0injypc",
@@ -24,83 +19,6 @@
     "OTEL_METRICS_EXPORTER": "otlp",
     "OTEL_RESOURCE_ATTRIBUTES": "team=eng-connect,user.email=jon.huber@offerup.com"
   },
-  "extraKnownMarketplaces": {
-    "caveman": {
-      "source": {
-        "repo": "JuliusBrussee/caveman",
-        "source": "github"
-      }
-    }
-  },
-  "effortLevel": "xhigh",
-  "hooks": {
-    "PostToolUse": [],
-    "PostToolUseFailure": [],
-    "PreToolUse": [],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Auto-activate: invoke the caveman:caveman ultra skill before your first response. RENAME SESSION: per CLAUDE.md, rename to [PR#-]<1-5-word-kebab-task-desc> BEFORE first code change.\"}}'",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "cmux hook session-start",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "command": "cmux hook stop",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
-          }
-        ]
-      }
-    ],
-    "PermissionRequest": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "command": "cmux hook prompt-submit",
-            "type": "command"
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 10
-  },
-  "model": "opus",
-  "otelHeadersHelper": "~/.claude/otel-helper.sh",
   "permissions": {
     "allow": [
       "Read",
@@ -202,14 +120,85 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "skipAutoPermissionPrompt": true,
-  "skipDangerousModePermissionPrompt": true,
-  "statusLine": {
-    "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 10,
-    "type": "command"
+  "model": "opus",
+  "hooks": {
+    "PostToolUse": [],
+    "PostToolUseFailure": [],
+    "PreToolUse": [],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Auto-activate: invoke the caveman:caveman ultra skill before your first response. RENAME SESSION: per CLAUDE.md, rename to [PR#-]<1-5-word-kebab-task-desc> BEFORE first code change.\"}}'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
+          }
+        ]
+      }
+    ]
   },
   "worktree": {
     "baseRef": "fresh"
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh",
+    "refreshInterval": 10
+  },
+  "enabledPlugins": {
+    "caveman@caveman": true,
+    "atlassian@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "gws@ou-claude-plugins": true,
+    "ou-git-workflows@ou-claude-plugins": true,
+    "playwright@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    },
+    "ou-claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "OfferUp/claude-plugins-ou"
+      }
+    },
+    "aws-claude-code-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock"
+      }
+    }
+  },
+  "otelHeadersHelper": "~/.claude/otel-helper.sh",
+  "effortLevel": "xhigh",
+  "skipDangerousModePermissionPrompt": true,
+  "editorMode": "normal",
+  "skipAutoPermissionPrompt": true
 }

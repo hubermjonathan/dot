@@ -11,5 +11,5 @@ brew = ["jq"]
 [setup]
 post_link = [
   "mkdir -p ~/Applications/Scripts",
-  "for f in ~/.config/scripts/*.applescript; do osacompile -o ~/Applications/Scripts/$(basename \"$f\" .applescript).app \"$f\"; done",
+  "for f in ~/.config/scripts/*.applescript; do name=$(basename \"$f\" .applescript); osacompile -o \"$HOME/Applications/Scripts/$name.app\" \"$f\"; done",
 ]
