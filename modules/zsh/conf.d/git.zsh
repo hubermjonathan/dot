@@ -1,3 +1,7 @@
+function gp() {
+  git pull origin "$(git symbolic-ref --short -q HEAD)"
+}
+
 function gm() {
   branch=$(git symbolic-ref --short -q HEAD)
   if git show-ref --verify --quiet refs/heads/main; then
@@ -20,7 +24,6 @@ alias gb="git branch"
 alias gbd="git branch -D"
 alias gl="git log --oneline --reverse -15"
 alias ga="git add ."
-alias gp="git pull"
 alias gf="git fetch"
 alias gpo="git push origin"
 alias gwt="git worktree list"
