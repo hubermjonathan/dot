@@ -46,6 +46,13 @@ esac
 effort=$(jq -r '.effortLevel // empty' ~/.claude/settings.json 2>/dev/null)
 if [ "$effort" = "null" ]; then effort=""; fi
 
+# settings drift: how many repo-required keys are missing/different on this machine
+drift=""
+if [ -x ~/.claude/check-settings.sh ] && [ -f ~/.claude/settings.repo.json ]; then
+  drift=$(bash ~/.claude/check-settings.sh 2>/dev/null || echo 0)
+  if [ "$drift" = "0" ]; then drift=""; fi
+fi
+
 # context
 if [ "$ctx_used" = "null" ] || [ "$ctx_used" = "" ]; then ctx_used=""; fi
 
@@ -121,6 +128,9 @@ if [ -n "$model" ]; then
 fi
 if [ -n "$effort" ]; then
   line2_parts+=("${C_EFFORT}${effort}${C_RESET}")
+fi
+if [ -n "$drift" ]; then
+  line2_parts+=("${C_EFFORT}⚙ ${drift}${C_RESET}")
 fi
 if [ -n "$ctx_used" ]; then
   ctx_int=$(printf '%.0f' "$ctx_used")
