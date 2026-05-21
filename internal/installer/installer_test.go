@@ -20,8 +20,8 @@ func TestBuildBrewArgs(t *testing.T) {
 }
 
 func TestBuildCaskArgs(t *testing.T) {
-	args := installer.BuildCaskArgs([]string{"raycast"})
-	expected := []string{"install", "--cask", "raycast"}
+	args := installer.BuildCaskArgs([]string{"ghostty"})
+	expected := []string{"install", "--cask", "ghostty"}
 	if len(args) != len(expected) {
 		t.Fatalf("expected %v, got %v", expected, args)
 	}
