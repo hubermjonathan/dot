@@ -4,6 +4,7 @@ description = "macOS system preferences"
 
 [links]
 "wallpaper.jpg" = "~/Documents/Images/wallpaper.jpg"
+"window-tiling-hotkeys.sh" = "~/.config/dot/window-tiling-hotkeys.sh"
 
 [deps]
 brew = ["desktoppr"]
@@ -20,6 +21,8 @@ post_link = [
   "defaults write com.apple.menuextra.clock ShowSeconds -bool true",
   "defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false",
   "desktoppr ~/Documents/Images/wallpaper.jpg",
+  "chmod +x ~/.config/dot/window-tiling-hotkeys.sh",
+  "~/.config/dot/window-tiling-hotkeys.sh",
   "killall Dock",
   "killall SystemUIServer",
 ]
