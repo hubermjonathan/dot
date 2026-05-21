@@ -32,6 +32,7 @@
       }
     }
   },
+  "effortLevel": "xhigh",
   "hooks": {
     "PostToolUse": [],
     "PostToolUseFailure": [],
@@ -62,6 +63,24 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -74,6 +93,11 @@
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh",
+    "refreshInterval": 10
   },
   "model": "opus",
   "otelHeadersHelper": "~/.claude/otel-helper.sh",
