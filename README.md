@@ -5,6 +5,8 @@ Personal macOS configuration managed by `dot`, a Go CLI that handles symlinks, a
 ## Quick Start (New Machine)
 
 ```bash
+sudo -v
+mkdir -p ~/Code && cd ~/Code
 git clone https://github.com/hubermjonathan/dot
 cd dot
 ./bootstrap.sh
