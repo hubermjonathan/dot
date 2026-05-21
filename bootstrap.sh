@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Cache sudo credentials so homebrew install runs without prompting mid-script
+sudo -v
+
+# Create ~/Code so cloned repos have a home
+mkdir -p ~/Code
+
 # Install Homebrew
 if ! command -v brew &>/dev/null; then
   echo "installing homebrew..."
