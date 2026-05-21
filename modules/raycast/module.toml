@@ -1,6 +1,0 @@
-[module]
-name = "raycast"
-description = "Raycast launcher"
-
-[apps]
-cask = ["raycast"]

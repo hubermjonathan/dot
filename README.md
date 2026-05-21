@@ -47,8 +47,7 @@ Drop `.zsh` files in `modules/zsh/conf.d/` — they're sourced automatically on 
 | git | Git config + SSH key |
 | zsh | Shell config (conf.d auto-discovery) |
 | vim | Vim + Vundle + noir theme |
-| homebrew | Brewfile |
-| raycast | Raycast config |
+| scripts | AppleScript utilities (Format JSON, Caffeinate) |
 | ghostty | Ghostty terminal |
 | tmux | Terminal multiplexer |
 | claude | Claude Code config |
