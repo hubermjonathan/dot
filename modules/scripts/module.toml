@@ -12,5 +12,5 @@ brew = ["jq"]
 [setup]
 post_link = [
   "mkdir -p ~/Applications/Scripts",
-  "for f in ~/.config/scripts/*.applescript; do name=$(basename \"$f\" .applescript); app=\"$HOME/Applications/Scripts/$name.app\"; osacompile -o \"$app\" \"$f\"; icon=\"$HOME/.config/scripts-icons/$name.icns\"; if [ -f \"$icon\" ]; then cp \"$icon\" \"$app/Contents/Resources/applet.icns\"; /usr/libexec/PlistBuddy -c \"Set :CFBundleIconFile applet.icns\" \"$app/Contents/Info.plist\" 2>/dev/null || /usr/libexec/PlistBuddy -c \"Add :CFBundleIconFile string applet.icns\" \"$app/Contents/Info.plist\"; touch \"$app\"; fi; done",
+  "for f in ~/.config/scripts/*.applescript; do name=$(basename \"$f\" .applescript); app=\"$HOME/Applications/Scripts/$name.app\"; osacompile -o \"$app\" \"$f\"; icon=\"$HOME/.config/scripts-icons/$name.icns\"; if [ -f \"$icon\" ]; then cp \"$icon\" \"$app/Contents/Resources/applet.icns\"; rm -f \"$app/Contents/Resources/Assets.car\"; /usr/libexec/PlistBuddy -c \"Set :CFBundleIconFile applet.icns\" \"$app/Contents/Info.plist\" 2>/dev/null || /usr/libexec/PlistBuddy -c \"Add :CFBundleIconFile string applet.icns\" \"$app/Contents/Info.plist\"; /usr/libexec/PlistBuddy -c \"Delete :CFBundleIconName\" \"$app/Contents/Info.plist\" 2>/dev/null || true; codesign --force --deep --sign - \"$app\" 2>/dev/null || true; touch \"$app\"; fi; done",
 ]
