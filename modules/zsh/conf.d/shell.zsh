@@ -1,3 +1,6 @@
+# path
+export PATH="$HOME/.local/bin:$PATH"
+
 # prompt
 function git_branch() {
   branch=$(git symbolic-ref --short HEAD 2>/dev/null)
