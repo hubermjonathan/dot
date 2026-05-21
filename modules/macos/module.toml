@@ -6,7 +6,7 @@ description = "macOS system preferences"
 "wallpaper.jpg" = "~/Documents/Images/wallpaper.jpg"
 
 [deps]
-brew = ["desktoppr"]
+brew = ["defaultbrowser", "desktoppr"]
 
 [setup]
 post_link = [
@@ -19,6 +19,7 @@ post_link = [
   "defaults write com.apple.dock wvous-br-corner -int 4",
   "defaults write com.apple.menuextra.clock ShowSeconds -bool true",
   "desktoppr ~/Documents/Images/wallpaper.jpg",
+  "defaultbrowser chrome",
   "killall Dock",
   "killall SystemUIServer",
 ]
