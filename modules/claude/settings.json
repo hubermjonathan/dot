@@ -32,6 +32,7 @@
       }
     }
   },
+  "effortLevel": "xhigh",
   "hooks": {
     "PostToolUse": [],
     "PostToolUseFailure": [],
@@ -69,9 +70,9 @@
     "UserPromptSubmit": []
   },
   "statusLine": {
+    "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 10,
-    "type": "command"
+    "refreshInterval": 10
   },
   "model": "opus",
   "otelHeadersHelper": "~/.claude/otel-helper.sh",
@@ -178,6 +179,11 @@
   },
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "command": "bash ~/.claude/statusline-command.sh",
+    "refreshInterval": 10,
+    "type": "command"
+  },
   "worktree": {
     "baseRef": "fresh"
   }
