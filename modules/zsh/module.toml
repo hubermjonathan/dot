@@ -6,5 +6,8 @@ description = "Zsh shell configuration"
 ".zshrc" = "~/.zshrc"
 "conf.d" = "~/.config/zsh"
 
+[setup]
+post_link = ["touch ~/local.zsh"]
+
 [deps]
 brew = ["zsh"]
