@@ -1,6 +1,22 @@
 #!/bin/bash
 set -e
 
+# Install or upgrade Xcode Command Line Tools
+if ! xcode-select -p &>/dev/null; then
+  echo "installing xcode command line tools..."
+  xcode-select --install 2>/dev/null || true
+  until xcode-select -p &>/dev/null; do sleep 5; done
+else
+  echo "checking for xcode command line tools updates..."
+  clt_label=$(softwareupdate --list 2>/dev/null \
+    | grep -E '\* (Label: )?Command Line Tools' \
+    | tail -1 | sed -E 's/^[* ]*(Label: )?//' | xargs)
+  if [ -n "$clt_label" ]; then
+    echo "upgrading: $clt_label"
+    sudo softwareupdate -i "$clt_label"
+  fi
+fi
+
 # Install Homebrew
 if ! command -v brew &>/dev/null; then
   echo "installing homebrew..."
