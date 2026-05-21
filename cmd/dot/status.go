@@ -43,7 +43,6 @@ func runStatus(cmd *cobra.Command, args []string) error {
 		type linkDetail struct {
 			source, target string
 			status         linker.Status
-			identical      bool
 		}
 		var details []linkDetail
 
@@ -61,12 +60,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 			case linker.StatusBroken, linker.StatusWrongTarget:
 				broken++
 			case linker.StatusNotSymlink:
-				detail.identical = filesIdentical(sourcePath, targetPath)
-				if detail.identical {
-					diverged++
-				} else {
-					diverged++
-				}
+				diverged++
 			default:
 				missing++
 			}
@@ -100,7 +94,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 				case linker.StatusWrongTarget:
 					fmt.Printf("  ✗ %s → %s (wrong target)\n", d.source, d.target)
 				case linker.StatusNotSymlink:
-					if d.identical {
+					if filesIdentical(sourcePath, targetPath) {
 						fmt.Printf("  ~ %s → %s (not linked, identical)\n", d.source, d.target)
 					} else {
 						fmt.Printf("  ≠ %s → %s (diverged)\n", d.source, d.target)
