@@ -10,7 +10,7 @@ brew = ["desktoppr"]
 
 [setup]
 post_link = [
-  "defaults write NSGlobalDomain AppleInterfaceStyle -string Dark",
+  "osascript -e 'tell application \"System Events\" to tell appearance preferences to set dark mode to true'",
   "defaults write com.apple.dock autohide -bool true",
   "defaults write com.apple.dock magnification -bool false",
   "defaults write com.apple.dock persistent-apps -array",
