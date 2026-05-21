@@ -28,6 +28,8 @@ post_link = [
   "defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true",
   "defaults write com.google.Chrome NSUserKeyEquivalents -dict-add 'New Tab to the Right' '@~t'",
   "desktoppr ~/Documents/Images/wallpaper.jpg",
+  "sudo dscl . delete /Users/$USER JPEGPhoto 2>/dev/null || true",
+  "sudo dscl . create /Users/$USER Picture ~/Documents/Images/profile-picture.jpg",
   "killall Dock",
   "killall SystemUIServer",
 ]
