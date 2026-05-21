@@ -22,9 +22,17 @@ function chpwd() {
 }
 
 # clear
-function c() {
+function cl() {
   clear
   ls -a
+}
+
+# claude code
+function c() {
+  claude agents \
+        --model opus \
+        --effort xhigh \
+        --dangerously-skip-permissions
 }
 
 # aliases

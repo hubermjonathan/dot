@@ -3,7 +3,7 @@ name = "macos"
 description = "macOS system preferences"
 
 [links]
-"wallpaper.jpg" = "~/.config/macos/wallpaper.jpg"
+"wallpaper.jpg" = "~/Documents/Images/wallpaper.jpg"
 
 [deps]
 brew = ["desktoppr"]
@@ -18,7 +18,7 @@ post_link = [
   "defaults write com.apple.dock wvous-bl-corner -int 0",
   "defaults write com.apple.dock wvous-br-corner -int 4",
   "defaults write com.apple.menuextra.clock ShowSeconds -bool true",
-  "desktoppr ~/.config/macos/wallpaper.jpg",
+  "desktoppr ~/Documents/Images/wallpaper.jpg",
   "killall Dock",
   "killall SystemUIServer",
 ]
