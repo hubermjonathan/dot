@@ -1,10 +1,10 @@
 [user]
 	name = Jon Huber
-	email = jon.huber@offerup.com
+	email = hubermjonathan@gmail.com
 [pager]
 	branch = false
 	log = false
 [pull]
 	rebase = false
-[core]
-	excludesfile = /Users/jon.huber/.gitignore
+[include]
+	path = ~/.gitconfig.local
