@@ -105,6 +105,7 @@ C_EFFORT="\033[38;2;255;184;108m" # orange
 C_CTX="\033[38;2;80;250;123m"     # green
 C_COST="\033[38;2;241;250;140m"   # yellow
 C_PIPE="\033[38;2;98;114;164m"    # comment gray
+C_DRIFT="\033[38;2;255;85;85m"    # red
 C_RESET="\033[0m"
 
 # --- Build output ---
@@ -129,9 +130,6 @@ fi
 if [ -n "$effort" ]; then
   line2_parts+=("${C_EFFORT}${effort}${C_RESET}")
 fi
-if [ -n "$drift" ]; then
-  line2_parts+=("${C_EFFORT}⚙ ${drift}${C_RESET}")
-fi
 if [ -n "$ctx_used" ]; then
   ctx_int=$(printf '%.0f' "$ctx_used")
   if [ "$ctx_int" -ge 80 ]; then
@@ -151,6 +149,9 @@ if [ -n "$cost_usd" ]; then
 fi
 if [ -n "$session_name" ]; then
   line2_parts+=("${C_PIPE}${session_name}${C_RESET}")
+fi
+if [ -n "$drift" ]; then
+  line2_parts+=("${C_DRIFT}⚙ settings diverged${C_RESET}")
 fi
 
 line2=""
