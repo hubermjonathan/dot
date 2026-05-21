@@ -4,26 +4,24 @@
 
 input=$(head -c 65536)
 
-# worktree: name from worktree field if present
-cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
-worktree=$(echo "$input" | jq -r '.worktree.name // ""')
+# Extract all JSON values in a single jq call
+eval "$(echo "$input" | jq -r '
+  "cwd=" + ((.workspace.current_dir // .cwd // "") | @sh) + " " +
+  "worktree=" + ((.worktree.name // "") | @sh) + " " +
+  "model_raw=" + ((.model.id // .model.display_name // "") | @sh) + " " +
+  "ctx_used=" + ((.context_window.used_percentage // "") | tostring | @sh) + " " +
+  "session_name=" + ((.session_name // "") | @sh) + " " +
+  "wt_branch=" + ((.worktree.branch // "") | @sh)
+')"
 
-# cwd: if on worktree show parent repo path from ~, otherwise show repo-relative path
+tildify() { [[ "$1" == "$HOME"* ]] && echo "~${1#$HOME}" || echo "$1"; }
+
+# cwd display
 if [ -n "$worktree" ] && [ -n "$cwd" ]; then
-  # worktree path like .../mono-repo-apps/.claude/worktrees/CONNECT-123-foo
-  # extract the repo path above .claude/worktrees
   parent_repo=$(echo "$cwd" | sed 's|/\.claude/worktrees/.*||')
-  if [[ "$parent_repo" == "$HOME"* ]]; then
-    cwd_display="~${parent_repo#$HOME}"
-  else
-    cwd_display="$parent_repo"
-  fi
+  cwd_display=$(tildify "$parent_repo")
 elif [ -n "$cwd" ]; then
-  if [[ "$cwd" == "$HOME"* ]]; then
-    cwd_display="~${cwd#$HOME}"
-  else
-    cwd_display="$cwd"
-  fi
+  cwd_display=$(tildify "$cwd")
 else
   cwd_display=""
 fi
@@ -31,11 +29,10 @@ fi
 # branch: git branch from cwd, falling back to worktree.branch from JSON
 branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null)
 if [ -z "$branch" ]; then
-  branch=$(echo "$input" | jq -r '.worktree.branch // ""')
+  branch="$wt_branch"
 fi
 
 # model: map ARN/name to short name
-model_raw=$(echo "$input" | jq -r '.model.id // .model.display_name // ""')
 case "$model_raw" in
   *yoyhj0injypc*|*opus*|*Opus*) model="Opus" ;;
   *7o4asxwz6fc7*|*sonnet*|*Sonnet*) model="Sonnet" ;;
@@ -44,35 +41,38 @@ case "$model_raw" in
   *) model="$model_raw" ;;
 esac
 
-# effort: not in statusline JSON, read from settings
+# effort
 effort=$(jq -r '.effortLevel // empty' ~/.claude/settings.json 2>/dev/null)
 if [ "$effort" = "null" ]; then effort=""; fi
 
-# context: used percentage (may be null early in session)
-ctx_used=$(echo "$input" | jq -r '.context_window.used_percentage // empty' 2>/dev/null)
+# context
 if [ "$ctx_used" = "null" ] || [ "$ctx_used" = "" ]; then ctx_used=""; fi
 
 # session name
-session_name=$(echo "$input" | jq -r '.session_name // empty' 2>/dev/null)
 if [ "$session_name" = "null" ]; then session_name=""; fi
 
-# dirty: check for uncommitted changes
+# dirty: single git call for tracked + untracked
 dirty=""
 if [ -n "$cwd" ]; then
-  if ! git -C "$cwd" --no-optional-locks diff --quiet HEAD 2>/dev/null || \
-     [ -n "$(git -C "$cwd" --no-optional-locks ls-files --others --exclude-standard 2>/dev/null | head -1)" ]; then
+  if [ -n "$(git -C "$cwd" --no-optional-locks status --porcelain 2>/dev/null | head -1)" ]; then
     dirty="*"
   fi
 fi
 
-# pr number: from gh if branch is pushed
+# pr number: cached in git config with negative cache
 pr_num=""
 if [ -n "$cwd" ] && [ -n "$branch" ]; then
-  pr_num=$(git -C "$cwd" --no-optional-locks config --local --get "branch.${branch}.pr" 2>/dev/null)
-  if [ -z "$pr_num" ]; then
+  cached=$(git -C "$cwd" --no-optional-locks config --local --get "branch.${branch}.pr" 2>/dev/null)
+  if [ "$cached" = "none" ]; then
+    pr_num=""
+  elif [ -n "$cached" ]; then
+    pr_num="$cached"
+  else
     pr_num=$(timeout 2 gh pr view --json number -q .number 2>/dev/null || true)
     if [ -n "$pr_num" ]; then
       git -C "$cwd" config --local "branch.${branch}.pr" "$pr_num" 2>/dev/null || true
+    else
+      git -C "$cwd" config --local "branch.${branch}.pr" "none" 2>/dev/null || true
     fi
   fi
 fi
@@ -96,7 +96,6 @@ C_PIPE="\033[38;2;98;114;164m"    # comment gray
 C_RESET="\033[0m"
 
 # --- Build output ---
-# Line 1: cwd [worktree] (branch) (#PR) (TICKET)
 line1="${C_CWD}${cwd_display}${C_RESET}"
 if [ -n "$worktree" ]; then
   line1+=" ${C_WT}[${worktree}]${C_RESET}"
@@ -111,7 +110,6 @@ if [ -n "$jira" ]; then
   line1+=" ${C_JIRA}(${jira})${C_RESET}"
 fi
 
-# Line 2: model | effort | ctx%
 line2_parts=()
 if [ -n "$model" ]; then
   line2_parts+=("${C_MODEL}${model}${C_RESET}")
