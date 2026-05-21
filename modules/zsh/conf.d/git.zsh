@@ -20,7 +20,9 @@ alias gb="git branch"
 alias gbd="git branch -D"
 alias gl="git log --oneline --reverse -15"
 alias ga="git add ."
-alias gp="git pull"
+function gp() {
+  git pull origin "$(git symbolic-ref --short -q HEAD)"
+}
 alias gf="git fetch"
 alias gpo="git push origin"
 alias gwt="git worktree list"
