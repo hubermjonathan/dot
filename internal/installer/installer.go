@@ -2,6 +2,7 @@ package installer
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -49,6 +50,9 @@ func runCommands(commands []string, label string) []error {
 	var errs []error
 	for _, c := range commands {
 		cmd := exec.Command("sh", "-c", c)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
 			errs = append(errs, fmt.Errorf("%s %q failed: %w", label, c, err))
 		}

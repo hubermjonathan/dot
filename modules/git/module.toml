@@ -7,11 +7,12 @@ description = "Git configuration and SSH key"
 ".gitignore" = "~/.gitignore"
 
 [deps]
-brew = ["git"]
+brew = ["git", "gh"]
 
 [health]
 checks = [
   "file_exists:~/.ssh/id_ed25519",
+  "command_succeeds:gh auth status",
 ]
 
 [setup]
@@ -20,4 +21,7 @@ post_link = [
 ]
 provision = [
   "if [ ! -f ~/.ssh/id_ed25519 ]; then ssh-keygen -t ed25519 -C 'hubermjonathan@gmail.com' -f ~/.ssh/id_ed25519 -N '' -q; else echo 'SSH key already exists, skipping...'; fi",
+  "gh auth status >/dev/null 2>&1 || gh auth login --git-protocol ssh --web",
+  "gh ssh-key list >/dev/null 2>&1 || gh auth refresh -h github.com -s admin:public_key",
+  "key=$(awk '{print $2}' ~/.ssh/id_ed25519.pub); if gh ssh-key list 2>/dev/null | grep -qF \"$key\"; then echo 'SSH key already on GitHub, skipping...'; else gh ssh-key add ~/.ssh/id_ed25519.pub --title \"$(hostname -s)\"; fi",
 ]
