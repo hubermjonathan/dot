@@ -1,6 +1,6 @@
 # prompt
 function git_branch() {
-  branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null)
   if [[ $branch == "" ]]; then
     echo " "
   else
@@ -22,9 +22,17 @@ function chpwd() {
 }
 
 # clear
-function c() {
+function cl() {
   clear
   ls -a
+}
+
+# claude code
+function c() {
+  claude agents \
+        --model opus \
+        --effort xhigh \
+        --dangerously-skip-permissions
 }
 
 # aliases

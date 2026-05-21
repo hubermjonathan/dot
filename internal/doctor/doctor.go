@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -68,7 +69,7 @@ func Check(mod *module.Module) []Issue {
 	sort.Strings(keys)
 	for _, source := range keys {
 		target := mod.Links[source]
-		sourcePath := fmt.Sprintf("%s/%s", mod.Path, source)
+		sourcePath := filepath.Join(mod.Path, source)
 		targetPath := pathutil.ExpandHome(target)
 		status := linker.Verify(sourcePath, targetPath)
 		if status != linker.StatusOK {
