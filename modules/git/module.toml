@@ -16,6 +16,7 @@ checks = [
 ]
 
 [setup]
+interactive = true
 post_link = [
   "if [ ! -f ~/.gitconfig.local ]; then touch ~/.gitconfig.local; else echo '~/.gitconfig.local already exists, skipping...'; fi",
 ]

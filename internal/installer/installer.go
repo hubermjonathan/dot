@@ -46,13 +46,15 @@ func InstallCask(casks []string) error {
 	return nil
 }
 
-func runCommands(commands []string, label string) []error {
+func runCommands(commands []string, label string, interactive bool) []error {
 	var errs []error
 	for _, c := range commands {
 		cmd := exec.Command("sh", "-c", c)
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		if interactive {
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+		}
 		if err := cmd.Run(); err != nil {
 			errs = append(errs, fmt.Errorf("%s %q failed: %w", label, c, err))
 		}
@@ -60,10 +62,10 @@ func runCommands(commands []string, label string) []error {
 	return errs
 }
 
-func RunProvision(commands []string) []error {
-	return runCommands(commands, "provision")
+func RunProvision(commands []string, interactive bool) []error {
+	return runCommands(commands, "provision", interactive)
 }
 
-func RunPostLink(commands []string) []error {
-	return runCommands(commands, "post_link")
+func RunPostLink(commands []string, interactive bool) []error {
+	return runCommands(commands, "post_link", interactive)
 }

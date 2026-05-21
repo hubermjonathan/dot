@@ -10,6 +10,7 @@ type Module struct {
 	Health      []string
 	PostLink    []string
 	Provision   []string
+	Interactive bool
 }
 
 type Deps struct {
