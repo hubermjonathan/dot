@@ -4,9 +4,10 @@ description = "macOS system preferences"
 
 [links]
 "wallpaper.jpg" = "~/Documents/Images/wallpaper.jpg"
+"shrink-density.sh" = "~/.config/macos/shrink-density.sh"
 
 [deps]
-brew = ["desktoppr"]
+brew = ["desktoppr", "displayplacer"]
 
 [setup]
 post_link = [
@@ -19,6 +20,7 @@ post_link = [
   "defaults write com.apple.dock wvous-br-corner -int 4",
   "defaults write com.apple.menuextra.clock ShowSeconds -bool true",
   "desktoppr ~/Documents/Images/wallpaper.jpg",
+  "bash ~/.config/macos/shrink-density.sh",
   "killall Dock",
   "killall SystemUIServer",
 ]
