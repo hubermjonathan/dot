@@ -44,25 +44,9 @@
             "type": "command"
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "cmux hook session-start",
-            "type": "command"
-          }
-        ]
       }
     ],
     "Stop": [
-      {
-        "hooks": [
-          {
-            "command": "cmux hook stop",
-            "type": "command"
-          }
-        ]
-      },
       {
         "hooks": [
           {
@@ -82,16 +66,7 @@
         ]
       }
     ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "command": "cmux hook prompt-submit",
-            "type": "command"
-          }
-        ]
-      }
-    ]
+    "UserPromptSubmit": []
   },
   "statusLine": {
     "type": "command",
