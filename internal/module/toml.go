@@ -34,8 +34,9 @@ type tomlHealth struct {
 }
 
 type tomlSetup struct {
-	PostLink  []string `toml:"post_link"`
-	Provision []string `toml:"provision"`
+	PostLink    []string `toml:"post_link"`
+	Provision   []string `toml:"provision"`
+	Interactive bool     `toml:"interactive"`
 }
 
 func Load(dir string) (*Module, error) {
@@ -60,5 +61,6 @@ func Load(dir string) (*Module, error) {
 		Health:      cfg.Health.Checks,
 		PostLink:    cfg.Setup.PostLink,
 		Provision:   cfg.Setup.Provision,
+		Interactive: cfg.Setup.Interactive,
 	}, nil
 }

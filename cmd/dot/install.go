@@ -35,7 +35,7 @@ func runInstall(cmd *cobra.Command, args []string) error {
 			fmt.Fprintf(os.Stderr, "  error: %v\n", err)
 			failures++
 		}
-		if errs := installer.RunProvision(mod.Provision); len(errs) > 0 {
+		if errs := installer.RunProvision(mod.Provision, mod.Interactive); len(errs) > 0 {
 			for _, e := range errs {
 				fmt.Fprintf(os.Stderr, "  error: %v\n", e)
 				failures++

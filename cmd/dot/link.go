@@ -59,7 +59,7 @@ func runLink(cmd *cobra.Command, args []string) error {
 				fmt.Printf("  ok %s → %s\n", source, target)
 			}
 		}
-		if errs := installer.RunPostLink(mod.PostLink); len(errs) > 0 {
+		if errs := installer.RunPostLink(mod.PostLink, mod.Interactive); len(errs) > 0 {
 			for _, e := range errs {
 				fmt.Fprintf(os.Stderr, "  warning: %v\n", e)
 			}

@@ -17,7 +17,7 @@ Each subdirectory is a module. Must contain `module.toml`.
 - `[deps]` — brew formulae
 - `[apps]` — brew casks
 - `[health]` — extra checks (file_exists, dir_exists, command_succeeds)
-- `[setup]` — post_link (idempotent, runs on link), provision (one-time, runs on install)
+- `[setup]` — post_link (idempotent, runs on link), provision (one-time, runs on install), interactive (bool, opts setup commands into stdin/stdout/stderr passthrough; default off)
 
 ## Directory symlinks
 
