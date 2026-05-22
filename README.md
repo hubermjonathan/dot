@@ -26,7 +26,7 @@ dot init <name>  # Create a new module
 ## Build
 
 ```bash
-go build -o bin/dot ./cmd/dot
+./scripts/build.sh
 ```
 
 ## Adding a New Tool
