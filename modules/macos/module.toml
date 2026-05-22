@@ -26,6 +26,7 @@ post_link = [
   "defaults write com.apple.WindowManager showStageManagerWidgets -bool false",
   "defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false",
   "defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true",
+  "defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false",
   "defaults write com.google.Chrome NSUserKeyEquivalents -dict-add 'New Tab to the Right' '@^t'",
   "desktoppr ~/Documents/Images/wallpaper.jpg",
   "sudo dscl . delete /Users/$USER JPEGPhoto 2>/dev/null || true",
