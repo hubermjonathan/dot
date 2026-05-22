@@ -24,6 +24,7 @@ post_link = [
   "defaults write com.apple.menuextra.clock ShowSeconds -bool true",
   "defaults write com.apple.WindowManager showStandardWidgets -bool false",
   "defaults write com.apple.WindowManager showStageManagerWidgets -bool false",
+  "python3 -c \"import plistlib,subprocess,tempfile,os; r=subprocess.run(['defaults','export','com.apple.notificationcenterui','-'],capture_output=True); p=plistlib.loads(r.stdout); p['widgets']={'instances':[],'vers':1}; f=tempfile.NamedTemporaryFile(suffix='.plist',delete=False); plistlib.dump(p,f); f.close(); subprocess.run(['defaults','import','com.apple.notificationcenterui',f.name]); os.unlink(f.name)\"",
   "defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false",
   "defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true",
   "defaults write com.google.Chrome NSUserKeyEquivalents -dict-add 'New Tab to the Right' '@^t'",
@@ -31,6 +32,7 @@ post_link = [
   "sudo dscl . delete /Users/$USER JPEGPhoto 2>/dev/null || true",
   "sudo dscl . create /Users/$USER Picture ~/Documents/Images/profile-picture.jpg",
   "killall Dock",
+  "killall NotificationCenter",
   "killall SystemUIServer",
   "killall WindowManager",
 ]
