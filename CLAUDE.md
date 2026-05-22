@@ -4,7 +4,7 @@ Go CLI (`dot`) managing configs via symlinks + brew app installation.
 
 ## Build
 
-    go build -o bin/dot ./cmd/dot
+    ./scripts/build.sh
 
 ## Commit conventions
 
