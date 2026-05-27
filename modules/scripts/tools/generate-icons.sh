@@ -53,8 +53,10 @@ SWIFT
   /usr/bin/iconutil -c icns -o "$icons_dir/$name.icns" "$iconset"
 }
 
+render "AirPods" "🎧"
 render "Caffeinate" "☕️"
 render "Format JSON" "📝"
 
+echo "wrote $icons_dir/AirPods.icns"
 echo "wrote $icons_dir/Caffeinate.icns"
 echo "wrote $icons_dir/Format JSON.icns"
