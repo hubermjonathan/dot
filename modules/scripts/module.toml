@@ -7,7 +7,7 @@ description = "AppleScript utilities compiled to .app bundles"
 "icons" = "~/.config/scripts-icons"
 
 [deps]
-brew = ["jq"]
+brew = ["blueutil", "jq"]
 
 [setup]
 post_link = [
