@@ -13,5 +13,5 @@ if isConnected is "1" then
 	return
 end if
 
-do shell script blueutil & " --connect " & quoted form of deviceAddress & " --wait-connect 5"
+do shell script blueutil & " --connect " & quoted form of deviceAddress & " --wait-connect " & quoted form of deviceAddress & " 5"
 display alert deviceName message deviceName & " connected" giving up after 1
