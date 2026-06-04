@@ -1,2 +1,7 @@
 # ghostty configuration
 bell-features = attention
+
+quick-terminal-position = center
+quick-terminal-size = 50%,75%
+
+keybind = global:super+shift+p=toggle_quick_terminal
