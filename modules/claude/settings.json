@@ -53,7 +53,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
+            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Frog.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
           }
         ]
       }
@@ -176,7 +176,7 @@
       "Bash(pushd *)",
       "Bash(popd *)"
     ],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "auto"
   },
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
