@@ -13,7 +13,6 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 | `install.go` | `dot install` | brew + cask + `provision` |
 | `doctor.go` | `dot doctor [--fix]` | Walks all modules; `--fix` invokes `Issue.FixAction` |
 | `status.go` | `dot status [--diff]` | Aggregates link state; `--diff` runs `diff -u` for diverged files |
-| `init_cmd.go` | `dot init <name>` | Scaffolds `modules/<name>/module.toml`. File is named `init_cmd.go` to avoid clashing with Go's `init()` |
 
 ## Adding a new command
 
@@ -33,7 +32,6 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 
 ## Gotchas
 
-- `init_cmd.go` not `init.go` (collides with Go's `init()` function).
 - `interactive.go` is the root handler — it shells out to `runInstall` then `runLink`, so install errors are warned but link still runs.
 - Shared helpers (`expandHome`, `getModules`, `getRepoRoot`) live in `link.go`. Don't duplicate.
 - `dot doctor` exits `1` whenever any issue remains — even without `--fix` — so CI can fail on drift.

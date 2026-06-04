@@ -25,7 +25,6 @@ dot unlink [mod...]  # Remove symlinks
 dot install [mod...] # brew/cask install + setup.provision
 dot doctor [--fix]   # Health check; --fix repairs symlinks
 dot status [--diff]  # Per-module link state; --diff shows divergence vs repo
-dot init <name>      # Scaffold modules/<name>/module.toml
 ```
 
 Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `unlinked`, `no-links`).
@@ -58,8 +57,8 @@ go test ./...        # run unit tests
 ## Adding a new tool
 
 ```bash
-dot init mytool
-# Edit modules/mytool/module.toml — declare links, deps, apps, setup
+mkdir modules/mytool
+# Write modules/mytool/module.toml — declare links, deps, apps, setup
 # Drop config files into modules/mytool/
 dot link mytool
 ```

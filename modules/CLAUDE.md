@@ -4,7 +4,7 @@ Each subdirectory is one module. Required: a `module.toml` plus the config files
 
 ## Adding a module
 
-1. `dot init <name>` (or hand-create `modules/<name>/module.toml`).
+1. Create `modules/<name>/module.toml`.
 2. Drop config files into the module directory.
 3. Declare symlinks in `[links]`: `"source-relative" = "~/target-absolute"`.
 4. Add brew formulae in `[deps].brew`, casks in `[apps].cask`.
