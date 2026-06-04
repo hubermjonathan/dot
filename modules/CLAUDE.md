@@ -1,32 +1,104 @@
-# modules — Config Modules
+# modules — config modules
 
-Each subdirectory is a module. Must contain `module.toml`.
+Each subdirectory is one module. Required: a `module.toml` plus the config files it links. The CLI walks this directory at runtime — no registration anywhere else.
 
-## Adding a new module
+## Adding a module
 
-1. `dot init <name>` (or manually create dir + module.toml)
-2. Add config files to the directory
-3. Declare symlinks in `[links]`: source (relative) = target (absolute with ~)
-4. Add brew deps in `[deps]`, cask apps in `[apps]`
-5. Run `dot link <name>` to activate
+1. `dot init <name>` (or hand-create `modules/<name>/module.toml`).
+2. Drop config files into the module directory.
+3. Declare symlinks in `[links]`: `"source-relative" = "~/target-absolute"`.
+4. Add brew formulae in `[deps].brew`, casks in `[apps].cask`.
+5. Add `[setup].post_link` for idempotent setup, `[setup].provision` for one-shot bootstrap.
+6. Add `[health].checks` so `dot doctor` can verify the module.
+7. `dot link <name>` (and `dot install <name>` if it pulls anything new from brew).
 
-## module.toml sections
+## `module.toml` schema
 
-- `[module]` — name, description
-- `[links]` — file/dir symlink mappings
-- `[deps]` — brew formulae
-- `[apps]` — brew casks
-- `[health]` — extra checks (file_exists, dir_exists, command_succeeds)
-- `[setup]` — post_link (idempotent, runs on link), provision (one-time, runs on install), interactive (bool, opts setup commands into stdin/stdout/stderr passthrough; default off)
+```toml
+[module]
+name = "mytool"           # must match directory name
+description = "..."
+
+[links]
+# source path is relative to this module dir, target may use ~
+"config"  = "~/.config/mytool/config"
+".myrc"   = "~/.myrc"
+
+[deps]
+brew = ["mytool"]         # `brew install`
+
+[apps]
+cask = ["mytool-app"]     # `brew install --cask`
+
+[health]
+checks = [
+  "file_exists:~/.myrc",
+  "dir_exists:~/.config/mytool",
+  "command_succeeds:mytool --version",
+]
+
+[setup]
+interactive = false        # if true, post_link/provision get tty passthrough
+post_link = ["..."]        # runs every `dot link` — MUST be idempotent
+provision = ["..."]        # runs only on `dot install` — one-shot
+```
+
+## Sections cheat-sheet
+
+| Section | When | Notes |
+|---------|------|-------|
+| `[module]` | Always | `name` should equal directory name |
+| `[links]` | Optional | Files or directories. `~` expanded at runtime |
+| `[deps].brew` | Optional | Formulae, installed via `dot install` |
+| `[apps].cask` | Optional | Casks, installed via `dot install` |
+| `[health].checks` | Optional | `kind:arg` strings; see below |
+| `[setup].post_link` | Optional | Sh-exec, runs after every `dot link` |
+| `[setup].provision` | Optional | Sh-exec, runs only on `dot install` |
+| `[setup].interactive` | Optional | Default false. True → setup commands inherit stdin/stdout/stderr |
+
+## Health check kinds
+
+- `file_exists:<path>` — `os.Stat` succeeds.
+- `dir_exists:<path>` — `os.Stat` succeeds and is a directory.
+- `command_succeeds:<sh -c arg>` — exit 0.
+
+`~` is expanded inside the argument before the check runs.
 
 ## Directory symlinks
 
-Use for auto-discovery (e.g., zsh/conf.d → ~/.config/zsh).
-Files inside dir-linked paths don't need individual [links] entries.
-Drop a new file in the directory and it's live on next shell session.
+Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-discovery. Files inside need no individual entry — drop a file into the directory and it's live next session. Pattern used by `zsh` (`conf.d`) and `scripts` (`src`, `icons`).
+
+## Backup behaviour
+
+`dot link` checks the target before linking:
+
+- Already a symlink to the right source → skip.
+- Already a symlink to the wrong source → replace (no backup; symlinks are cheap).
+- Already a regular file → move to `~/.dotfiles-backup/<module>/<basename>.<6-hex>` then create the symlink.
+- Missing → create.
+
+`dot doctor --fix` calls the same `linker.Link` but with no backup dir; assumes prior `dot link` already migrated regular files.
 
 ## Gotchas
 
-- post_link commands MUST be idempotent (safe to re-run)
-- provision commands only run via `dot install`, never `dot doctor --fix`
-- Health checks with `~` are expanded at runtime
+- `post_link` runs on **every** `dot link`. Always guard side effects (`test -f ...`, `grep -q ...`). It's the most common source of footguns.
+- `provision` runs **only** on `dot install`, never on `dot doctor --fix`. Use it for things that must not run twice (e.g. `gh auth login`).
+- Health checks with `~` are expanded at runtime — fine to embed `~/.config/...` directly.
+- `[setup].interactive = true` is required for any command that prompts — without it, stdin is closed and the auth flow hangs.
+- The `claude` module links `user-global.md` to `~/.claude/CLAUDE.md` and `settings.repo.json` to `~/.claude/settings.repo.json`. The targets describe what they become on the machine, not what they're called in this repo — see `modules/claude/`.
+
+## Module catalogue
+
+| Module | What it does |
+|--------|--------------|
+| `apps` | Cask-only bundle (no symlinks): ankerwork, bitwarden, meetingbar, spokenly, spotify |
+| `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), repo-required settings (`settings.repo.json`), statusline + merge/check helpers |
+| `files` | Shared images under `~/Documents/Images` |
+| `ghostty` | Ghostty terminal emulator + config |
+| `git` | `.gitconfig`, `.gitignore`, `gh` install, interactive `gh auth login` on `dot install` |
+| `macos` | `defaults write` for Dock, menu bar, hotkeys, dark mode, wallpaper, profile picture |
+| `scripts` | AppleScript sources compiled to `.app` bundles in `~/Applications/Scripts` |
+| `tmux` | `.tmux.conf` |
+| `touchid` | Adds `auth sufficient pam_tid.so` to `/etc/pam.d/sudo_local` (sudo prompt on first link) |
+| `vim` | `.vimrc`, noir colorscheme, Vundle bootstrap |
+| `zsh` | `.zshrc` + `conf.d/` auto-discovery directory |
