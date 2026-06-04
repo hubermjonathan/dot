@@ -35,7 +35,7 @@ function c() {
   claude agents \
         --model opus \
         --effort xhigh \
-        --dangerously-skip-permissions
+        --permission-mode auto
 }
 
 # aliases
