@@ -2,6 +2,6 @@
 bell-features = attention
 
 quick-terminal-position = center
-quick-terminal-size = 0.5
+quick-terminal-size = 50%
 
 keybind = super+shift+p=toggle_quick_terminal
