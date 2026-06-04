@@ -1,29 +1,10 @@
 {
-  "awsAuthRefresh": "aws sso login --profile dev",
-  "editorMode": "normal",
   "effortLevel": "xhigh",
   "enabledPlugins": {
     "caveman@caveman": true
   },
   "env": {
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/bxi2s9x695ho",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/yoyhj0injypc",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/7o4asxwz6fc7",
-    "ANTHROPIC_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/yoyhj0injypc",
-    "ANTHROPIC_SMALL_FAST_MODEL": "arn:aws:bedrock:us-east-1:735354846484:application-inference-profile/bxi2s9x695ho",
-    "AWS_PROFILE": "dev",
-    "AWS_REGION": "us-east-1",
-    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "16384",
-    "CLAUDE_CODE_NO_FLICKER": "1",
-    "CLAUDE_CODE_ENABLE_AUTO_MODE": "1",
-    "CLAUDE_CODE_USE_BEDROCK": "1",
-    "MAX_THINKING_TOKENS": "1024",
-    "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT": "https://otlp.datadoghq.eu/v1/metrics",
-    "OTEL_EXPORTER_OTLP_METRICS_PROTOCOL": "http/protobuf",
-    "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE": "delta",
-    "OTEL_METRICS_EXPORTER": "otlp",
-    "OTEL_RESOURCE_ATTRIBUTES": "team=eng-connect,user.email=jon.huber@offerup.com"
+    "CLAUDE_CODE_NO_FLICKER": "1"
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -33,11 +14,7 @@
       }
     }
   },
-  "effortLevel": "xhigh",
   "hooks": {
-    "PostToolUse": [],
-    "PostToolUseFailure": [],
-    "PreToolUse": [],
     "SessionStart": [
       {
         "hooks": [
@@ -63,127 +40,22 @@
         "hooks": [
           {
             "type": "command",
-            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Morse.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
+            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Frog.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
           }
         ]
       }
-    ],
-    "UserPromptSubmit": []
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 10
+    ]
   },
   "model": "opus",
-  "otelHeadersHelper": "~/.claude/otel-helper.sh",
   "permissions": {
-    "allow": [
-      "Read",
-      "Edit",
-      "Write",
-      "Bash(git *)",
-      "Bash(go *)",
-      "Bash(make *)",
-      "Bash(npm *)",
-      "Bash(npx *)",
-      "Bash(yarn *)",
-      "Bash(pnpm *)",
-      "Bash(bun *)",
-      "Bash(bunx *)",
-      "Bash(node *)",
-      "Bash(python *)",
-      "Bash(pip *)",
-      "Bash(cargo *)",
-      "Bash(rustup *)",
-      "Bash(brew *)",
-      "Bash(gh *)",
-      "Bash(aws *)",
-      "Bash(gcloud *)",
-      "Bash(terraform *)",
-      "Bash(docker *)",
-      "Bash(kubectl *)",
-      "Bash(helm *)",
-      "Bash(jq *)",
-      "Bash(yq *)",
-      "Bash(cat *)",
-      "Bash(head *)",
-      "Bash(tail *)",
-      "Bash(less *)",
-      "Bash(grep *)",
-      "Bash(rg *)",
-      "Bash(find *)",
-      "Bash(fd *)",
-      "Bash(ls *)",
-      "Bash(tree *)",
-      "Bash(wc *)",
-      "Bash(sort *)",
-      "Bash(uniq *)",
-      "Bash(diff *)",
-      "Bash(echo *)",
-      "Bash(printf *)",
-      "Bash(mkdir *)",
-      "Bash(cp *)",
-      "Bash(mv *)",
-      "Bash(touch *)",
-      "Bash(ln *)",
-      "Bash(sed *)",
-      "Bash(awk *)",
-      "Bash(cut *)",
-      "Bash(tr *)",
-      "Bash(xargs *)",
-      "Bash(which *)",
-      "Bash(command *)",
-      "Bash(type *)",
-      "Bash(env *)",
-      "Bash(export *)",
-      "Bash(source *)",
-      "Bash(date *)",
-      "Bash(pwd *)",
-      "Bash(realpath *)",
-      "Bash(basename *)",
-      "Bash(dirname *)",
-      "Bash(stat *)",
-      "Bash(file *)",
-      "Bash(tee *)",
-      "Bash(bq *)",
-      "Bash(psql *)",
-      "Bash(mysql *)",
-      "Bash(sqlite3 *)",
-      "Bash(redis-cli *)",
-      "Bash(curl *)",
-      "Bash(wget *)",
-      "Bash(http *)",
-      "Bash(dig *)",
-      "Bash(nslookup *)",
-      "Bash(ping *)",
-      "Bash(nc *)",
-      "Bash(openssl *)",
-      "Bash(ssh *)",
-      "Bash(scp *)",
-      "Bash(rsync *)",
-      "Bash(tar *)",
-      "Bash(zip *)",
-      "Bash(unzip *)",
-      "Bash(gzip *)",
-      "Bash(gunzip *)",
-      "Bash(test *)",
-      "Bash([ *)",
-      "Bash(true *)",
-      "Bash(false *)",
-      "Bash(exit *)",
-      "Bash(cd *)",
-      "Bash(pushd *)",
-      "Bash(popd *)"
-    ],
     "defaultMode": "auto"
   },
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "statusLine": {
+    "type": "command",
     "command": "bash ~/.claude/statusline-command.sh",
-    "refreshInterval": 10,
-    "type": "command"
+    "refreshInterval": 10
   },
   "worktree": {
     "baseRef": "fresh"
