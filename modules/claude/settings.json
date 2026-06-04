@@ -176,7 +176,7 @@
       "Bash(pushd *)",
       "Bash(popd *)"
     ],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "auto"
   },
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
