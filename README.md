@@ -54,15 +54,6 @@ go test ./...        # run unit tests
 | `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
 | `zsh`     | `.zshrc` + `conf.d/` auto-discovery directory |
 
-## Adding a new tool
-
-```bash
-mkdir modules/mytool
-# Write modules/mytool/module.toml — declare links, deps, apps, setup
-# Drop config files into modules/mytool/
-dot link mytool
-```
-
 ## Module schema (`module.toml`)
 
 ```toml
