@@ -18,6 +18,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "stream subcommand stdout/stderr to the terminal")
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }
 
 func main() {
