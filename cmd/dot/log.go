@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -62,11 +63,11 @@ func runStep(label, doneStatus string, fn func(*ui.Step) []error) int {
 
 // runInteractiveStep skips the spinner so subprocess stdout/stderr stream
 // directly to the terminal. Used for `setup.interactive = true` modules where
-// the user must see prompts (auth flows, sudo, etc.). fn writes its output
-// directly to os.Stdout / os.Stderr.
+// the user must see prompts (auth flows, sudo, etc.). Output is indented to
+// six spaces so it lines up under the step header.
 func runInteractiveStep(label, doneStatus string, fn func(out io.Writer) []error) int {
 	fmt.Printf("    %s\n", label)
-	errs := fn(os.Stdout)
+	errs := fn(&indentWriter{w: os.Stdout, prefix: "      ", atLineStart: true})
 	if len(errs) > 0 {
 		for _, e := range errs {
 			resultErr(e.Error())
@@ -75,4 +76,38 @@ func runInteractiveStep(label, doneStatus string, fn func(out io.Writer) []error
 	}
 	result(iconOK, fmt.Sprintf("%s — %s", label, doneStatus))
 	return 0
+}
+
+// indentWriter prefixes every line written through it with prefix. It tracks
+// whether the next byte starts a new line so prefixes don't double up across
+// chunked writes. Not safe for concurrent use.
+type indentWriter struct {
+	w           io.Writer
+	prefix      string
+	atLineStart bool
+}
+
+func (iw *indentWriter) Write(p []byte) (int, error) {
+	written := 0
+	for len(p) > 0 {
+		if iw.atLineStart {
+			if _, err := io.WriteString(iw.w, iw.prefix); err != nil {
+				return written, err
+			}
+			iw.atLineStart = false
+		}
+		nl := bytes.IndexByte(p, '\n')
+		if nl < 0 {
+			n, err := iw.w.Write(p)
+			return written + n, err
+		}
+		n, err := iw.w.Write(p[:nl+1])
+		written += n
+		if err != nil {
+			return written, err
+		}
+		iw.atLineStart = true
+		p = p[nl+1:]
+	}
+	return written, nil
 }
