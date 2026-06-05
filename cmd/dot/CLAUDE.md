@@ -1,21 +1,37 @@
-# cmd/dot — CLI Commands
+# cmd/dot — CLI commands
 
-Each file = one Cobra command. Pattern:
+One Cobra subcommand per file. Root command lives in `main.go` and delegates to `runInteractive()` when no subcommand is supplied.
 
-1. Declare `var xxxCmd = &cobra.Command{...}`
-2. Register in `func init() { rootCmd.AddCommand(xxxCmd) }`
-3. Implement `runXxx(cmd, args) error`
+## Files
+
+| File | Command | Notes |
+|------|---------|-------|
+| `main.go` | `rootCmd` | Wires Cobra, exits `2` on error |
+| `interactive.go` | `dot` (no subcommand) | TUI picker → install + link selected |
+| `link.go` | `dot link` | Owns shared helpers (`expandHome`, `getModules`, `getRepoRoot`) |
+| `unlink.go` | `dot unlink` | Removes only entries that are actually symlinks |
+| `install.go` | `dot install` | brew + cask + `provision` |
+| `doctor.go` | `dot doctor [--fix]` | Walks all modules; `--fix` invokes `Issue.FixAction` |
+| `status.go` | `dot status [--diff]` | Aggregates link state; `--diff` runs `diff -u` for diverged files |
 
 ## Adding a new command
 
-1. Create `cmd/dot/mycommand.go`
-2. Follow the pattern above
-3. Use `getModules(args)` to resolve module filter
-4. Use `expandHome()` for `~` paths
+1. Create `cmd/dot/<name>.go`.
+2. Declare `var <name>Cmd = &cobra.Command{...}` and register in `func init() { rootCmd.AddCommand(<name>Cmd) }`.
+3. Implement `run<Name>(cmd *cobra.Command, args []string) error`.
+4. Resolve modules with `getModules(args)` (empty filter = all modules).
+5. Expand any `~` paths via `expandHome` (or `pathutil.ExpandHome` in `internal/`).
+
+## Conventions
+
+- Print progress to `stdout`, errors to `stderr`.
+- Collect failures, return `fmt.Errorf("%d operation(s) failed", n)` at end — Cobra surfaces it and `main.go` exits `2`.
+- Never panic on a malformed module — log and continue.
+- Repo root resolved via `git rev-parse --show-toplevel`, with a walk-up fallback for non-git checkouts.
+- Module list is sorted by `[links]` source key before iteration so output is deterministic.
 
 ## Gotchas
 
-- `init_cmd.go` not `init.go` (avoids Go's init() function conflict)
-- `interactive.go` is the root command handler (no subcommand)
-- Exit codes: 0=success, 1=partial failure, 2=fatal
-- Shared helpers (expandHome, getModules, getRepoRoot) live in link.go
+- `interactive.go` is the root handler — it shells out to `runInstall` then `runLink`, so install errors are warned but link still runs.
+- Shared helpers (`expandHome`, `getModules`, `getRepoRoot`) live in `link.go`. Don't duplicate.
+- `dot doctor` exits `1` whenever any issue remains — even without `--fix` — so CI can fail on drift.
