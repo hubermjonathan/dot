@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hubermjonathan/dotfiles/internal/installer"
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
 	"github.com/hubermjonathan/dotfiles/internal/pathutil"
@@ -31,9 +30,26 @@ func runLink(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fmt.Println("link")
 	var failures int
 	for _, mod := range modules {
-		fmt.Printf("linking %s\n", mod.Name)
+		failures += linkModule(mod)
+	}
+
+	if failures > 0 {
+		return fmt.Errorf("%d operation(s) failed", failures)
+	}
+	return nil
+}
+
+func linkModule(mod *module.Module) int {
+	if len(mod.Links) == 0 && len(mod.PostLink) == 0 {
+		return 0
+	}
+	modHeader(mod.Name)
+	var failures int
+
+	if len(mod.Links) > 0 {
 		keys := make([]string, 0, len(mod.Links))
 		for k := range mod.Links {
 			keys = append(keys, k)
@@ -44,33 +60,28 @@ func runLink(cmd *cobra.Command, args []string) error {
 			sourcePath := filepath.Join(mod.Path, source)
 			targetPath := pathutil.ExpandHome(target)
 			backupDir := filepath.Join(pathutil.ExpandHome("~/.dotfiles-backup"), mod.Name)
-			result, err := linker.Link(sourcePath, targetPath, backupDir)
+			res, err := linker.Link(sourcePath, targetPath, backupDir)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "  error: %s → %s: %v\n", source, target, err)
+				resultErr(fmt.Sprintf("%s %s %s: %v", source, iconArrow, target, err))
 				failures++
 				continue
 			}
-			switch result {
+			switch res {
 			case linker.Created:
-				fmt.Printf("  created %s → %s\n", source, target)
+				result(iconOK, fmt.Sprintf("created  %s %s %s", source, iconArrow, target))
 			case linker.Replaced:
-				fmt.Printf("  replaced %s → %s\n", source, target)
+				result(iconWarn, fmt.Sprintf("replaced %s %s %s", source, iconArrow, target))
 			case linker.Skipped:
-				fmt.Printf("  ok %s → %s\n", source, target)
-			}
-		}
-		if errs := installer.RunPostLink(mod.PostLink, mod.Interactive); len(errs) > 0 {
-			for _, e := range errs {
-				fmt.Fprintf(os.Stderr, "  error: %v\n", e)
-				failures++
+				result(iconSkip, fmt.Sprintf("ok       %s %s %s", source, iconArrow, target))
 			}
 		}
 	}
 
-	if failures > 0 {
-		return fmt.Errorf("%d operation(s) failed", failures)
+	if len(mod.PostLink) > 0 {
+		failures += runScriptsStep(fmt.Sprintf("post_link %d script(s)", len(mod.PostLink)), "ran", "post_link", mod.PostLink, mod.Interactive)
 	}
-	return nil
+
+	return failures
 }
 
 // Shared helpers used by all commands
@@ -92,13 +103,13 @@ func getModules(filter []string) ([]*module.Module, error) {
 	for _, f := range filter {
 		filterSet[f] = true
 	}
-	var result []*module.Module
+	var out []*module.Module
 	for _, m := range all {
 		if filterSet[m.Name] {
-			result = append(result, m)
+			out = append(out, m)
 		}
 	}
-	return result, nil
+	return out, nil
 }
 
 func getRepoRoot() string {

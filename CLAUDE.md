@@ -29,6 +29,8 @@ Personal macOS dotfiles managed by `dot`, a Go CLI (Cobra-based) that walks `mod
 
 Module args optional → omit to act on every module. Exit codes: `0` ok, `1` partial, `2` fatal.
 
+Output: each subprocess step renders as a single spinner row (label + most recent line of output) via `internal/ui`. On success the row collapses to `✓ label — status (elapsed)`; on failure the captured buffer is dumped indented below the row. `-v` / `--verbose` keeps the spinner UI but always dumps the buffer at the end of every successful step. Non-TTY (pipes/CI) prints the opening label and final status line only — no redraw, no escape codes. `setup.interactive = true` modules bypass the spinner so stdin/stdout pass through directly (auth flows).
+
 ## Key invariants
 
 - **Continue-on-error**: one module failing must not stop later modules. Commands collect failures and exit non-zero at the end.
