@@ -54,14 +54,15 @@ func runLink(cmd *cobra.Command, args []string) error {
 			case linker.Created:
 				fmt.Printf("  created %s → %s\n", source, target)
 			case linker.Replaced:
-				fmt.Printf("  replaced %s → %s (backed up)\n", source, target)
+				fmt.Printf("  replaced %s → %s\n", source, target)
 			case linker.Skipped:
 				fmt.Printf("  ok %s → %s\n", source, target)
 			}
 		}
 		if errs := installer.RunPostLink(mod.PostLink, mod.Interactive); len(errs) > 0 {
 			for _, e := range errs {
-				fmt.Fprintf(os.Stderr, "  warning: %v\n", e)
+				fmt.Fprintf(os.Stderr, "  error: %v\n", e)
+				failures++
 			}
 		}
 	}

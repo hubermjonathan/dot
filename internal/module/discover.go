@@ -1,6 +1,7 @@
 package module
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -24,7 +25,8 @@ func Discover(modulesDir string) ([]*Module, error) {
 		}
 		mod, err := Load(dir)
 		if err != nil {
-			return nil, err
+			fmt.Fprintf(os.Stderr, "warning: skipping module %s: %v\n", entry.Name(), err)
+			continue
 		}
 		modules = append(modules, mod)
 	}
