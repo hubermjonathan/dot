@@ -31,11 +31,10 @@ func runLink(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	opts := installer.Options{Verbose: verbose}
 	fmt.Println("link")
 	var failures int
 	for _, mod := range modules {
-		failures += linkModule(mod, opts)
+		failures += linkModule(mod)
 	}
 
 	if failures > 0 {
@@ -44,7 +43,7 @@ func runLink(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func linkModule(mod *module.Module, opts installer.Options) int {
+func linkModule(mod *module.Module) int {
 	if len(mod.Links) == 0 && len(mod.PostLink) == 0 {
 		return 0
 	}
@@ -52,7 +51,6 @@ func linkModule(mod *module.Module, opts installer.Options) int {
 	var failures int
 
 	if len(mod.Links) > 0 {
-		step("links", fmt.Sprintf("%d entry(s)", len(mod.Links)))
 		keys := make([]string, 0, len(mod.Links))
 		for k := range mod.Links {
 			keys = append(keys, k)
@@ -81,17 +79,7 @@ func linkModule(mod *module.Module, opts installer.Options) int {
 	}
 
 	if len(mod.PostLink) > 0 {
-		step("post_link", fmt.Sprintf("%d script(s)", len(mod.PostLink)))
-		errs := installer.RunPostLink(mod.PostLink, mod.Interactive, opts)
-		if len(errs) == 0 {
-			result(iconOK, "ran")
-		} else {
-			for _, e := range errs {
-				resultErr(e.Error())
-				dumpCmdError(e, os.Stderr)
-			}
-			failures += len(errs)
-		}
+		failures += runScriptStep(fmt.Sprintf("post_link %d script(s)", len(mod.PostLink)), mod.PostLink, mod.Interactive, installer.RunPostLink)
 	}
 
 	return failures

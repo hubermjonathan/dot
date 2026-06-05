@@ -31,7 +31,6 @@ func runUnlink(cmd *cobra.Command, args []string) error {
 			continue
 		}
 		modHeader(mod.Name)
-		step("links", fmt.Sprintf("%d entry(s)", len(mod.Links)))
 		keys := make([]string, 0, len(mod.Links))
 		for k := range mod.Links {
 			keys = append(keys, k)

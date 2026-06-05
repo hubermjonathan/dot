@@ -1,21 +1,12 @@
 package installer
 
 import (
-	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
 )
-
-// Options control how installer commands stream their output.
-//
-// When Verbose is true, child stdout/stderr stream directly to os.Stdout/os.Stderr.
-// When false, output is captured; on failure the captured buffer is returned in
-// the error so callers can decide how to surface it.
-type Options struct {
-	Verbose bool
-}
 
 func BuildBrewArgs(formulae []string) []string {
 	args := []string{"install"}
@@ -29,58 +20,51 @@ func BuildCaskArgs(casks []string) []string {
 	return args
 }
 
-// CommandError carries the captured stdout+stderr of a non-verbose command run
-// so callers can choose to print it on failure.
+// CommandError reports a failed subprocess. Cmd is the rendered shell command
+// for diagnostics; Err is the underlying os/exec error.
 type CommandError struct {
-	Label  string
-	Cmd    string
-	Err    error
-	Output string
+	Label string
+	Cmd   string
+	Err   error
 }
 
 func (e *CommandError) Error() string {
-	if e.Output == "" {
-		return fmt.Sprintf("%s failed: %v", e.Label, e.Err)
-	}
-	return fmt.Sprintf("%s failed: %v\n%s", e.Label, e.Err, e.Output)
+	return fmt.Sprintf("%s failed: %v", e.Label, e.Err)
 }
 
 func (e *CommandError) Unwrap() error { return e.Err }
 
-func runCommand(cmd *exec.Cmd, label, cmdStr string, opts Options) error {
-	var buf bytes.Buffer
-	if opts.Verbose {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-	} else {
-		cmd.Stdout = &buf
-		cmd.Stderr = &buf
-	}
+// Run executes cmd with stdout+stderr both routed to out and returns a
+// CommandError on failure. Callers (e.g. ui.Step) own the buffer.
+func Run(cmd *exec.Cmd, label, cmdStr string, out io.Writer) error {
+	cmd.Stdout = out
+	cmd.Stderr = out
 	if err := cmd.Run(); err != nil {
-		return &CommandError{Label: label, Cmd: cmdStr, Err: err, Output: buf.String()}
+		return &CommandError{Label: label, Cmd: cmdStr, Err: err}
 	}
 	return nil
 }
 
-func InstallBrew(formulae []string, opts Options) error {
+func InstallBrew(formulae []string, out io.Writer) error {
 	if len(formulae) == 0 {
 		return nil
 	}
 	args := BuildBrewArgs(formulae)
-	cmd := exec.Command("brew", args...)
-	return runCommand(cmd, "brew install", "brew "+strings.Join(args, " "), opts)
+	return Run(exec.Command("brew", args...), "brew install", "brew "+strings.Join(args, " "), out)
 }
 
-func InstallCask(casks []string, opts Options) error {
+func InstallCask(casks []string, out io.Writer) error {
 	if len(casks) == 0 {
 		return nil
 	}
 	args := BuildCaskArgs(casks)
-	cmd := exec.Command("brew", args...)
-	return runCommand(cmd, "brew install --cask", "brew "+strings.Join(args, " "), opts)
+	return Run(exec.Command("brew", args...), "brew install --cask", "brew "+strings.Join(args, " "), out)
 }
 
-func runScripts(commands []string, label string, interactive bool, opts Options) []error {
+// RunScripts runs each command with `sh -c`. When interactive is true the
+// child inherits the controlling terminal so prompts work; out is ignored in
+// that case. Otherwise stdout+stderr are routed to out.
+func RunScripts(commands []string, label string, interactive bool, out io.Writer) []error {
 	var errs []error
 	for _, c := range commands {
 		cmd := exec.Command("sh", "-c", c)
@@ -93,17 +77,17 @@ func runScripts(commands []string, label string, interactive bool, opts Options)
 			}
 			continue
 		}
-		if err := runCommand(cmd, label, c, opts); err != nil {
+		if err := Run(cmd, label, c, out); err != nil {
 			errs = append(errs, err)
 		}
 	}
 	return errs
 }
 
-func RunProvision(commands []string, interactive bool, opts Options) []error {
-	return runScripts(commands, "provision", interactive, opts)
+func RunProvision(commands []string, interactive bool, out io.Writer) []error {
+	return RunScripts(commands, "provision", interactive, out)
 }
 
-func RunPostLink(commands []string, interactive bool, opts Options) []error {
-	return runScripts(commands, "post_link", interactive, opts)
+func RunPostLink(commands []string, interactive bool, out io.Writer) []error {
+	return RunScripts(commands, "post_link", interactive, out)
 }

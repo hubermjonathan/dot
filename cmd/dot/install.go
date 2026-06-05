@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"strings"
 
 	"github.com/hubermjonathan/dotfiles/internal/installer"
 	"github.com/hubermjonathan/dotfiles/internal/module"
+	"github.com/hubermjonathan/dotfiles/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -25,11 +26,10 @@ func runInstall(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	opts := installer.Options{Verbose: verbose}
 	fmt.Println("install")
 	var failures int
 	for _, mod := range modules {
-		failures += installModule(mod, opts)
+		failures += installModule(mod)
 	}
 
 	if failures > 0 {
@@ -38,9 +38,7 @@ func runInstall(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// installModule runs brew, cask, and provision for one module and returns the
-// number of failed operations.
-func installModule(mod *module.Module, opts installer.Options) int {
+func installModule(mod *module.Module) int {
 	if len(mod.Deps.Brew) == 0 && len(mod.Apps.Cask) == 0 && len(mod.Provision) == 0 {
 		return 0
 	}
@@ -48,39 +46,19 @@ func installModule(mod *module.Module, opts installer.Options) int {
 	var failures int
 
 	if len(mod.Deps.Brew) > 0 {
-		step("brew", joinList(mod.Deps.Brew))
-		if err := installer.InstallBrew(mod.Deps.Brew, opts); err != nil {
-			resultErr(err.Error())
-			dumpCmdError(err, os.Stderr)
-			failures++
-		} else {
-			result(iconOK, "installed")
-		}
+		failures += runStep("brew "+strings.Join(mod.Deps.Brew, ", "), "installed", func(out *ui.Step) error {
+			return installer.InstallBrew(mod.Deps.Brew, out)
+		})
 	}
 
 	if len(mod.Apps.Cask) > 0 {
-		step("cask", joinList(mod.Apps.Cask))
-		if err := installer.InstallCask(mod.Apps.Cask, opts); err != nil {
-			resultErr(err.Error())
-			dumpCmdError(err, os.Stderr)
-			failures++
-		} else {
-			result(iconOK, "installed")
-		}
+		failures += runStep("cask "+strings.Join(mod.Apps.Cask, ", "), "installed", func(out *ui.Step) error {
+			return installer.InstallCask(mod.Apps.Cask, out)
+		})
 	}
 
 	if len(mod.Provision) > 0 {
-		step("provision", fmt.Sprintf("%d script(s)", len(mod.Provision)))
-		errs := installer.RunProvision(mod.Provision, mod.Interactive, opts)
-		if len(errs) == 0 {
-			result(iconOK, "ran")
-		} else {
-			for _, e := range errs {
-				resultErr(e.Error())
-				dumpCmdError(e, os.Stderr)
-			}
-			failures += len(errs)
-		}
+		failures += runScriptStep(fmt.Sprintf("provision %d script(s)", len(mod.Provision)), mod.Provision, mod.Interactive, installer.RunProvision)
 	}
 
 	return failures

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
-	"github.com/hubermjonathan/dotfiles/internal/installer"
+	"github.com/hubermjonathan/dotfiles/internal/ui"
 )
 
 // Console output icons.
@@ -24,15 +22,6 @@ func modHeader(name string) {
 	fmt.Printf("\n▸ %s\n", name)
 }
 
-// step prints a sub-action heading under a module.
-func step(label string, detail string) {
-	if detail == "" {
-		fmt.Printf("  %s\n", label)
-		return
-	}
-	fmt.Printf("  %s %s\n", label, detail)
-}
-
 // result prints `    icon msg` two-space indented under a step heading.
 func result(icon, msg string) {
 	fmt.Printf("    %s %s\n", icon, msg)
@@ -43,22 +32,33 @@ func resultErr(msg string) {
 	fmt.Fprintf(os.Stderr, "    %s %s\n", iconErr, msg)
 }
 
-// dumpCmdError prints the captured output of a failed installer command at an
-// extra indent so it stays visually associated with its result line.
-func dumpCmdError(err error, w io.Writer) {
-	var ce *installer.CommandError
-	if !errors.As(err, &ce) || ce.Output == "" {
-		return
+// runStep wraps a single subprocess step in a spinner. It returns 1 on failure
+// and 0 on success. The full captured buffer is dumped on failure (always) and
+// on success when --verbose is set.
+func runStep(label, doneStatus string, do func(*ui.Step) error) int {
+	step := ui.Start(label)
+	err := do(step)
+	if err != nil {
+		step.Done(iconErr, "failed", true)
+		fmt.Fprintf(os.Stderr, "    %s %v\n", iconErr, err)
+		return 1
 	}
-	for _, line := range strings.Split(strings.TrimRight(ce.Output, "\n"), "\n") {
-		fmt.Fprintf(w, "      %s\n", line)
-	}
+	step.Done(iconOK, doneStatus, verbose)
+	return 0
 }
 
-// joinList joins a list of strings into "a, b, c" or returns "—" when empty.
-func joinList(xs []string) string {
-	if len(xs) == 0 {
-		return "—"
+// runScriptStep runs a list of shell scripts as a single spinner step. fn is
+// either installer.RunProvision or installer.RunPostLink.
+func runScriptStep(label string, scripts []string, interactive bool, fn func([]string, bool, io.Writer) []error) int {
+	step := ui.Start(label)
+	errs := fn(scripts, interactive, step)
+	if len(errs) > 0 {
+		step.Done(iconErr, "failed", true)
+		for _, e := range errs {
+			fmt.Fprintf(os.Stderr, "    %s %v\n", iconErr, e)
+		}
+		return len(errs)
 	}
-	return strings.Join(xs, ", ")
+	step.Done(iconOK, "ran", verbose)
+	return 0
 }
