@@ -8,7 +8,7 @@ Pure logic, no CLI concerns. Each package exports a small surface; `cmd/dot/` wi
 |---------|---------------|
 | `module/` | `Module` struct, TOML parsing (`toml.go`), filesystem discovery (`discover.go`) |
 | `linker/` | Symlink create / remove / verify, with backup-before-replace for regular files |
-| `installer/` | `brew install` and `brew install --cask`, executes `post_link` and `provision` script lists |
+| `installer/` | `brew install` and `brew install --cask`, executes `post_link` and `provision` script lists. All entry points take `Options{Verbose}` — non-verbose runs capture output and return it inside `*CommandError` so callers can print on failure |
 | `doctor/` | Aggregates symlink + `[health]` issues into `Issue`s, attaches optional `FixAction` |
 | `tui/` | Bubble Tea picker — list of modules with selection state |
 | `pathutil/` | `ExpandHome` (`~` → `$HOME`) — used by both `cmd/dot/` and `internal/` |

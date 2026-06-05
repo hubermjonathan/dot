@@ -6,7 +6,8 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 
 | File | Command | Notes |
 |------|---------|-------|
-| `main.go` | `rootCmd` | Wires Cobra, exits `2` on error |
+| `main.go` | `rootCmd` | Wires Cobra, owns persistent `-v` / `--verbose` flag, exits `2` on error |
+| `log.go` | (helpers) | Shared output formatters: `modHeader`, `step`, `result`, `resultErr`, `dumpCmdError`, status icons |
 | `interactive.go` | `dot` (no subcommand) | TUI picker → install + link selected |
 | `link.go` | `dot link` | Owns shared helpers (`expandHome`, `getModules`, `getRepoRoot`) |
 | `unlink.go` | `dot unlink` | Removes only entries that are actually symlinks |
@@ -24,7 +25,8 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 
 ## Conventions
 
-- Print progress to `stdout`, errors to `stderr`.
+- Print progress to `stdout`, errors to `stderr`. Use the helpers in `log.go` for consistent format: `modHeader(name)` per module, `step(label, detail)` per action, `result(icon, msg)` / `resultErr(msg)` per outcome.
+- Subprocess output (brew/cask/provision/post_link) is captured by `internal/installer` and only surfaced on failure unless `-v` is set. `dumpCmdError` indents and prints `installer.CommandError.Output`.
 - Collect failures, return `fmt.Errorf("%d operation(s) failed", n)` at end — Cobra surfaces it and `main.go` exits `2`.
 - Never panic on a malformed module — log and continue.
 - Repo root resolved via `git rev-parse --show-toplevel`, with a walk-up fallback for non-git checkouts.

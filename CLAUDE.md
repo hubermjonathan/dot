@@ -29,6 +29,8 @@ Personal macOS dotfiles managed by `dot`, a Go CLI (Cobra-based) that walks `mod
 
 Module args optional → omit to act on every module. Exit codes: `0` ok, `1` partial, `2` fatal.
 
+Global flag: `-v` / `--verbose` streams subprocess `stdout`/`stderr` to the terminal. Off by default — `brew`, `provision`, `post_link` output is captured and only printed on failure (via `installer.CommandError`). `setup.interactive = true` modules always stream regardless of the flag (stdin must work).
+
 ## Key invariants
 
 - **Continue-on-error**: one module failing must not stop later modules. Commands collect failures and exit non-zero at the end.

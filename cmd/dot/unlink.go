@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"sort"
 
 	"github.com/hubermjonathan/dotfiles/internal/linker"
@@ -25,9 +24,14 @@ func runUnlink(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fmt.Println("unlink")
 	var failures int
 	for _, mod := range modules {
-		fmt.Printf("unlinking %s\n", mod.Name)
+		if len(mod.Links) == 0 {
+			continue
+		}
+		modHeader(mod.Name)
+		step("links", fmt.Sprintf("%d entry(s)", len(mod.Links)))
 		keys := make([]string, 0, len(mod.Links))
 		for k := range mod.Links {
 			keys = append(keys, k)
@@ -37,11 +41,11 @@ func runUnlink(cmd *cobra.Command, args []string) error {
 			target := mod.Links[source]
 			targetPath := expandHome(target)
 			if err := linker.Unlink(targetPath); err != nil {
-				fmt.Fprintf(os.Stderr, "  error: %s: %v\n", source, err)
+				resultErr(fmt.Sprintf("%s: %v", source, err))
 				failures++
 				continue
 			}
-			fmt.Printf("  removed %s\n", target)
+			result(iconOK, fmt.Sprintf("removed %s", target))
 		}
 	}
 

@@ -29,6 +29,8 @@ dot status [--diff]  # Per-module link state; --diff shows divergence vs repo
 
 Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `unlinked`, `no-links`).
 
+`-v` / `--verbose` (any subcommand): stream subprocess `stdout`/`stderr` to the terminal. Without it, `brew`, `provision`, and `post_link` output is captured and only surfaced on failure. Modules with `setup.interactive = true` always stream so prompts work.
+
 Exit codes: `0` success, `1` partial failure, `2` fatal.
 
 ## Build
