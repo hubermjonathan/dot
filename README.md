@@ -44,7 +44,7 @@ go test ./...        # run unit tests
 
 | Module    | Description |
 |-----------|-------------|
-| `apps`    | Cask-only bundle: ankerwork, bitwarden, meetingbar, spokenly, spotify |
+| `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, meetingbar, spokenly, spotify |
 | `claude`  | Claude Code config + statusline + repo settings merger |
 | `files`   | Shared images (profile, zoom background) under `~/Documents/Images` |
 | `ghostty` | Ghostty terminal emulator + config |
