@@ -91,7 +91,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 
 | Module | What it does |
 |--------|--------------|
-| `apps` | Cask-only bundle (no symlinks): ankerwork, bitwarden, meetingbar, spokenly, spotify |
+| `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, meetingbar, spokenly, spotify |
 | `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), repo-required settings (`settings.repo.json`), statusline + merge/check helpers |
 | `files` | Shared images under `~/Documents/Images` |
 | `ghostty` | Ghostty terminal emulator + config |

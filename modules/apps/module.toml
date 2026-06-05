@@ -2,5 +2,8 @@
 name = "apps"
 description = "Applications"
 
+[deps]
+brew = ["dust"]
+
 [apps]
 cask = ["ankerwork", "bitwarden", "meetingbar", "spokenly", "spotify"]
