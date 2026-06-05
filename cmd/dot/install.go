@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/hubermjonathan/dotfiles/internal/installer"
@@ -58,9 +59,16 @@ func installModule(mod *module.Module) int {
 	}
 
 	if len(mod.Provision) > 0 {
-		failures += runStep(fmt.Sprintf("provision %d script(s)", len(mod.Provision)), "ran", func(s *ui.Step) []error {
-			return installer.RunScripts(mod.Provision, "provision", mod.Interactive, s)
-		})
+		label := fmt.Sprintf("provision %d script(s)", len(mod.Provision))
+		if mod.Interactive {
+			failures += runInteractiveStep(label, "ran", func(out io.Writer) []error {
+				return installer.RunScripts(mod.Provision, "provision", true, out)
+			})
+		} else {
+			failures += runStep(label, "ran", func(s *ui.Step) []error {
+				return installer.RunScripts(mod.Provision, "provision", false, s)
+			})
+		}
 	}
 
 	return failures

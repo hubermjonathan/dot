@@ -68,18 +68,20 @@ func (s *Step) loop() {
 			s.mu.Unlock()
 			return
 		}
-		s.render()
+		frame := frames[s.frame%len(frames)]
+		s.frame++
+		tail := s.tail
 		s.mu.Unlock()
+		s.paint(frame, tail)
 	}
 }
 
-// render must be called with s.mu held.
-func (s *Step) render() {
-	frame := frames[s.frame%len(frames)]
-	s.frame++
+// paint writes one spinner frame. Called without s.mu held so a slow terminal
+// can't backpressure subprocess Writes.
+func (s *Step) paint(frame rune, tail string) {
 	suffix := ""
-	if s.tail != "" {
-		suffix = " — " + truncate(s.tail, tailMaxRunes)
+	if tail != "" {
+		suffix = " — " + truncate(tail, tailMaxRunes)
 	}
 	fmt.Fprintf(s.out, "%s    %c %s%s", clearLine, frame, s.label, suffix)
 }

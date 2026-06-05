@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -80,9 +81,16 @@ func linkModule(mod *module.Module) int {
 	}
 
 	if len(mod.PostLink) > 0 {
-		failures += runStep(fmt.Sprintf("post_link %d script(s)", len(mod.PostLink)), "ran", func(s *ui.Step) []error {
-			return installer.RunScripts(mod.PostLink, "post_link", mod.Interactive, s)
-		})
+		label := fmt.Sprintf("post_link %d script(s)", len(mod.PostLink))
+		if mod.Interactive {
+			failures += runInteractiveStep(label, "ran", func(out io.Writer) []error {
+				return installer.RunScripts(mod.PostLink, "post_link", true, out)
+			})
+		} else {
+			failures += runStep(label, "ran", func(s *ui.Step) []error {
+				return installer.RunScripts(mod.PostLink, "post_link", false, s)
+			})
+		}
 	}
 
 	return failures

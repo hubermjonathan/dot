@@ -64,7 +64,7 @@ func RunScripts(commands []string, label string, interactive bool, out io.Writer
 		if interactive {
 			cmd.Stdin = os.Stdin
 		}
-		if err := run(cmd, label, out); err != nil {
+		if err := run(cmd, fmt.Sprintf("%s %q", label, c), out); err != nil {
 			errs = append(errs, err)
 		}
 	}
