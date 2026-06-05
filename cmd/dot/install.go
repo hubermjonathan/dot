@@ -46,20 +46,31 @@ func installModule(mod *module.Module) int {
 	var failures int
 
 	if len(mod.Deps.Brew) > 0 {
-		failures += runStep("brew "+strings.Join(mod.Deps.Brew, ", "), "installed", func(out *ui.Step) error {
-			return installer.InstallBrew(mod.Deps.Brew, out)
+		failures += runStep("brew "+strings.Join(mod.Deps.Brew, ", "), "installed", func(s *ui.Step) []error {
+			return errSlice(installer.InstallBrew(mod.Deps.Brew, s))
 		})
 	}
 
 	if len(mod.Apps.Cask) > 0 {
-		failures += runStep("cask "+strings.Join(mod.Apps.Cask, ", "), "installed", func(out *ui.Step) error {
-			return installer.InstallCask(mod.Apps.Cask, out)
+		failures += runStep("cask "+strings.Join(mod.Apps.Cask, ", "), "installed", func(s *ui.Step) []error {
+			return errSlice(installer.InstallCask(mod.Apps.Cask, s))
 		})
 	}
 
 	if len(mod.Provision) > 0 {
-		failures += runScriptStep(fmt.Sprintf("provision %d script(s)", len(mod.Provision)), mod.Provision, mod.Interactive, installer.RunProvision)
+		failures += runStep(fmt.Sprintf("provision %d script(s)", len(mod.Provision)), "ran", func(s *ui.Step) []error {
+			return installer.RunScripts(mod.Provision, "provision", mod.Interactive, s)
+		})
 	}
 
 	return failures
+}
+
+// errSlice wraps a single error into a one-element slice (or nil) so single-
+// command callers can share the runStep []error contract.
+func errSlice(err error) []error {
+	if err == nil {
+		return nil
+	}
+	return []error{err}
 }
