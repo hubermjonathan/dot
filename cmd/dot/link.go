@@ -2,18 +2,15 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"github.com/hubermjonathan/dotfiles/internal/installer"
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
 	"github.com/hubermjonathan/dotfiles/internal/pathutil"
-	"github.com/hubermjonathan/dotfiles/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -81,16 +78,7 @@ func linkModule(mod *module.Module) int {
 	}
 
 	if len(mod.PostLink) > 0 {
-		label := fmt.Sprintf("post_link %d script(s)", len(mod.PostLink))
-		if mod.Interactive {
-			failures += runInteractiveStep(label, "ran", func(out io.Writer) []error {
-				return installer.RunScripts(mod.PostLink, "post_link", true, out)
-			})
-		} else {
-			failures += runStep(label, "ran", func(s *ui.Step) []error {
-				return installer.RunScripts(mod.PostLink, "post_link", false, s)
-			})
-		}
+		failures += runScriptsStep(fmt.Sprintf("post_link %d script(s)", len(mod.PostLink)), "ran", "post_link", mod.PostLink, mod.Interactive)
 	}
 
 	return failures

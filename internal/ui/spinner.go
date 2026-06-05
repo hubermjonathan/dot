@@ -26,16 +26,17 @@ var frames = []rune("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏")
 // Step is a live spinner row. It buffers every line written through Write so
 // the full output can be replayed on failure or when verbose mode is on.
 type Step struct {
-	label   string
-	out     io.Writer
-	tty     bool
-	mu      sync.Mutex
-	tail    string
-	buf     bytes.Buffer
-	stopped bool
-	wg      sync.WaitGroup
-	started time.Time
-	frame   int
+	label    string
+	out      io.Writer
+	tty      bool
+	mu       sync.Mutex
+	tail     string
+	buf      bytes.Buffer
+	stopped  bool
+	finished bool
+	wg       sync.WaitGroup
+	started  time.Time
+	frame    int
 }
 
 // Start prints an opening spinner line for label and returns a Step that the
@@ -100,12 +101,19 @@ func (s *Step) Write(p []byte) (int, error) {
 
 // Done finalises the step. icon is the leading status glyph (✓, ✗, ·).
 // status is the brief result text. dumpBuffer prints the captured output below
-// the final line; use it for failures or when verbose mode is on.
+// the final line; use it for failures or when verbose mode is on. Idempotent
+// — second and later calls are no-ops, so callers can safely defer Done as a
+// panic-safe cleanup and still call it explicitly on success/failure.
 func (s *Step) Done(icon, status string, dumpBuffer bool) {
-	if s.tty {
-		s.mu.Lock()
-		s.stopped = true
+	s.mu.Lock()
+	if s.finished {
 		s.mu.Unlock()
+		return
+	}
+	s.finished = true
+	s.stopped = true
+	s.mu.Unlock()
+	if s.tty {
 		s.wg.Wait()
 		fmt.Fprint(s.out, clearLine)
 	}

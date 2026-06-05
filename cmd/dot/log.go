@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/hubermjonathan/dotfiles/internal/installer"
 	"github.com/hubermjonathan/dotfiles/internal/ui"
 )
 
@@ -33,52 +34,51 @@ func resultErr(msg string) {
 	fmt.Fprintf(os.Stderr, "    %s %s\n", iconErr, msg)
 }
 
+// reportErrs prints each error via resultErr and returns the count.
+func reportErrs(errs []error) int {
+	for _, e := range errs {
+		resultErr(e.Error())
+	}
+	return len(errs)
+}
+
 // runStep wraps a subprocess step in a spinner. fn returns the list of errors
 // it encountered (empty/nil for success). The captured buffer is dumped on
-// failure (always) and on success when --verbose is set. Returns the failure
-// count. A panic inside fn still triggers Done via defer so the spinner
-// goroutine never leaks.
+// failure (always) and on success when --verbose is set. A panic inside fn
+// still finalises the spinner via the deferred Done so the goroutine never
+// leaks. Returns the failure count.
 func runStep(label, doneStatus string, fn func(*ui.Step) []error) int {
 	step := ui.Start(label)
-	var errs []error
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				step.Done(iconErr, "failed", true)
-				panic(r)
-			}
-		}()
-		errs = fn(step)
-	}()
+	defer step.Done(iconErr, "failed", true) // idempotent — only fires on panic
+	errs := fn(step)
 	if len(errs) > 0 {
 		step.Done(iconErr, "failed", true)
-		for _, e := range errs {
-			resultErr(e.Error())
-		}
-		return len(errs)
+		return reportErrs(errs)
 	}
 	step.Done(iconOK, doneStatus, verbose)
 	return 0
 }
 
-// runInteractiveStep skips the spinner so subprocess stdout/stderr stream
-// directly to the terminal. Used for `setup.interactive = true` modules where
-// the user must see prompts (auth flows, sudo, etc.). Output is indented to
-// six spaces so it lines up under the step header.
-func runInteractiveStep(label, doneStatus string, fn func(out io.Writer) []error) int {
+// runScriptsStep runs an installer script list (provision / post_link),
+// picking spinner-vs-passthrough based on mod.Interactive. Interactive scripts
+// stream stdout/stderr directly so prompts (auth flows, sudo) are visible;
+// non-interactive scripts buffer behind the spinner.
+func runScriptsStep(label, doneStatus, kind string, scripts []string, interactive bool) int {
+	if !interactive {
+		return runStep(label, doneStatus, func(s *ui.Step) []error {
+			return installer.RunScripts(scripts, kind, false, s)
+		})
+	}
 	fmt.Printf("    %s\n", label)
-	errs := fn(&indentWriter{w: os.Stdout, prefix: "      ", atLineStart: true})
-	if len(errs) > 0 {
-		for _, e := range errs {
-			resultErr(e.Error())
-		}
-		return len(errs)
+	out := &indentWriter{w: os.Stdout, prefix: "      ", atLineStart: true}
+	if errs := installer.RunScripts(scripts, kind, true, out); len(errs) > 0 {
+		return reportErrs(errs)
 	}
 	result(iconOK, fmt.Sprintf("%s — %s", label, doneStatus))
 	return 0
 }
 
-// indentWriter prefixes every line written through it with prefix. It tracks
+// indentWriter prefixes every line written through it with prefix. Tracks
 // whether the next byte starts a new line so prefixes don't double up across
 // chunked writes. Not safe for concurrent use.
 type indentWriter struct {
