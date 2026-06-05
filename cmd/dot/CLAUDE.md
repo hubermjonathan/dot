@@ -7,7 +7,7 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 | File | Command | Notes |
 |------|---------|-------|
 | `main.go` | `rootCmd` | Wires Cobra, owns persistent `-v` / `--verbose` flag, exits `2` on error |
-| `log.go` | (helpers) | Shared output formatters: `modHeader`, `result`, `resultErr`, `runStep`, status icons |
+| `log.go` | (helpers) | Shared output formatters: `modHeader`, `result`, `resultErr`, `reportErrs`, `runStep`, `runScriptsStep`, `runInteractiveStep`, `indentWriter`, status icons |
 | `interactive.go` | `dot` (no subcommand) | TUI picker → install + link selected |
 | `link.go` | `dot link` | Owns shared helpers (`expandHome`, `getModules`, `getRepoRoot`) |
 | `unlink.go` | `dot unlink` | Removes only entries that are actually symlinks |
@@ -25,7 +25,7 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 
 ## Conventions
 
-- Print progress to `stdout`, errors to `stderr`. Use the helpers in `log.go`: `modHeader(name)` per module, `runStep(label, doneStatus, fn)` for any subprocess (or list of them) wrapped in a spinner — `fn` returns `[]error`, single-error callers wrap with `errSlice` (defined in `install.go`). `result(icon, msg)` / `resultErr(msg)` for plain non-spinner outcomes (used by symlink ops in `link.go`).
+- Print progress to `stdout`, errors to `stderr`. Use the helpers in `log.go`: `modHeader(name)` per module, `runStep(label, doneStatus, fn)` for any subprocess wrapped in a spinner (single-error callers wrap with `errSlice` in `install.go`), `runScriptsStep(label, doneStatus, kind, scripts, interactive)` for installer script lists which dispatches to `runStep` (non-interactive, buffered behind spinner) or `runInteractiveStep` (interactive, streams via `indentWriter` so prompts are visible). All three emit a final `icon label — status (elapsed)` row for parity. `result(icon, msg)` / `resultErr(msg)` for plain non-spinner outcomes (used by symlink ops in `link.go`).
 - `internal/ui.Step` owns spinner rendering, the captured stdout/stderr buffer, and the elapsed timer. Failed steps dump the buffer; successful steps dump only when `verbose` is true. Non-TTY runs auto-degrade to plain status lines.
 - Collect failures, return `fmt.Errorf("%d operation(s) failed", n)` at end — Cobra surfaces it and `main.go` exits `2`.
 - Never panic on a malformed module — log and continue.

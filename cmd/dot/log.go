@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/hubermjonathan/dotfiles/internal/installer"
 	"github.com/hubermjonathan/dotfiles/internal/ui"
@@ -69,13 +70,51 @@ func runScriptsStep(label, doneStatus, kind string, scripts []string, interactiv
 			return installer.RunScripts(scripts, kind, false, s)
 		})
 	}
+	return runInteractiveStep(label, doneStatus, func(out io.Writer) []error {
+		return installer.RunScripts(scripts, kind, true, out)
+	})
+}
+
+// runInteractiveStep runs fn with an indenting writer over os.Stdout so
+// subprocess output streams live (prompts visible). It mirrors runStep's
+// final-line formatting (icon + label + status + elapsed) and panic safety,
+// without the spinner. fn writes to out; the writer ensures every line is
+// six-space indented to align under the step header. If the subprocess leaves
+// the cursor mid-line (no trailing newline) a synthetic newline is emitted
+// before the footer so it doesn't glue onto the last output line.
+func runInteractiveStep(label, doneStatus string, fn func(io.Writer) []error) int {
 	fmt.Printf("    %s\n", label)
-	out := &indentWriter{w: os.Stdout, prefix: "      ", atLineStart: true}
-	if errs := installer.RunScripts(scripts, kind, true, out); len(errs) > 0 {
+	started := time.Now()
+	iw := &indentWriter{w: os.Stdout, prefix: "      ", atLineStart: true}
+	footerEmitted := false
+	defer func() {
+		if !footerEmitted {
+			ensureNewline(iw)
+			elapsed := time.Since(started).Round(100 * time.Millisecond)
+			result(iconErr, fmt.Sprintf("%s — failed (%s)", label, elapsed))
+		}
+	}()
+	errs := fn(iw)
+	ensureNewline(iw)
+	elapsed := time.Since(started).Round(100 * time.Millisecond)
+	if len(errs) > 0 {
+		result(iconErr, fmt.Sprintf("%s — failed (%s)", label, elapsed))
+		footerEmitted = true
 		return reportErrs(errs)
 	}
-	result(iconOK, fmt.Sprintf("%s — %s", label, doneStatus))
+	result(iconOK, fmt.Sprintf("%s — %s (%s)", label, doneStatus, elapsed))
+	footerEmitted = true
 	return 0
+}
+
+// ensureNewline writes a newline to iw's underlying writer if the last byte
+// emitted wasn't already a newline, so subsequent footer lines start on a
+// fresh row.
+func ensureNewline(iw *indentWriter) {
+	if !iw.atLineStart {
+		fmt.Fprintln(iw.w)
+		iw.atLineStart = true
+	}
 }
 
 // indentWriter prefixes every line written through it with prefix. Tracks
