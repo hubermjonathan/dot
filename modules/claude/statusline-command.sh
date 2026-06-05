@@ -11,8 +11,8 @@ eval "$(echo "$input" | jq -r '
   "model_raw=" + ((.model.id // .model.display_name // "") | @sh) + " " +
   "ctx_used=" + ((.context_window.used_percentage // "") | tostring | @sh) + " " +
   "cost_usd=" + ((.cost.total_cost_usd // "") | tostring | @sh) + " " +
-  "session_name=" + ((.session_name // "") | @sh) + " " +
-  "wt_branch=" + ((.worktree.branch // "") | @sh)
+  "wt_branch=" + ((.worktree.branch // "") | @sh) + " " +
+  "transcript_path=" + ((.transcript_path // "") | @sh)
 ')"
 
 tildify() { [[ "$1" == "$HOME"* ]] && echo "~${1#$HOME}" || echo "$1"; }
@@ -33,14 +33,32 @@ if [ -z "$branch" ]; then
   branch="$wt_branch"
 fi
 
-# model: map ARN/name to short name
-case "$model_raw" in
-  *yoyhj0injypc*|*opus*|*Opus*) model="Opus" ;;
-  *7o4asxwz6fc7*|*sonnet*|*Sonnet*) model="Sonnet" ;;
-  *bxi2s9x695ho*|*haiku*|*Haiku*) model="Haiku" ;;
-  "") model="" ;;
-  *) model="$model_raw" ;;
-esac
+# model: map ARN/name to short name using ANTHROPIC_DEFAULT_*_MODEL settings
+model=""
+model_family=""
+if [ -n "$model_raw" ]; then
+  eval "$(jq -r '
+    .env // {} |
+    "opus_arn="    + ((.ANTHROPIC_DEFAULT_OPUS_MODEL    // "") | @sh) + " " +
+    "sonnet_arn="  + ((.ANTHROPIC_DEFAULT_SONNET_MODEL  // "") | @sh) + " " +
+    "haiku_arn="   + ((.ANTHROPIC_DEFAULT_HAIKU_MODEL   // "") | @sh) + " " +
+    "opus_name="   + ((.ANTHROPIC_DEFAULT_OPUS_MODEL_NAME   // "Opus")   | @sh) + " " +
+    "sonnet_name=" + ((.ANTHROPIC_DEFAULT_SONNET_MODEL_NAME // "Sonnet") | @sh) + " " +
+    "haiku_name="  + ((.ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME  // "Haiku")  | @sh)
+  ' ~/.claude/settings.json 2>/dev/null)"
+
+  if   [ -n "$opus_arn" ]   && [ "$model_raw" = "$opus_arn" ];   then model="$opus_name";   model_family="opus"
+  elif [ -n "$sonnet_arn" ] && [ "$model_raw" = "$sonnet_arn" ]; then model="$sonnet_name"; model_family="sonnet"
+  elif [ -n "$haiku_arn" ]  && [ "$model_raw" = "$haiku_arn" ];  then model="$haiku_name";  model_family="haiku"
+  else
+    case "$model_raw" in
+      *opus*|*Opus*)     model="${opus_name:-Opus}";     model_family="opus" ;;
+      *sonnet*|*Sonnet*) model="${sonnet_name:-Sonnet}"; model_family="sonnet" ;;
+      *haiku*|*Haiku*)   model="${haiku_name:-Haiku}";   model_family="haiku" ;;
+      *) model="$model_raw" ;;
+    esac
+  fi
+fi
 
 # effort
 effort=$(jq -r '.effortLevel // empty' ~/.claude/settings.json 2>/dev/null)
@@ -59,9 +77,6 @@ if [ "$ctx_used" = "null" ] || [ "$ctx_used" = "" ]; then ctx_used=""; fi
 # cost
 if [ "$cost_usd" = "null" ] || [ "$cost_usd" = "" ]; then cost_usd=""; fi
 
-# session name
-if [ "$session_name" = "null" ]; then session_name=""; fi
-
 # dirty: single git call for tracked + untracked
 dirty=""
 if [ -n "$cwd" ]; then
@@ -70,88 +85,103 @@ if [ -n "$cwd" ]; then
   fi
 fi
 
-# pr number: cached in git config with negative cache
-pr_num=""
-if [ -n "$cwd" ] && [ -n "$branch" ]; then
-  cached=$(git -C "$cwd" --no-optional-locks config --local --get "branch.${branch}.pr" 2>/dev/null)
-  if [ "$cached" = "none" ]; then
-    pr_num=""
-  elif [ -n "$cached" ]; then
-    pr_num="$cached"
-  else
-    pr_num=$(timeout 2 gh pr view --json number -q .number 2>/dev/null || true)
-    if [ -n "$pr_num" ]; then
-      git -C "$cwd" config --local "branch.${branch}.pr" "$pr_num" 2>/dev/null || true
-    else
-      git -C "$cwd" config --local "branch.${branch}.pr" "none" 2>/dev/null || true
-    fi
-  fi
-fi
-
-# jira ticket: extract from branch name (e.g. CONNECT-1234-fix-thing)
-jira=""
-if [ -n "$branch" ]; then
-  jira=$(echo "$branch" | grep -oE '(^|/)[A-Z]+-[0-9]+' | head -1 | sed 's|^/||')
-fi
-
 # --- Colors (Dracula) ---
-C_CWD="\033[38;2;189;147;249m"    # purple
-C_WT="\033[38;2;255;121;198m"     # pink
-C_BRANCH="\033[38;2;80;250;123m"  # green
-C_PR="\033[38;2;241;250;140m"     # yellow
-C_JIRA="\033[38;2;139;233;253m"   # cyan
-C_MODEL="\033[38;2;248;248;242m"  # foreground
-C_EFFORT="\033[38;2;255;184;108m" # orange
-C_CTX="\033[38;2;80;250;123m"     # green
-C_COST="\033[38;2;241;250;140m"   # yellow
-C_PIPE="\033[38;2;98;114;164m"    # comment gray
-C_DRIFT="\033[38;2;255;85;85m"    # red
+C_FG="\033[38;2;248;248;242m"     # foreground
+C_CWD="$C_FG"
+C_WT="$C_FG"
+C_BRANCH="$C_FG"
+C_GREEN="\033[38;2;80;250;123m"   # green
+C_YELLOW="\033[38;2;241;250;140m" # yellow
+C_ORANGE="\033[38;2;255;184;108m" # orange
+C_RED="\033[38;2;255;85;85m"      # red
+C_PIPE="\033[38;2;99;99;99m"      # grey39
+C_DRIFT="$C_RED"
 C_RESET="\033[0m"
 
 # --- Build output ---
-line1="${C_CWD}${cwd_display}${C_RESET}"
+line1_parts=()
+if [ -n "$cwd_display" ]; then
+  line1_parts+=("${C_CWD}📁 ${cwd_display}${C_RESET}")
+fi
 if [ -n "$worktree" ]; then
-  line1+=" ${C_WT}[${worktree}]${C_RESET}"
+  line1_parts+=("${C_WT}🌴 ${worktree}${C_RESET}")
 fi
 if [ -n "$branch" ]; then
-  line1+=" ${C_BRANCH}(${dirty:+$dirty }${branch})${C_RESET}"
+  line1_parts+=("${C_BRANCH}🌿 ${branch}${dirty:+ (*)}${C_RESET}")
 fi
-if [ -n "$pr_num" ]; then
-  line1+=" ${C_PR}(#${pr_num})${C_RESET}"
-fi
-if [ -n "$jira" ]; then
-  line1+=" ${C_JIRA}(${jira})${C_RESET}"
-fi
+
+line1=""
+for i in "${!line1_parts[@]}"; do
+  if [ "$i" -gt 0 ]; then
+    line1+="${C_PIPE} › ${C_RESET}"
+  fi
+  line1+="${line1_parts[$i]}"
+done
 
 line2_parts=()
 if [ -n "$model" ]; then
-  line2_parts+=("${C_MODEL}${model}${C_RESET}")
+  case "$model_family" in
+    haiku)  model_color="$C_GREEN" ;;
+    sonnet) model_color="$C_ORANGE" ;;
+    opus)   model_color="$C_RED" ;;
+    *)      model_color="$C_FG" ;;
+  esac
+  line2_parts+=("${model_color}🤖 $(echo "$model" | tr '[:upper:]' '[:lower:]')${C_RESET}")
 fi
 if [ -n "$effort" ]; then
-  line2_parts+=("${C_EFFORT}${effort}${C_RESET}")
+  case "$effort" in
+    low)         effort_color="$C_GREEN" ;;
+    medium)      effort_color="$C_YELLOW" ;;
+    high)        effort_color="$C_ORANGE" ;;
+    xhigh|max)   effort_color="$C_RED" ;;
+    *)           effort_color="$C_FG" ;;
+  esac
+  line2_parts+=("${effort_color}💪 ${effort}${C_RESET}")
 fi
 if [ -n "$ctx_used" ]; then
   ctx_int=$(printf '%.0f' "$ctx_used")
-  if [ "$ctx_int" -ge 80 ]; then
-    ctx_color="\033[38;2;255;85;85m"      # red
-  elif [ "$ctx_int" -ge 60 ]; then
-    ctx_color="\033[38;2;255;184;108m"    # orange
-  elif [ "$ctx_int" -ge 40 ]; then
-    ctx_color="\033[38;2;241;250;140m"    # yellow
-  else
-    ctx_color="${C_CTX}"                   # green
+  if   [ "$ctx_int" -ge 80 ]; then ctx_color="$C_RED"
+  elif [ "$ctx_int" -ge 60 ]; then ctx_color="$C_ORANGE"
+  elif [ "$ctx_int" -ge 40 ]; then ctx_color="$C_YELLOW"
+  else                             ctx_color="$C_GREEN"
   fi
-  line2_parts+=("${ctx_color}${ctx_int}%${C_RESET}")
+  line2_parts+=("${ctx_color}🧠 ${ctx_int}%${C_RESET}")
 fi
 if [ -n "$cost_usd" ]; then
   cost_fmt=$(printf '$%.2f' "$cost_usd")
-  line2_parts+=("${C_COST}${cost_fmt}${C_RESET}")
+  cost_cents=$(printf '%.0f' "$(echo "$cost_usd * 100" | bc -l 2>/dev/null || echo 0)")
+  if   [ "$cost_cents" -ge 2500 ]; then cost_color="$C_RED"
+  elif [ "$cost_cents" -ge 1000 ]; then cost_color="$C_ORANGE"
+  elif [ "$cost_cents" -ge 200 ];  then cost_color="$C_YELLOW"
+  else                                  cost_color="$C_GREEN"
+  fi
+  line2_parts+=("${cost_color}💵 ${cost_fmt}${C_RESET}")
 fi
-if [ -n "$session_name" ]; then
-  line2_parts+=("${C_PIPE}${session_name}${C_RESET}")
-fi
-if [ -n "$drift" ]; then
-  line2_parts+=("${C_DRIFT}⚙ settings diverged${C_RESET}")
+# water: cumulative tokens from transcript * (60/10000)*(0.000264172/1) gal
+if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
+  total_tokens=$(jq -s '
+    [.[] | .message.usage // empty
+      | (.input_tokens // 0)
+      + (.output_tokens // 0)
+      + (.cache_creation_input_tokens // 0)
+      + (.cache_read_input_tokens // 0) * 0.3
+    ] | add // 0 | round
+  ' "$transcript_path" 2>/dev/null)
+  if [ -n "$total_tokens" ] && [ "$total_tokens" != "0" ]; then
+    water_gal=$(echo "$total_tokens * (60/10000) * (0.000264172/1)" | bc -l 2>/dev/null)
+    water_fmt=$(printf '%.2f' "${water_gal:-0}")
+    water_int=$(printf '%.0f' "${water_gal:-0}")
+    if   [ "$water_int" -ge 15 ]; then water_color="$C_RED"
+    elif [ "$water_int" -ge 5 ];  then water_color="$C_ORANGE"
+    elif [ "$water_int" -ge 1 ];  then water_color="$C_YELLOW"
+    else                               water_color="$C_GREEN"
+    fi
+    if [ "$water_fmt" = "1.00" ]; then
+      line2_parts+=("${water_color}💧 ${water_fmt} gal${C_RESET}")
+    else
+      line2_parts+=("${water_color}💧 ${water_fmt} gals${C_RESET}")
+    fi
+  fi
 fi
 
 line2=""
@@ -162,4 +192,13 @@ for i in "${!line2_parts[@]}"; do
   line2+="${line2_parts[$i]}"
 done
 
-printf '%b\n%b' "$line1" "$line2"
+line2_plain=$(printf '%b' "$line2" | sed -E $'s/\x1b\\[[0-9;]*m//g')
+line2_width=$(printf '%s' "$line2_plain" | python3 -c 'import sys,unicodedata; s=sys.stdin.read(); w=sum(2 if unicodedata.east_asian_width(c) in ("W","F") else 0 if unicodedata.category(c).startswith("M") or c=="‍" or 0xFE00<=ord(c)<=0xFE0F else 1 for c in s); print(w)' 2>/dev/null || printf '%s' "$line2_plain" | awk '{print length}')
+hbar=$(printf -- '─%.0s' $(seq 1 $((${line2_width:-1} + 2))))
+top_border="${C_PIPE}┌${hbar}┐${C_RESET}"
+bot_border="${C_PIPE}└${hbar}┘${C_RESET}"
+line2_boxed="${C_PIPE}│${C_RESET} ${line2} ${C_PIPE}│${C_RESET}"
+if [ -n "$drift" ]; then
+  line2_boxed+=" ${C_DRIFT}🆘 settings diverged${C_RESET}"
+fi
+printf '%b\n%b\n%b\n%b' "$line1" "$top_border" "$line2_boxed" "$bot_border"
