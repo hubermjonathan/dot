@@ -68,7 +68,9 @@ func runStatus(cmd *cobra.Command, args []string) error {
 		}
 
 		state := "unlinked"
-		if linked == total && total > 0 {
+		if total == 0 {
+			state = "no-links"
+		} else if linked == total {
 			state = "linked"
 		} else if broken > 0 {
 			state = "broken"

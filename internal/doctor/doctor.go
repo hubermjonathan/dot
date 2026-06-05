@@ -88,8 +88,13 @@ func Check(mod *module.Module) []Issue {
 	}
 
 	// Check health
+	home, _ := os.UserHomeDir()
 	for _, h := range mod.Health {
-		check := ParseCheck(strings.Replace(h, "~", pathutil.ExpandHome("~"), 1))
+		expanded := h
+		if home != "" {
+			expanded = strings.ReplaceAll(h, "~/", home+"/")
+		}
+		check := ParseCheck(expanded)
 		if check == nil {
 			continue
 		}
