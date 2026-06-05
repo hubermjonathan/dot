@@ -1,8 +1,10 @@
 # dot
 
-Personal macOS configuration managed by `dot`, a Go CLI that handles symlinks, app installation, and health checks.
+Personal macOS configuration managed by `dot`, a Go CLI that handles symlinks, Homebrew installs, and health checks for a set of pluggable modules.
 
-## Quick Start (New Machine)
+Each subdirectory under `modules/` is a self-contained module: a `module.toml` plus its config files. The CLI walks that directory at runtime, so adding a new tool means dropping in a folder — no code changes.
+
+## Quick start (new machine)
 
 ```bash
 sudo -v
@@ -12,46 +14,106 @@ cd dot
 ./bootstrap.sh
 ```
 
-## Usage
+`bootstrap.sh` installs Xcode CLT, Homebrew, and Go; builds `bin/dot`; then runs `dot install` followed by `dot link` to apply every module.
+
+## Commands
 
 ```bash
-dot              # Interactive — pick modules to set up
-dot link         # Create all symlinks
-dot install      # Install all deps and apps
-dot doctor       # Check health (add --fix to auto-repair)
-dot status       # Show module states
-dot init <name>  # Create a new module
+dot                  # Interactive picker (TUI) — choose modules to install + link
+dot link [mod...]    # Create symlinks; runs setup.post_link after
+dot unlink [mod...]  # Remove symlinks
+dot install [mod...] # brew/cask install + setup.provision
+dot doctor [--fix]   # Health check; --fix repairs symlinks
+dot status [--diff]  # Per-module link state; --diff shows divergence vs repo
 ```
+
+Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `unlinked`, `no-links`).
+
+Exit codes: `0` success, `1` partial failure, `2` fatal.
 
 ## Build
 
 ```bash
-./scripts/build.sh
+./scripts/build.sh   # writes ./bin/dot
+go test ./...        # run unit tests
 ```
-
-## Adding a New Tool
-
-```bash
-dot init mytool
-# Edit modules/mytool/module.toml — add links, deps, apps
-# Drop config files in modules/mytool/
-dot link mytool
-```
-
-## Zsh Config
-
-Drop `.zsh` files in `modules/zsh/conf.d/` — they're sourced automatically on shell start. No module.toml edit needed.
 
 ## Modules
 
-| Module | Description |
-|--------|-------------|
-| git | Git config + SSH key |
-| zsh | Shell config (conf.d auto-discovery) |
-| vim | Vim + Vundle + noir theme |
-| scripts | AppleScript utilities (Format JSON, Caffeinate) |
-| ghostty | Ghostty terminal |
-| tmux | Terminal multiplexer |
-| claude | Claude Code config |
-| macos | macOS system preferences |
-| apps | Standalone applications (alt-tab, bitwarden, karabiner, spotify, meetingbar) |
+| Module    | Description |
+|-----------|-------------|
+| `apps`    | Cask-only bundle: ankerwork, bitwarden, meetingbar, spokenly, spotify |
+| `claude`  | Claude Code config + statusline + repo settings merger |
+| `files`   | Shared images (profile, zoom background) under `~/Documents/Images` |
+| `ghostty` | Ghostty terminal emulator + config |
+| `git`     | `.gitconfig`, `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
+| `macos`   | Dock, menu bar, window-tiling hotkeys, dark mode, wallpaper, profile picture |
+| `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
+| `tmux`    | `.tmux.conf` |
+| `touchid` | Touch ID for `sudo` (writes `pam_tid.so` into `/etc/pam.d/sudo_local`) |
+| `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
+| `zsh`     | `.zshrc` + `conf.d/` auto-discovery directory |
+
+## Module schema (`module.toml`)
+
+```toml
+[module]
+name = "mytool"
+description = "What it is"
+
+[links]
+# source (relative to module dir) = target (absolute, ~ expanded at runtime)
+"config"   = "~/.config/mytool/config"
+".myrc"    = "~/.myrc"
+
+[deps]
+brew = ["mytool"]            # brew formulae
+
+[apps]
+cask = ["mytool-desktop"]    # brew casks
+
+[health]
+# Run during `dot doctor`. Three check kinds:
+checks = [
+  "file_exists:~/.myrc",
+  "dir_exists:~/.config/mytool",
+  "command_succeeds:mytool --version",
+]
+
+[setup]
+interactive = false          # if true, post_link/provision get tty passthrough
+post_link = [                # runs after `dot link` — MUST be idempotent
+  "touch ~/.myrc.local",
+]
+provision = [                # runs only on `dot install` — one-shot side effects
+  "mytool auth login",
+]
+```
+
+### Symlink behavior
+
+- Source paths are relative to the module directory; targets are absolute and may use `~`.
+- Directory symlinks are supported — e.g. `zsh/conf.d` → `~/.config/zsh` makes every file dropped into `conf.d/` live on the next shell start, no `[links]` edit needed.
+- If a target already exists as a regular file, `dot link` backs it up to `~/.dotfiles-backup/<module>/<basename>.<hash>` before replacing it.
+- `dot doctor --fix` recreates broken/missing symlinks but does not back up — it expects `dot link` to have run before.
+
+### post_link vs provision
+
+- `post_link` runs every `dot link`. Idempotent: safe to re-run. Use for things like creating placeholder files, running `osacompile`, or applying `defaults write`.
+- `provision` runs only on `dot install`. Use for one-time bootstrap that talks to a remote (e.g. `gh auth login`).
+- Set `interactive = true` when commands need stdin/stdout (auth flows, prompts).
+
+## Zsh config
+
+Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every file in it on shell start. No `module.toml` change required.
+
+## Repository layout
+
+```
+bootstrap.sh         — first-run installer
+scripts/build.sh     — go build helper
+cmd/dot/             — Cobra CLI commands (one file per subcommand)
+internal/            — module discovery, linker, installer, doctor, TUI
+modules/             — one subdirectory per module (each with module.toml)
+bin/                 — built `dot` binary (committed for bootstrap)
+```
