@@ -7,7 +7,10 @@ import (
 
 func ExpandHome(path string) string {
 	if strings.HasPrefix(path, "~/") {
-		home, _ := os.UserHomeDir()
+		home, err := os.UserHomeDir()
+		if err != nil || home == "" {
+			return path
+		}
 		return home + path[1:]
 	}
 	return path

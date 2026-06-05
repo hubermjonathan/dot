@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type Result int
@@ -38,16 +39,23 @@ func Link(source, target, backupDir string) (Result, error) {
 			if existing == source {
 				return Skipped, nil
 			}
-			os.Remove(target)
-		} else {
-			if backupDir != "" {
-				if err := backup(target, backupDir); err != nil {
-					return 0, fmt.Errorf("backup failed: %w", err)
-				}
+			if err := os.Remove(target); err != nil {
+				return 0, err
 			}
-			os.Remove(target)
 			return createLink(source, target, Replaced)
 		}
+		if backupDir != "" {
+			if err := backup(target, backupDir); err != nil {
+				return 0, fmt.Errorf("backup failed: %w", err)
+			}
+		} else if err := os.Remove(target); err != nil {
+			return 0, err
+		}
+		return createLink(source, target, Replaced)
+	}
+
+	if !os.IsNotExist(err) {
+		return 0, err
 	}
 
 	return createLink(source, target, Created)
@@ -108,7 +116,9 @@ func backup(target, backupDir string) error {
 		return err
 	}
 	sum := sha256.Sum256([]byte(target))
-	suffix := hex.EncodeToString(sum[:])[:6]
+	hash := hex.EncodeToString(sum[:])[:6]
+	stamp := time.Now().UTC().Format("20060102T150405.000000000")
+	suffix := stamp + "." + hash
 	backupPath := filepath.Join(backupDir, filepath.Base(target)+"."+suffix)
 	return os.Rename(target, backupPath)
 }

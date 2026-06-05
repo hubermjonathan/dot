@@ -9,6 +9,7 @@ description = "macOS system preferences"
 brew = ["desktoppr"]
 
 [setup]
+interactive = true
 post_link = [
   "osascript -e 'tell application \"System Events\" to tell appearance preferences to set dark mode to true'",
   "defaults write com.apple.dock autohide -bool true",

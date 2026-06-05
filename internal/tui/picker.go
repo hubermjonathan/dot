@@ -45,7 +45,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 		case " ":
-			m.Items[m.cursor].Selected = !m.Items[m.cursor].Selected
+			if m.cursor >= 0 && m.cursor < len(m.Items) {
+				m.Items[m.cursor].Selected = !m.Items[m.cursor].Selected
+			}
 		case "enter":
 			m.Chosen = true
 			return m, tea.Quit
