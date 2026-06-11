@@ -66,9 +66,16 @@ if [ "$effort" = "null" ]; then effort=""; fi
 
 # settings drift: how many repo-required keys are missing/different on this machine
 drift=""
-if [ -x ~/.claude/check-settings.sh ] && [ -f ~/.claude/settings.repo.json ]; then
-  drift=$(bash ~/.claude/check-settings.sh 2>/dev/null || echo 0)
+if [ -x ~/.claude/scripts/check-settings.sh ] && [ -f ~/.claude/settings.repo.json ]; then
+  drift=$(bash ~/.claude/scripts/check-settings.sh 2>/dev/null || echo 0)
   if [ "$drift" = "0" ]; then drift=""; fi
+fi
+
+# untracked: how many machine settings leaves are absent from both repo and work files
+untracked=""
+if [ -x ~/.claude/scripts/check-untracked.sh ] && [ -f ~/.claude/settings.json ]; then
+  untracked=$(bash ~/.claude/scripts/check-untracked.sh 2>/dev/null || echo 0)
+  if [ "$untracked" = "0" ]; then untracked=""; fi
 fi
 
 # context
@@ -199,6 +206,9 @@ top_border="${C_PIPE}┌${hbar}┐${C_RESET}"
 bot_border="${C_PIPE}└${hbar}┘${C_RESET}"
 line2_boxed="${C_PIPE}│${C_RESET} ${line2} ${C_PIPE}│${C_RESET}"
 if [ -n "$drift" ]; then
-  line2_boxed+=" ${C_DRIFT}🆘 settings diverged${C_RESET}"
+  line2_boxed+=" ${C_DRIFT}🆘 settings diverged (${drift})${C_RESET}"
+fi
+if [ -n "$untracked" ]; then
+  line2_boxed+=" ${C_YELLOW}📥 untracked settings (${untracked})${C_RESET}"
 fi
 printf '%b\n%b\n%b\n%b' "$line1" "$top_border" "$line2_boxed" "$bot_border"
