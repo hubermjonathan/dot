@@ -3,11 +3,14 @@
   "skillListingBudgetFraction": 0.02,
   "verbose": true,
   "enabledPlugins": {
-    "caveman@caveman": true
+    "caveman@caveman": true,
+    "superpowers@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true
   },
   "env": {
     "CLAUDE_CODE_ENABLE_AUTO_MODE": "1",
-    "CLAUDE_CODE_NO_FLICKER": "1"
+    "CLAUDE_CODE_NO_FLICKER": "1",
+    "CAVEMAN_STATUSLINE_SAVINGS": "0"
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -22,8 +25,22 @@
       {
         "hooks": [
           {
-            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"Auto-activate: invoke the caveman:caveman ultra skill before your first response. RENAME SESSION: per CLAUDE.md, rename to [PR#-]<1-5-word-kebab-task-desc> BEFORE first code change.\"}}'",
-            "type": "command"
+            "type": "command",
+            "command": "\"/opt/homebrew/Cellar/node/26.0.0/bin/node\" \"/Users/jon.huber/.claude/hooks/caveman-activate.js\"",
+            "timeout": 5,
+            "statusMessage": "Loading caveman mode..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/Cellar/node/26.0.0/bin/node\" \"/Users/jon.huber/.claude/hooks/caveman-mode-tracker.js\"",
+            "timeout": 5,
+            "statusMessage": "Tracking caveman mode..."
           }
         ]
       }
@@ -57,7 +74,7 @@
   "skipDangerousModePermissionPrompt": true,
   "statusLine": {
     "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh",
+    "command": "bash ~/.claude/scripts/statusline.sh",
     "refreshInterval": 10
   },
   "worktree": {
