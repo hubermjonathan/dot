@@ -41,3 +41,4 @@ function c() {
 # aliases
 alias ..="cd .."
 alias rr="reset"
+alias pbc="pbcopy"
