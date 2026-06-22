@@ -44,12 +44,13 @@ go test ./...        # run unit tests
 
 | Module    | Description |
 |-----------|-------------|
+| `aerospace` | AeroSpace tiling window manager (TOML config, hotkey daemon built-in) |
 | `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, meetingbar, spokenly, spotify |
 | `claude`  | Claude Code config + statusline + repo settings merger |
 | `files`   | Shared images (profile, zoom background) under `~/Documents/Images` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig`, `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
-| `macos`   | Dock, menu bar, window-tiling hotkeys, dark mode, wallpaper, profile picture |
+| `macos`   | Dock, menu bar, dark mode, wallpaper, profile picture |
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tmux`    | `.tmux.conf` |
 | `touchid` | Touch ID for `sudo` (writes `pam_tid.so` into `/etc/pam.d/sudo_local`) |

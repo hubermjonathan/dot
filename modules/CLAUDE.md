@@ -92,12 +92,13 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 
 | Module | What it does |
 |--------|--------------|
+| `aerospace` | AeroSpace tiling window manager (TOML config, hotkey daemon built-in) |
 | `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, meetingbar, spokenly, spotify |
 | `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), repo-required settings (`settings.repo.json`), statusline + merge/check helpers |
 | `files` | Shared images under `~/Documents/Images` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git` | `.gitconfig`, `.gitignore`, `gh` install, interactive `gh auth login` on `dot install` |
-| `macos` | `defaults write` for Dock, menu bar, hotkeys, dark mode, wallpaper, profile picture |
+| `macos` | `defaults write` for Dock, menu bar, dark mode, wallpaper, profile picture |
 | `scripts` | AppleScript sources compiled to `.app` bundles in `~/Applications/Scripts` |
 | `tmux` | `.tmux.conf` |
 | `touchid` | Adds `auth sufficient pam_tid.so` to `/etc/pam.d/sudo_local` (sudo prompt on first link) |
