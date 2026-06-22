@@ -45,7 +45,7 @@ go test ./...        # run unit tests
 | Module    | Description |
 |-----------|-------------|
 | `aerospace` | AeroSpace tiling window manager (TOML config, hotkey daemon built-in) |
-| `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, meetingbar, spokenly, spotify |
+| `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, meetingbar, spotify |
 | `claude`  | Claude Code config + statusline + repo settings merger |
 | `files`   | Shared images (profile, zoom background) under `~/Documents/Images` |
 | `ghostty` | Ghostty terminal emulator + config |
