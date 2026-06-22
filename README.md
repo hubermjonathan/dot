@@ -50,10 +50,9 @@ go test ./...        # run unit tests
 | `files`   | Shared images (profile, zoom background) under `~/Documents/Images` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig`, `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
-| `macos`   | Dock, menu bar, dark mode, wallpaper, profile picture |
+| `macos`   | Dock, menu bar, dark mode, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tmux`    | `.tmux.conf` |
-| `touchid` | Touch ID for `sudo` (writes `pam_tid.so` into `/etc/pam.d/sudo_local`) |
 | `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
 | `zsh`     | `.zshrc` + `conf.d/` auto-discovery directory |
 
