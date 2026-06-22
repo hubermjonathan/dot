@@ -1,0 +1,20 @@
+[module]
+name = "aerospace"
+description = "AeroSpace tiling window manager"
+
+[links]
+"aerospace.toml" = "~/.aerospace.toml"
+
+[deps]
+brew = ["nikitabobko/tap/aerospace"]
+
+[health]
+checks = [
+  "file_exists:~/.aerospace.toml",
+  "command_succeeds:aerospace --version",
+]
+
+[setup]
+post_link = [
+  "pgrep -x AeroSpace >/dev/null && /Applications/AeroSpace.app/Contents/MacOS/AeroSpace reload-config || open -gja AeroSpace",
+]
