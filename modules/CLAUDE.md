@@ -98,9 +98,8 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 | `files` | Shared images under `~/Documents/Images` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git` | `.gitconfig`, `.gitignore`, `gh` install, interactive `gh auth login` on `dot install` |
-| `macos` | `defaults write` for Dock, menu bar, dark mode, wallpaper, profile picture |
+| `macos` | `defaults write` for Dock, menu bar, dark mode, wallpaper, profile picture; `pam_tid.so` for sudo Touch ID |
 | `scripts` | AppleScript sources compiled to `.app` bundles in `~/Applications/Scripts` |
 | `tmux` | `.tmux.conf` |
-| `touchid` | Adds `auth sufficient pam_tid.so` to `/etc/pam.d/sudo_local` (sudo prompt on first link) |
 | `vim` | `.vimrc`, noir colorscheme, Vundle bootstrap |
 | `zsh` | `.zshrc` + `conf.d/` auto-discovery directory |
