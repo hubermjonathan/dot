@@ -7,6 +7,8 @@ description = "Claude Code configuration"
 "settings.repo.json" = "~/.claude/settings.repo.json"
 "scripts" = "~/.claude/scripts"
 "skills/claude-settings" = "~/.claude/skills/claude-settings"
+"caveman/config.json" = "~/.config/caveman/config.json"
+"ponytail/config.json" = "~/.config/ponytail/config.json"
 
 [setup]
 post_link = [
