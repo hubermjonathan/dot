@@ -6,7 +6,7 @@ description = "macOS system preferences"
 "wallpaper.jpg" = "~/Pictures/wallpaper.jpg"
 
 [deps]
-brew = ["desktoppr", "mysides"]
+brew = ["desktoppr"]
 
 [health]
 checks = [
@@ -42,9 +42,7 @@ post_link = [
   "defaults write com.apple.finder NewWindowTarget -string PfLo",
   "defaults write com.apple.finder NewWindowTargetPath -string \"file://$HOME/Downloads/\"",
   "defaults write com.apple.finder FXRemoveOldTrashItems -bool true",
-  "for item in 'file:///Users/$USER/Recents/' 'nwnode://domain-AirDrop' 'file:///Network/' 'TagsItem-Group'; do mysides remove \"$item\" >/dev/null 2>&1 || true; done",
-  "for tag in red orange yellow green blue purple gray; do mysides remove \"$tag\" >/dev/null 2>&1 || true; done",
-  "mysides add Pictures \"file://$HOME/Pictures/\" >/dev/null",
+  "defaults write com.apple.finder ShowRecentTags -bool false",
   "/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u",
   "desktoppr ~/Pictures/wallpaper.jpg",
   "sudo dscl . delete /Users/$USER JPEGPhoto 2>/dev/null || true",
