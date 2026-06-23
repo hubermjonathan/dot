@@ -9,12 +9,12 @@ Personal macOS dotfiles managed by `dot`, a Go CLI (Cobra-based) that walks `mod
 
 ## Repo layout
 
-- `install.sh` — curl-piped one-liner: installs Xcode CLT (so `git` exists), clones the repo into `$DOT_DEST` (default `~/Code/dot`), then execs `bootstrap.sh`. Source repo overridable via `$DOT_REPO`.
-- `bootstrap.sh` — first-run installer (Xcode CLT → Homebrew → Go → build → `dot install` → `dot link`); safe to run standalone if the repo is already cloned.
+- `scripts/install.sh` — curl-piped one-liner: installs Xcode CLT (so `git` exists), clones the repo into `$DOT_DEST` (default `~/Code/dot`), then execs `scripts/bootstrap.sh`. Source repo overridable via `$DOT_REPO`.
+- `scripts/bootstrap.sh` — first-run installer (Xcode CLT → Homebrew → Go → build → `dot install` → `dot link`); safe to run standalone if the repo is already cloned.
 - `cmd/dot/` — Cobra subcommands, one file per command. See `cmd/dot/CLAUDE.md`.
 - `internal/` — discovery, linker, installer, doctor, TUI. See `internal/CLAUDE.md`.
 - `modules/` — pluggable config modules. See `modules/CLAUDE.md`.
-- `bin/dot` — committed binary so `bootstrap.sh` can run before Go is installed (rebuilt and re-committed on changes that touch the CLI).
+- `bin/dot` — committed binary so `scripts/bootstrap.sh` can run before Go is installed (rebuilt and re-committed on changes that touch the CLI).
 - `scripts/build.sh` — `go build -o bin/dot ./cmd/dot`.
 
 ## Commands (CLI surface)

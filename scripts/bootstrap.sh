@@ -31,7 +31,7 @@ if ! command -v go &>/dev/null; then
 fi
 
 # Build dot
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 echo "building dot..."
 go build -o bin/dot ./cmd/dot
 

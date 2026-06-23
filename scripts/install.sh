@@ -1,6 +1,6 @@
 #!/bin/bash
 # One-liner installer. Run with:
-#   curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh | bash
 set -e
 
 REPO="${DOT_REPO:-hubermjonathan/dot}"
@@ -27,4 +27,4 @@ else
 fi
 
 cd "$DEST"
-exec ./bootstrap.sh
+exec ./scripts/bootstrap.sh

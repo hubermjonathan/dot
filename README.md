@@ -7,7 +7,7 @@ Each subdirectory under `modules/` is a self-contained module: a `module.toml` p
 ## Quick start (new machine)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh | bash
 ```
 
 `install.sh` installs Xcode CLT (so `git` exists), clones this repo into `~/Code/dot`, then execs `bootstrap.sh`, which installs Homebrew + Go, builds `bin/dot`, and runs `dot install` followed by `dot link` to apply every module.
@@ -120,7 +120,8 @@ Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~
 ## Repository layout
 
 ```
-bootstrap.sh         — first-run installer
+scripts/install.sh   — curl-piped one-liner (Xcode CLT + clone + exec bootstrap)
+scripts/bootstrap.sh — first-run installer (Homebrew + Go + build + dot install/link)
 scripts/build.sh     — go build helper
 cmd/dot/             — Cobra CLI commands (one file per subcommand)
 internal/            — module discovery, linker, installer, doctor, TUI
