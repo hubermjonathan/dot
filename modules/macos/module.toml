@@ -3,7 +3,7 @@ name = "macos"
 description = "macOS system preferences"
 
 [links]
-"wallpaper.jpg" = "~/Documents/Images/wallpaper.jpg"
+"wallpaper.jpg" = "~/Pictures/wallpaper.jpg"
 
 [deps]
 brew = ["desktoppr"]
@@ -38,11 +38,18 @@ post_link = [
   "defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false",
   "defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false",
   "defaults write com.google.Chrome NSUserKeyEquivalents -dict-add 'New Tab to the Right' '@^t'",
+  # finder
+  "defaults write com.apple.finder NewWindowTarget -string PfLo",
+  "defaults write com.apple.finder NewWindowTargetPath -string \"file://$HOME/Downloads/\"",
+  "defaults write com.apple.finder FXRemoveOldTrashItems -bool true",
+  "defaults write com.apple.finder ShowRecentTags -bool false",
+  "echo 'MANUAL: Finder > Settings > Sidebar — uncheck Recents, AirDrop, Shared; check Pictures (TCC-protected SFL plist, no defaults key)'",
   "/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u",
-  "desktoppr ~/Documents/Images/wallpaper.jpg",
+  "desktoppr ~/Pictures/wallpaper.jpg",
   "sudo dscl . delete /Users/$USER JPEGPhoto 2>/dev/null || true",
-  "sudo dscl . create /Users/$USER Picture ~/Documents/Images/profile-picture.jpg",
+  "sudo dscl . create /Users/$USER Picture ~/Pictures/profile-picture.jpg",
   "killall Dock",
+  "killall Finder",
   "killall NotificationCenter",
   "killall SystemUIServer",
   "killall WindowManager",
