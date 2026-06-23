@@ -43,6 +43,7 @@ post_link = [
   "defaults write com.apple.finder NewWindowTargetPath -string \"file://$HOME/Downloads/\"",
   "defaults write com.apple.finder FXRemoveOldTrashItems -bool true",
   "defaults write com.apple.finder ShowRecentTags -bool false",
+  "echo 'MANUAL: Finder > Settings > Sidebar — uncheck Recents, AirDrop, Shared; check Pictures (TCC-protected SFL plist, no defaults key)'",
   "/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u",
   "desktoppr ~/Pictures/wallpaper.jpg",
   "sudo dscl . delete /Users/$USER JPEGPhoto 2>/dev/null || true",
