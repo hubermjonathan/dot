@@ -12,7 +12,7 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 | `link.go` | `dot link` | Owns shared helpers (`expandHome`, `getModules`, `getRepoRoot`) |
 | `unlink.go` | `dot unlink` | Removes only entries that are actually symlinks |
 | `install.go` | `dot install` | brew + cask + `provision` |
-| `doctor.go` | `dot doctor [--fix]` | Walks all modules; `--fix` invokes `Issue.FixAction` |
+| `doctor.go` | `dot doctor [--fix]` | Walks all modules; `--fix` invokes `Issue.FixAction`. `--orphans` walks `~`/`~/.config`/`~/.claude`/`~/Library/{Preferences,Application Support}` for symlinks pointing into the repo that no module declares; `--fix` removes them and rmdirs empty parents. |
 | `status.go` | `dot status [--diff]` | Aggregates link state; `--diff` runs `diff -u` for diverged files |
 
 ## Adding a new command
