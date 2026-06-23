@@ -6,7 +6,6 @@ description = "Claude Code configuration"
 "user-global.md" = "~/.claude/CLAUDE.md"
 "settings.repo.json" = "~/.claude/settings.repo.json"
 "scripts" = "~/.claude/scripts"
-"skills/claude-settings" = "~/.claude/skills/claude-settings"
 "caveman/config.json" = "~/.config/caveman/config.json"
 "ponytail/config.json" = "~/.config/ponytail/config.json"
 
@@ -18,4 +17,6 @@ post_link = [
   "for old in merge-settings.sh check-settings.sh check-untracked.sh statusline-command.sh; do if [ -L \"$HOME/.claude/$old\" ]; then rm \"$HOME/.claude/$old\"; fi; done",
   "[ -f \"$HOME/.claude/settings.work.json\" ] || echo '{}' > \"$HOME/.claude/settings.work.json\"",
   "bash ~/.claude/scripts/merge-settings.sh",
+  "claude plugin marketplace list 2>/dev/null | grep -q ' dot$' || claude plugin marketplace add hubermjonathan/dot",
+  "claude plugin list 2>/dev/null | grep -q ' claude-skills@dot' || claude plugin install claude-skills@dot",
 ]
