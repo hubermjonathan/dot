@@ -125,3 +125,15 @@ func getRepoRoot() string {
 	}
 	return cwd
 }
+
+// getMainRepoRoot returns the path of the primary repo checkout, even when
+// running from a linked worktree. Used by orphan scanning so it recognizes
+// symlinks pointing at either the main checkout or any worktree.
+func getMainRepoRoot() string {
+	out, err := exec.Command("git", "rev-parse", "--path-format=absolute", "--git-common-dir").Output()
+	if err == nil {
+		gitDir := strings.TrimSpace(string(out))
+		return filepath.Dir(gitDir)
+	}
+	return getRepoRoot()
+}

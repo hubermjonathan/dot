@@ -24,6 +24,7 @@ dot link [mod...]    # Create symlinks; runs setup.post_link after
 dot unlink [mod...]  # Remove symlinks
 dot install [mod...] # brew/cask install + setup.provision
 dot doctor [--fix]   # Health check; --fix repairs symlinks
+dot doctor --orphans # Walk for stale repo symlinks (slow); --fix removes them
 dot status [--diff]  # Per-module link state; --diff shows divergence vs repo
 ```
 
