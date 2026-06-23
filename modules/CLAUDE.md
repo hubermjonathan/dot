@@ -95,10 +95,10 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 | `aerospace` | AeroSpace tiling window manager (TOML config, hotkey daemon built-in) |
 | `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, meetingbar, spotify |
 | `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), repo-required settings (`settings.repo.json`), statusline + merge/check helpers |
-| `files` | Shared images under `~/Documents/Images` |
+| `files` | Shared images under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git` | `.gitconfig`, `.gitignore`, `gh` install, interactive `gh auth login` on `dot install` |
-| `macos` | `defaults write` for Dock, menu bar, dark mode, wallpaper, profile picture; `pam_tid.so` for sudo Touch ID |
+| `macos` | `defaults write` for Dock, Finder, menu bar, dark mode, wallpaper, profile picture; `pam_tid.so` for sudo Touch ID |
 | `scripts` | AppleScript sources compiled to `.app` bundles in `~/Applications/Scripts` |
 | `tmux` | `.tmux.conf` |
 | `vim` | `.vimrc`, noir colorscheme, Vundle bootstrap |

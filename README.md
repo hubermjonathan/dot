@@ -47,10 +47,10 @@ go test ./...        # run unit tests
 | `aerospace` | AeroSpace tiling window manager (TOML config, hotkey daemon built-in) |
 | `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, meetingbar, spotify |
 | `claude`  | Claude Code config + statusline + repo settings merger |
-| `files`   | Shared images (profile, zoom background) under `~/Documents/Images` |
+| `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig`, `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
-| `macos`   | Dock, menu bar, dark mode, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
+| `macos`   | Dock, Finder, menu bar, dark mode, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tmux`    | `.tmux.conf` |
 | `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
