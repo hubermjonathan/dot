@@ -7,14 +7,12 @@ Each subdirectory under `modules/` is a self-contained module: a `module.toml` p
 ## Quick start (new machine)
 
 ```bash
-sudo -v
-mkdir -p ~/Code && cd ~/Code
-git clone https://github.com/hubermjonathan/dot
-cd dot
-./bootstrap.sh
+curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/install.sh | bash
 ```
 
-`bootstrap.sh` installs Xcode CLT, Homebrew, and Go; builds `bin/dot`; then runs `dot install` followed by `dot link` to apply every module.
+`install.sh` installs Xcode CLT (so `git` exists), clones this repo into `~/Code/dot`, then execs `bootstrap.sh`, which installs Homebrew + Go, builds `bin/dot`, and runs `dot install` followed by `dot link` to apply every module.
+
+Override with `DOT_DEST=<path>` or `DOT_REPO=<owner>/<name>`.
 
 ## Commands
 
