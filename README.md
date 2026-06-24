@@ -44,7 +44,7 @@ go test ./...        # run unit tests
 | Module    | Description |
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, meetingbar, spotify |
+| `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, spotify |
 | `claude`  | Claude Code config + statusline + repo settings merger |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
