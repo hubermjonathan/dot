@@ -3,19 +3,21 @@ name = "rectangle"
 description = "Rectangle window manager (grid resize + move-to-display)"
 
 [links]
-"RectangleConfig.json" = "~/Library/Application Support/com.knollsoft.Rectangle/RectangleConfig.json"
+"RectangleConfig.json" = "~/.config/rectangle/RectangleConfig.json"
+"apply.sh" = "~/.config/rectangle/apply.sh"
 
 [apps]
 cask = ["rectangle"]
 
 [health]
 checks = [
-  "file_exists:~/Library/Application Support/com.knollsoft.Rectangle/RectangleConfig.json",
+  "file_exists:~/.config/rectangle/RectangleConfig.json",
   "command_succeeds:test -d /Applications/Rectangle.app",
 ]
 
 [setup]
 post_link = [
-  "defaults import com.knollsoft.Rectangle ~/Library/Application\\ Support/com.knollsoft.Rectangle/RectangleConfig.json",
+  "chmod +x ~/.config/rectangle/apply.sh",
+  "~/.config/rectangle/apply.sh",
   "pgrep -x Rectangle >/dev/null && killall Rectangle; open -gja Rectangle",
 ]
