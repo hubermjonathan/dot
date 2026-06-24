@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/opt/homebrew/Cellar/node/26.0.0/bin/node\" \"/Users/jon.huber/.claude/hooks/caveman-activate.js\"",
+            "command": "node \"$HOME/.claude/hooks/caveman-activate.js\"",
             "timeout": 5,
             "statusMessage": "Loading caveman mode..."
           }
@@ -45,7 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"/opt/homebrew/Cellar/node/26.0.0/bin/node\" \"/Users/jon.huber/.claude/hooks/caveman-mode-tracker.js\"",
+            "command": "node \"$HOME/.claude/hooks/caveman-mode-tracker.js\"",
             "timeout": 5,
             "statusMessage": "Tracking caveman mode..."
           }
