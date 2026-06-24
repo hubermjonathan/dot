@@ -1,0 +1,21 @@
+[module]
+name = "rectangle"
+description = "Rectangle window manager (grid resize + move-to-display)"
+
+[links]
+"RectangleConfig.json" = "~/Library/Application Support/com.knollsoft.Rectangle/RectangleConfig.json"
+
+[apps]
+cask = ["rectangle"]
+
+[health]
+checks = [
+  "file_exists:~/Library/Application Support/com.knollsoft.Rectangle/RectangleConfig.json",
+  "command_succeeds:test -d /Applications/Rectangle.app",
+]
+
+[setup]
+post_link = [
+  "defaults import com.knollsoft.Rectangle ~/Library/Application\\ Support/com.knollsoft.Rectangle/RectangleConfig.json",
+  "pgrep -x Rectangle >/dev/null && killall Rectangle; open -gja Rectangle",
+]
