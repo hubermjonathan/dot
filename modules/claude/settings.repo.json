@@ -6,7 +6,8 @@
     "caveman@caveman": true,
     "superpowers@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "ponytail@ponytail": true
+    "ponytail@ponytail": true,
+    "claude-skills@dot": true
   },
   "env": {
     "CLAUDE_CODE_ENABLE_AUTO_MODE": "1",
@@ -24,6 +25,12 @@
       "source": {
         "source": "github",
         "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "dot": {
+      "source": {
+        "source": "github",
+        "repo": "hubermjonathan/dot"
       }
     }
   },
