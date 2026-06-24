@@ -93,7 +93,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 | Module | What it does |
 |--------|--------------|
 | `aerospace` | AeroSpace tiling window manager (TOML config, hotkey daemon built-in) |
-| `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, meetingbar, spotify |
+| `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, spotify |
 | `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), repo-required settings (`settings.repo.json`), statusline + merge/check helpers |
 | `files` | Shared images under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
