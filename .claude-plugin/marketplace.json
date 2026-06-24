@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "dot",
   "owner": {
-    "name": "Jon Huber",
+    "name": "Jonathan Huber",
     "url": "https://github.com/hubermjonathan"
   },
   "plugins": [
