@@ -10,7 +10,7 @@ eval "$(echo "$input" | jq -r '
   "worktree=" + ((.worktree.name // "") | @sh) + " " +
   "model_raw=" + ((.model.id // .model.display_name // "") | @sh) + " " +
   "wt_branch=" + ((.worktree.branch // "") | @sh) + " " +
-  "transcript_path=" + ((.transcript_path // "") | @sh) + " " +
+  "ctx_tokens=" + ((.context_window.total_input_tokens // "") | tostring | @sh) + " " +
   "effort=" + ((.effort.level // "") | @sh)
 ')"
 
@@ -152,25 +152,16 @@ if [ -n "$model" ]; then
     line2_parts+=("${C_FG}${model_lc}${effort:+ (${effort})}${C_RESET}")
   fi
 fi
-# tokens used: cumulative from transcript, comma-grouped
-if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-  total_tokens=$(jq -s '
-    [.[] | .message.usage // empty
-      | (.input_tokens // 0)
-      + (.output_tokens // 0)
-      + (.cache_creation_input_tokens // 0)
-      + (.cache_read_input_tokens // 0)
-    ] | add // 0 | round
-  ' "$transcript_path" 2>/dev/null)
-  if [ -n "$total_tokens" ] && [ "$total_tokens" != "0" ]; then
-    n="$total_tokens"; tokens_fmt=""
-    while [ ${#n} -gt 3 ]; do
-      tokens_fmt=",${n: -3}${tokens_fmt}"
-      n="${n:0:${#n}-3}"
-    done
-    tokens_fmt="${n}${tokens_fmt}"
-    line2_parts+=("${C_FG}${tokens_fmt}${C_RESET}")
-  fi
+# tokens: input tokens currently in the context window, comma-grouped
+if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0" ]; then
+  n="$ctx_tokens"; tokens_fmt=""
+  while [ ${#n} -gt 3 ]; do
+    tokens_fmt=",${n: -3}${tokens_fmt}"
+    n="${n:0:${#n}-3}"
+  done
+  tokens_fmt="${n}${tokens_fmt}"
+  label="tokens"; [ "$ctx_tokens" = "1" ] && label="token"
+  line2_parts+=("${C_FG}${tokens_fmt} ${label}${C_RESET}")
 fi
 
 line2=""

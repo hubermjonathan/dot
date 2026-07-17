@@ -1,6 +1,6 @@
 ---
 name: claude-settings
-description: Inspect and reorganize the layered Claude Code settings files at ~/.claude/{settings.json, settings.work.json, settings.repo.json}. Use when the user asks "what settings are diverged", "what settings are untracked", "move this setting to work", "move this setting to repo", "sort this setting", or any variant about Claude's own settings hierarchy. Also triggers when the statusline shows 🆘 settings diverged or 📥 untracked settings.
+description: Inspect and reorganize the layered Claude Code settings files at ~/.claude/{settings.json, settings.work.json, settings.repo.json}. Use when the user asks "what settings are diverged", "what settings are untracked", "move this setting to work", "move this setting to repo", "sort this setting", or any variant about Claude's own settings hierarchy. Also triggers when the statusline shows `settings diverged` or `untracked settings`.
 ---
 
 # Claude settings curator
@@ -15,8 +15,8 @@ Three settings files form one effective config:
 
 Two failure modes:
 
-- **Diverged** — repo says X, machine says Y (or missing). 🆘
-- **Untracked** — machine has a leaf neither work nor repo declares. 📥
+- **Diverged** — repo says X, machine says Y (or missing). Statusline: `settings diverged (N)`.
+- **Untracked** — machine has a leaf neither work nor repo declares. Statusline: `untracked settings (N)`.
 
 Both are statusline indicators. This skill turns the indicators into actions.
 
