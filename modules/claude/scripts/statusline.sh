@@ -42,19 +42,23 @@ if [ -n "$model_raw" ]; then
     "opus_arn="    + ((.ANTHROPIC_DEFAULT_OPUS_MODEL    // "") | @sh) + " " +
     "sonnet_arn="  + ((.ANTHROPIC_DEFAULT_SONNET_MODEL  // "") | @sh) + " " +
     "haiku_arn="   + ((.ANTHROPIC_DEFAULT_HAIKU_MODEL   // "") | @sh) + " " +
+    "fable_arn="   + ((.ANTHROPIC_DEFAULT_FABLE_MODEL   // "") | @sh) + " " +
     "opus_name="   + ((.ANTHROPIC_DEFAULT_OPUS_MODEL_NAME   // "Opus")   | @sh) + " " +
     "sonnet_name=" + ((.ANTHROPIC_DEFAULT_SONNET_MODEL_NAME // "Sonnet") | @sh) + " " +
-    "haiku_name="  + ((.ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME  // "Haiku")  | @sh)
+    "haiku_name="  + ((.ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME  // "Haiku")  | @sh) + " " +
+    "fable_name="  + ((.ANTHROPIC_DEFAULT_FABLE_MODEL_NAME  // "Fable")  | @sh)
   ' ~/.claude/settings.json 2>/dev/null)"
 
   if   [ -n "$opus_arn" ]   && [ "$model_raw" = "$opus_arn" ];   then model="$opus_name";   model_family="opus"
   elif [ -n "$sonnet_arn" ] && [ "$model_raw" = "$sonnet_arn" ]; then model="$sonnet_name"; model_family="sonnet"
   elif [ -n "$haiku_arn" ]  && [ "$model_raw" = "$haiku_arn" ];  then model="$haiku_name";  model_family="haiku"
+  elif [ -n "$fable_arn" ]  && [ "$model_raw" = "$fable_arn" ];  then model="$fable_name";  model_family="fable"
   else
     case "$model_raw" in
       *opus*|*Opus*)     model="${opus_name:-Opus}";     model_family="opus" ;;
       *sonnet*|*Sonnet*) model="${sonnet_name:-Sonnet}"; model_family="sonnet" ;;
       *haiku*|*Haiku*)   model="${haiku_name:-Haiku}";   model_family="haiku" ;;
+      *fable*|*Fable*)   model="${fable_name:-Fable}";   model_family="fable" ;;
       *) model="$model_raw" ;;
     esac
   fi
@@ -101,9 +105,25 @@ C_GREEN="\033[38;2;80;250;123m"   # green
 C_YELLOW="\033[38;2;241;250;140m" # yellow
 C_ORANGE="\033[38;2;255;184;108m" # orange
 C_RED="\033[38;2;255;85;85m"      # red
+C_CYAN="\033[38;2;139;233;253m"   # cyan
+C_PURPLE="\033[38;2;189;147;249m" # purple
+C_PINK="\033[38;2;255;121;198m"   # pink
 C_PIPE="\033[38;2;99;99;99m"      # grey39
 C_DRIFT="$C_RED"
 C_RESET="\033[0m"
+
+# rainbow: color each char of $1 with cycling Dracula palette
+rainbow() {
+  local text="$1"
+  local -a palette=("$C_RED" "$C_ORANGE" "$C_YELLOW" "$C_GREEN" "$C_CYAN" "$C_PURPLE" "$C_PINK")
+  local i=0 out="" ch
+  while [ $i -lt ${#text} ]; do
+    ch="${text:$i:1}"
+    out+="${palette[$((i % ${#palette[@]}))]}${ch}"
+    i=$((i + 1))
+  done
+  printf '%s%s' "$out" "$C_RESET"
+}
 
 # --- Build output ---
 line1_parts=()
@@ -127,13 +147,14 @@ done
 
 line2_parts=()
 if [ -n "$model" ]; then
+  model_lc=$(echo "$model" | tr '[:upper:]' '[:lower:]')
   case "$model_family" in
-    haiku)  model_color="$C_GREEN" ;;
-    sonnet) model_color="$C_ORANGE" ;;
-    opus)   model_color="$C_RED" ;;
-    *)      model_color="$C_FG" ;;
+    haiku)  line2_parts+=("${C_GREEN}🤖 ${model_lc}${C_RESET}") ;;
+    sonnet) line2_parts+=("${C_ORANGE}🤖 ${model_lc}${C_RESET}") ;;
+    opus)   line2_parts+=("${C_RED}🤖 ${model_lc}${C_RESET}") ;;
+    fable)  line2_parts+=("🤖 $(rainbow "$model_lc")") ;;
+    *)      line2_parts+=("${C_FG}🤖 ${model_lc}${C_RESET}") ;;
   esac
-  line2_parts+=("${model_color}🤖 $(echo "$model" | tr '[:upper:]' '[:lower:]')${C_RESET}")
 fi
 if [ -n "$effort" ]; then
   case "$effort" in

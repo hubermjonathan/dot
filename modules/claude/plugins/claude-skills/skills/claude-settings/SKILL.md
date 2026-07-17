@@ -32,6 +32,7 @@ All live in `~/.claude/scripts/` (symlinked from `dot/modules/claude/scripts/`):
 | `list-untracked.sh` | Returns JSON array — `{path, value, kind}` per untracked leaf. |
 | `sort-setting.sh <work\|repo> <jq-path>...` | Move leaves from `settings.json` into target file, then re-merge. |
 | `merge-settings.sh` | Re-runs the merge. Idempotent. |
+| `reconcile-cli.sh` | Diffs `settings.json` vs a `settings.cli.snapshot.json` snapshot, prunes vanished keys from `settings.work.json`. Run AFTER an external CLI (e.g. `gh ou doctor -a`) that overwrites `settings.json`, BEFORE `merge-settings.sh`. Bootstraps the snapshot on first run. |
 
 ## Workflow
 
