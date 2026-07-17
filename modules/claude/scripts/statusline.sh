@@ -121,7 +121,33 @@ rainbow() {
 }
 
 # --- Build output ---
+# line 1: model (effort) › tokens › dir › worktree › branch
 line1_parts=()
+
+if [ -n "$model" ]; then
+  model_lc=$(echo "$model" | tr '[:upper:]' '[:lower:]')
+  if [ "$model_family" = "fable" ] && [ "$effort" = "max" ]; then
+    # rainbow runs continuously across "model (effort)"
+    line1_parts+=("$(rainbow "$model_lc ($effort)")")
+  elif [ "$model_family" = "fable" ]; then
+    line1_parts+=("$(rainbow "$model_lc")${effort:+${C_FG} (${effort})${C_RESET}}")
+  else
+    line1_parts+=("${C_FG}${model_lc}${effort:+ (${effort})}${C_RESET}")
+  fi
+fi
+
+# tokens: input tokens currently in the context window, comma-grouped
+if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0" ]; then
+  n="$ctx_tokens"; tokens_fmt=""
+  while [ ${#n} -gt 3 ]; do
+    tokens_fmt=",${n: -3}${tokens_fmt}"
+    n="${n:0:${#n}-3}"
+  done
+  tokens_fmt="${n}${tokens_fmt}"
+  label="tokens"; [ "$ctx_tokens" = "1" ] && label="token"
+  line1_parts+=("${C_FG}${tokens_fmt} ${label}${C_RESET}")
+fi
+
 if [ -n "$cwd_display" ]; then
   line1_parts+=("${C_CWD}📁 ${cwd_display}${C_RESET}")
 fi
@@ -140,42 +166,17 @@ for i in "${!line1_parts[@]}"; do
   line1+="${line1_parts[$i]}"
 done
 
-line2_parts=()
-if [ -n "$model" ]; then
-  model_lc=$(echo "$model" | tr '[:upper:]' '[:lower:]')
-  if [ "$model_family" = "fable" ] && [ "$effort" = "max" ]; then
-    # rainbow runs continuously across "model (effort)"
-    line2_parts+=("$(rainbow "$model_lc ($effort)")")
-  elif [ "$model_family" = "fable" ]; then
-    line2_parts+=("$(rainbow "$model_lc")${effort:+${C_FG} (${effort})${C_RESET}}")
-  else
-    line2_parts+=("${C_FG}${model_lc}${effort:+ (${effort})}${C_RESET}")
-  fi
-fi
-# tokens: input tokens currently in the context window, comma-grouped
-if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0" ]; then
-  n="$ctx_tokens"; tokens_fmt=""
-  while [ ${#n} -gt 3 ]; do
-    tokens_fmt=",${n: -3}${tokens_fmt}"
-    n="${n:0:${#n}-3}"
-  done
-  tokens_fmt="${n}${tokens_fmt}"
-  label="tokens"; [ "$ctx_tokens" = "1" ] && label="token"
-  line2_parts+=("${C_FG}${tokens_fmt} ${label}${C_RESET}")
-fi
-
+# line 2: settings warnings, only shown when present
 line2=""
-for i in "${!line2_parts[@]}"; do
-  if [ "$i" -gt 0 ]; then
-    line2+="${C_PIPE} | ${C_RESET}"
-  fi
-  line2+="${line2_parts[$i]}"
-done
-
 if [ -n "$drift" ]; then
-  line2+="${line2:+ }${C_DRIFT}settings diverged (${drift})${C_RESET}"
+  line2+="${line2:+ }${C_DRIFT}🆘 settings diverged (${drift})${C_RESET}"
 fi
 if [ -n "$untracked" ]; then
-  line2+="${line2:+ }${C_YELLOW}untracked settings (${untracked})${C_RESET}"
+  line2+="${line2:+ }${C_YELLOW}📥 untracked settings (${untracked})${C_RESET}"
 fi
-printf '%b\n%b' "$line1" "$line2"
+
+if [ -n "$line2" ]; then
+  printf '%b\n%b' "$line1" "$line2"
+else
+  printf '%b' "$line1"
+fi

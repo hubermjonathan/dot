@@ -86,7 +86,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 - Health checks with `~` are expanded at runtime — fine to embed `~/.config/...` directly.
 - `[setup].interactive = true` is required for any command that prompts — without it, stdin is closed and the auth flow hangs.
 - The `claude` module links `user-global.md` to `~/.claude/CLAUDE.md` and `settings.repo.json` to `~/.claude/settings.repo.json`. The targets describe what they become on the machine, not what they're called in this repo — see `modules/claude/`.
-- Claude settings are split three ways: `settings.repo.json` (versioned, applies everywhere), `~/.claude/settings.work.json` (machine-local, work-specific, NOT versioned), and `~/.claude/settings.json` (the file Claude actually reads — produced by merging `machine ⊕ work ⊕ repo`, right wins). The statusline shows two text indicators: `settings diverged (N)` (red) when repo keys are missing/different on the machine, `untracked settings (N)` (yellow) when `settings.json` has leaves absent from both repo and work — the prompt to file each one into the appropriate layer.
+- Claude settings are split three ways: `settings.repo.json` (versioned, applies everywhere), `~/.claude/settings.work.json` (machine-local, work-specific, NOT versioned), and `~/.claude/settings.json` (the file Claude actually reads — produced by merging `machine ⊕ work ⊕ repo`, right wins). The statusline shows two indicators: 🆘 `settings diverged (N)` (red) when repo keys are missing/different on the machine, 📥 `untracked settings (N)` (yellow) when `settings.json` has leaves absent from both repo and work — the prompt to file each one into the appropriate layer.
 
 ## Module catalogue
 
