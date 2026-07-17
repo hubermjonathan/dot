@@ -12,7 +12,8 @@ eval "$(echo "$input" | jq -r '
   "ctx_used=" + ((.context_window.used_percentage // "") | tostring | @sh) + " " +
   "cost_usd=" + ((.cost.total_cost_usd // "") | tostring | @sh) + " " +
   "wt_branch=" + ((.worktree.branch // "") | @sh) + " " +
-  "transcript_path=" + ((.transcript_path // "") | @sh)
+  "transcript_path=" + ((.transcript_path // "") | @sh) + " " +
+  "effort=" + ((.effort.level // "") | @sh)
 ')"
 
 tildify() { [[ "$1" == "$HOME"* ]] && echo "~${1#$HOME}" || echo "$1"; }
@@ -64,9 +65,11 @@ if [ -n "$model_raw" ]; then
   fi
 fi
 
-# effort
-effort=$(jq -r '.effortLevel // empty' ~/.claude/settings.json 2>/dev/null)
-if [ "$effort" = "null" ]; then effort=""; fi
+# effort: session value from stdin, falling back to persisted setting
+if [ -z "$effort" ]; then
+  effort=$(jq -r '.effortLevel // empty' ~/.claude/settings.json 2>/dev/null)
+  if [ "$effort" = "null" ]; then effort=""; fi
+fi
 
 # settings drift: how many repo-required keys are missing/different on this machine
 drift=""
