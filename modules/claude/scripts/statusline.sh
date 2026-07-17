@@ -9,8 +9,6 @@ eval "$(echo "$input" | jq -r '
   "cwd=" + ((.workspace.current_dir // .cwd // "") | @sh) + " " +
   "worktree=" + ((.worktree.name // "") | @sh) + " " +
   "model_raw=" + ((.model.id // .model.display_name // "") | @sh) + " " +
-  "ctx_used=" + ((.context_window.used_percentage // "") | tostring | @sh) + " " +
-  "cost_usd=" + ((.cost.total_cost_usd // "") | tostring | @sh) + " " +
   "wt_branch=" + ((.worktree.branch // "") | @sh) + " " +
   "transcript_path=" + ((.transcript_path // "") | @sh) + " " +
   "effort=" + ((.effort.level // "") | @sh)
@@ -85,12 +83,6 @@ if [ -x ~/.claude/scripts/check-untracked.sh ] && [ -f ~/.claude/settings.json ]
   if [ "$untracked" = "0" ]; then untracked=""; fi
 fi
 
-# context
-if [ "$ctx_used" = "null" ] || [ "$ctx_used" = "" ]; then ctx_used=""; fi
-
-# cost
-if [ "$cost_usd" = "null" ] || [ "$cost_usd" = "" ]; then cost_usd=""; fi
-
 # dirty: single git call for tracked + untracked
 dirty=""
 if [ -n "$cwd" ]; then
@@ -151,71 +143,33 @@ done
 line2_parts=()
 if [ -n "$model" ]; then
   model_lc=$(echo "$model" | tr '[:upper:]' '[:lower:]')
-  case "$model_family" in
-    haiku)  line2_parts+=("${C_GREEN}🤖 ${model_lc}${C_RESET}") ;;
-    sonnet) line2_parts+=("${C_ORANGE}🤖 ${model_lc}${C_RESET}") ;;
-    opus)   line2_parts+=("${C_RED}🤖 ${model_lc}${C_RESET}") ;;
-    fable)  line2_parts+=("🤖 $(rainbow "$model_lc")") ;;
-    *)      line2_parts+=("${C_FG}🤖 ${model_lc}${C_RESET}") ;;
-  esac
-fi
-if [ -n "$effort" ]; then
-  case "$effort" in
-    low)         effort_color="$C_GREEN" ;;
-    medium)      effort_color="$C_YELLOW" ;;
-    high)        effort_color="$C_ORANGE" ;;
-    xhigh)       effort_color="$C_RED" ;;
-    *)           effort_color="$C_FG" ;;
-  esac
-  if [ "$effort" = "max" ]; then
-    line2_parts+=("💪 $(rainbow "$effort")")
+  if [ "$model_family" = "fable" ] && [ "$effort" = "max" ]; then
+    # rainbow runs continuously across "model (effort)"
+    line2_parts+=("$(rainbow "$model_lc ($effort)")")
+  elif [ "$model_family" = "fable" ]; then
+    line2_parts+=("$(rainbow "$model_lc")${effort:+${C_FG} (${effort})${C_RESET}}")
   else
-    line2_parts+=("${effort_color}💪 ${effort}${C_RESET}")
+    line2_parts+=("${C_FG}${model_lc}${effort:+ (${effort})}${C_RESET}")
   fi
 fi
-if [ -n "$ctx_used" ]; then
-  ctx_int=$(printf '%.0f' "$ctx_used")
-  if   [ "$ctx_int" -ge 80 ]; then ctx_color="$C_RED"
-  elif [ "$ctx_int" -ge 60 ]; then ctx_color="$C_ORANGE"
-  elif [ "$ctx_int" -ge 40 ]; then ctx_color="$C_YELLOW"
-  else                             ctx_color="$C_GREEN"
-  fi
-  line2_parts+=("${ctx_color}🧠 ${ctx_int}%${C_RESET}")
-fi
-if [ -n "$cost_usd" ]; then
-  cost_fmt=$(printf '$%.2f' "$cost_usd")
-  cost_cents=$(printf '%.0f' "$(echo "$cost_usd * 100" | bc -l 2>/dev/null || echo 0)")
-  if   [ "$cost_cents" -ge 2500 ]; then cost_color="$C_RED"
-  elif [ "$cost_cents" -ge 1000 ]; then cost_color="$C_ORANGE"
-  elif [ "$cost_cents" -ge 200 ];  then cost_color="$C_YELLOW"
-  else                                  cost_color="$C_GREEN"
-  fi
-  line2_parts+=("${cost_color}💵 ${cost_fmt}${C_RESET}")
-fi
-# water: cumulative tokens from transcript * (60/10000)*(0.000264172/1) gal
+# tokens used: cumulative from transcript, comma-grouped
 if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
   total_tokens=$(jq -s '
     [.[] | .message.usage // empty
       | (.input_tokens // 0)
       + (.output_tokens // 0)
       + (.cache_creation_input_tokens // 0)
-      + (.cache_read_input_tokens // 0) * 0.3
+      + (.cache_read_input_tokens // 0)
     ] | add // 0 | round
   ' "$transcript_path" 2>/dev/null)
   if [ -n "$total_tokens" ] && [ "$total_tokens" != "0" ]; then
-    water_gal=$(echo "$total_tokens * (60/10000) * (0.000264172/1)" | bc -l 2>/dev/null)
-    water_fmt=$(printf '%.2f' "${water_gal:-0}")
-    water_int=$(printf '%.0f' "${water_gal:-0}")
-    if   [ "$water_int" -ge 15 ]; then water_color="$C_RED"
-    elif [ "$water_int" -ge 5 ];  then water_color="$C_ORANGE"
-    elif [ "$water_int" -ge 1 ];  then water_color="$C_YELLOW"
-    else                               water_color="$C_GREEN"
-    fi
-    if [ "$water_fmt" = "1.00" ]; then
-      line2_parts+=("${water_color}💧 ${water_fmt} gal${C_RESET}")
-    else
-      line2_parts+=("${water_color}💧 ${water_fmt} gals${C_RESET}")
-    fi
+    n="$total_tokens"; tokens_fmt=""
+    while [ ${#n} -gt 3 ]; do
+      tokens_fmt=",${n: -3}${tokens_fmt}"
+      n="${n:0:${#n}-3}"
+    done
+    tokens_fmt="${n}${tokens_fmt}"
+    line2_parts+=("${C_FG}${tokens_fmt}${C_RESET}")
   fi
 fi
 
@@ -227,16 +181,10 @@ for i in "${!line2_parts[@]}"; do
   line2+="${line2_parts[$i]}"
 done
 
-line2_plain=$(printf '%b' "$line2" | sed -E $'s/\x1b\\[[0-9;]*m//g')
-line2_width=$(printf '%s' "$line2_plain" | python3 -c 'import sys,unicodedata; s=sys.stdin.read(); w=sum(2 if unicodedata.east_asian_width(c) in ("W","F") else 0 if unicodedata.category(c).startswith("M") or c=="‍" or 0xFE00<=ord(c)<=0xFE0F else 1 for c in s); print(w)' 2>/dev/null || printf '%s' "$line2_plain" | awk '{print length}')
-hbar=$(printf -- '─%.0s' $(seq 1 $((${line2_width:-1} + 2))))
-top_border="${C_PIPE}┌${hbar}┐${C_RESET}"
-bot_border="${C_PIPE}└${hbar}┘${C_RESET}"
-line2_boxed="${C_PIPE}│${C_RESET} ${line2} ${C_PIPE}│${C_RESET}"
 if [ -n "$drift" ]; then
-  line2_boxed+=" ${C_DRIFT}🆘 settings diverged (${drift})${C_RESET}"
+  line2+="${line2:+ }${C_DRIFT}settings diverged (${drift})${C_RESET}"
 fi
 if [ -n "$untracked" ]; then
-  line2_boxed+=" ${C_YELLOW}📥 untracked settings (${untracked})${C_RESET}"
+  line2+="${line2:+ }${C_YELLOW}untracked settings (${untracked})${C_RESET}"
 fi
-printf '%b\n%b\n%b\n%b' "$line1" "$top_border" "$line2_boxed" "$bot_border"
+printf '%b\n%b' "$line1" "$line2"
