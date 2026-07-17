@@ -80,7 +80,6 @@
       }
     ]
   },
-  "model": "opus",
   "permissions": {
     "defaultMode": "auto"
   },
