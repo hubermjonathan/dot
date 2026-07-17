@@ -161,10 +161,14 @@ if [ -n "$effort" ]; then
     low)         effort_color="$C_GREEN" ;;
     medium)      effort_color="$C_YELLOW" ;;
     high)        effort_color="$C_ORANGE" ;;
-    xhigh|max)   effort_color="$C_RED" ;;
+    xhigh)       effort_color="$C_RED" ;;
     *)           effort_color="$C_FG" ;;
   esac
-  line2_parts+=("${effort_color}💪 ${effort}${C_RESET}")
+  if [ "$effort" = "max" ]; then
+    line2_parts+=("💪 $(rainbow "$effort")")
+  else
+    line2_parts+=("${effort_color}💪 ${effort}${C_RESET}")
+  fi
 fi
 if [ -n "$ctx_used" ]; then
   ctx_int=$(printf '%.0f' "$ctx_used")
