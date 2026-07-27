@@ -93,5 +93,7 @@
   },
   "worktree": {
     "baseRef": "fresh"
-  }
+  },
+  "theme": "dark",
+  "agentPushNotifEnabled": true
 }
