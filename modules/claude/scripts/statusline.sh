@@ -36,9 +36,15 @@ shorten_path() {
   if [ -z "$begin" ]; then printf '/%s' "$body"; else printf '%s/%s' "$begin" "$body"; fi
 }
 
-# cwd display
-if [ -n "$worktree" ] && [ -n "$cwd" ]; then
-  parent_repo=$(echo "$cwd" | sed 's|/\.claude/worktrees/.*||')
+# worktree: from JSON, else derive from cwd path (.claude/worktrees/<name>/...)
+if [ -z "$worktree" ] && [[ "$cwd" == */.claude/worktrees/* ]]; then
+  wt_rest="${cwd#*/.claude/worktrees/}"
+  worktree="${wt_rest%%/*}"
+fi
+
+# cwd display: show parent repo (strip the worktree suffix), middle folders elided
+if [[ "$cwd" == */.claude/worktrees/* ]]; then
+  parent_repo="${cwd%%/.claude/worktrees/*}"
   cwd_display=$(shorten_path "$(tildify "$parent_repo")")
 elif [ -n "$cwd" ]; then
   cwd_display=$(shorten_path "$(tildify "$cwd")")
