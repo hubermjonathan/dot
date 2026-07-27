@@ -16,12 +16,32 @@ eval "$(echo "$input" | jq -r '
 
 tildify() { [[ "$1" == "$HOME"* ]] && echo "~${1#$HOME}" || echo "$1"; }
 
+# shorten_path: keep root marker + first 2 + last 2 segments, middle -> ...
+# e.g. ~/Code/dot/src/main/modules/backfill/scripts -> ~/Code/dot/.../backfill/scripts
+shorten_path() {
+  local p="$1"
+  local -a seg
+  IFS='/' read -r -a seg <<< "$p"
+  local begin="${seg[0]}"          # "~", "" (absolute), or first segment (relative)
+  local -a after=("${seg[@]:1}")
+  local m=${#after[@]}
+  local body
+  if [ "$m" -gt 4 ]; then
+    body="${after[0]}/${after[1]}/.../${after[m-2]}/${after[m-1]}"
+  elif [ "$m" -gt 0 ]; then
+    local IFS='/'; body="${after[*]}"
+  else
+    printf '%s' "$begin"; return
+  fi
+  if [ -z "$begin" ]; then printf '/%s' "$body"; else printf '%s/%s' "$begin" "$body"; fi
+}
+
 # cwd display
 if [ -n "$worktree" ] && [ -n "$cwd" ]; then
   parent_repo=$(echo "$cwd" | sed 's|/\.claude/worktrees/.*||')
-  cwd_display=$(tildify "$parent_repo")
+  cwd_display=$(shorten_path "$(tildify "$parent_repo")")
 elif [ -n "$cwd" ]; then
-  cwd_display=$(tildify "$cwd")
+  cwd_display=$(shorten_path "$(tildify "$cwd")")
 else
   cwd_display=""
 fi
@@ -121,33 +141,8 @@ rainbow() {
 }
 
 # --- Build output ---
-# line 1: model (effort) › tokens › dir › worktree › branch
+# line 1: dir › worktree › branch
 line1_parts=()
-
-if [ -n "$model" ]; then
-  model_lc=$(echo "$model" | tr '[:upper:]' '[:lower:]')
-  if [ "$model_family" = "fable" ] && [ "$effort" = "max" ]; then
-    # rainbow runs continuously across "model (effort)"
-    line1_parts+=("$(rainbow "$model_lc ($effort)")")
-  elif [ "$model_family" = "fable" ]; then
-    line1_parts+=("$(rainbow "$model_lc")${effort:+${C_FG} (${effort})${C_RESET}}")
-  else
-    line1_parts+=("${C_FG}${model_lc}${effort:+ (${effort})}${C_RESET}")
-  fi
-fi
-
-# tokens: input tokens currently in the context window, comma-grouped
-if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0" ]; then
-  n="$ctx_tokens"; tokens_fmt=""
-  while [ ${#n} -gt 3 ]; do
-    tokens_fmt=",${n: -3}${tokens_fmt}"
-    n="${n:0:${#n}-3}"
-  done
-  tokens_fmt="${n}${tokens_fmt}"
-  label="tokens"; [ "$ctx_tokens" = "1" ] && label="token"
-  line1_parts+=("${C_FG}${tokens_fmt} ${label}${C_RESET}")
-fi
-
 if [ -n "$cwd_display" ]; then
   line1_parts+=("${C_CWD}📁 ${cwd_display}${C_RESET}")
 fi
@@ -157,26 +152,58 @@ fi
 if [ -n "$branch" ]; then
   line1_parts+=("${C_BRANCH}🌿 ${branch}${dirty:+ (*)}${C_RESET}")
 fi
-
 line1=""
 for i in "${!line1_parts[@]}"; do
-  if [ "$i" -gt 0 ]; then
-    line1+="${C_PIPE} › ${C_RESET}"
-  fi
+  if [ "$i" -gt 0 ]; then line1+="${C_PIPE} › ${C_RESET}"; fi
   line1+="${line1_parts[$i]}"
 done
 
-# line 2: settings warnings, only shown when present
+# line 2: model (effort) | tokens
+line2_parts=()
+if [ -n "$model" ]; then
+  model_lc=$(echo "$model" | tr '[:upper:]' '[:lower:]')
+  if [ "$model_family" = "fable" ] && [ "$effort" = "max" ]; then
+    # rainbow runs continuously across "model (effort)"
+    line2_parts+=("$(rainbow "$model_lc ($effort)")")
+  elif [ "$model_family" = "fable" ]; then
+    line2_parts+=("$(rainbow "$model_lc")${effort:+${C_FG} (${effort})${C_RESET}}")
+  else
+    line2_parts+=("${C_FG}${model_lc}${effort:+ (${effort})}${C_RESET}")
+  fi
+fi
+# tokens: input tokens currently in the context window, comma-grouped
+if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0" ]; then
+  n="$ctx_tokens"; tokens_fmt=""
+  while [ ${#n} -gt 3 ]; do
+    tokens_fmt=",${n: -3}${tokens_fmt}"
+    n="${n:0:${#n}-3}"
+  done
+  tokens_fmt="${n}${tokens_fmt}"
+  label="tokens"; [ "$ctx_tokens" = "1" ] && label="token"
+  line2_parts+=("${C_FG}${tokens_fmt} ${label}${C_RESET}")
+fi
 line2=""
+for i in "${!line2_parts[@]}"; do
+  if [ "$i" -gt 0 ]; then line2+="${C_PIPE} | ${C_RESET}"; fi
+  line2+="${line2_parts[$i]}"
+done
+
+# line 3: settings warnings, only shown when present, | separated
+line3_parts=()
 if [ -n "$drift" ]; then
-  line2+="${line2:+ }${C_DRIFT}🆘 settings diverged (${drift})${C_RESET}"
+  line3_parts+=("${C_DRIFT}🆘 settings diverged (${drift})${C_RESET}")
 fi
 if [ -n "$untracked" ]; then
-  line2+="${line2:+ }${C_YELLOW}📥 untracked settings (${untracked})${C_RESET}"
+  line3_parts+=("${C_YELLOW}📥 untracked settings (${untracked})${C_RESET}")
 fi
+line3=""
+for i in "${!line3_parts[@]}"; do
+  if [ "$i" -gt 0 ]; then line3+="${C_PIPE} | ${C_RESET}"; fi
+  line3+="${line3_parts[$i]}"
+done
 
-if [ -n "$line2" ]; then
-  printf '%b\n%b' "$line1" "$line2"
-else
-  printf '%b' "$line1"
-fi
+# emit: line 1 always; line 2 (model) and line 3 (warnings) only when non-empty
+out="$line1"
+[ -n "$line2" ] && out="${out}"$'\n'"${line2}"
+[ -n "$line3" ] && out="${out}"$'\n'"${line3}"
+printf '%b' "$out"
