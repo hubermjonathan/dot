@@ -152,10 +152,10 @@ line1_parts=()
 if [ -n "$cwd_display" ]; then
   line1_parts+=("${C_CWD}📁 ${cwd_display}${C_RESET}")
 fi
+# on a worktree show only the worktree (with dirty marker), else the branch
 if [ -n "$worktree" ]; then
-  line1_parts+=("${C_WT}🌴 ${worktree}${C_RESET}")
-fi
-if [ -n "$branch" ]; then
+  line1_parts+=("${C_WT}🌴 ${worktree}${dirty:+ (*)}${C_RESET}")
+elif [ -n "$branch" ]; then
   line1_parts+=("${C_BRANCH}🌿 ${branch}${dirty:+ (*)}${C_RESET}")
 fi
 line1=""
@@ -190,7 +190,7 @@ if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0"
 fi
 line2=""
 for i in "${!line2_parts[@]}"; do
-  if [ "$i" -gt 0 ]; then line2+="${C_PIPE} | ${C_RESET}"; fi
+  if [ "$i" -gt 0 ]; then line2+="${C_PIPE} › ${C_RESET}"; fi
   line2+="${line2_parts[$i]}"
 done
 
