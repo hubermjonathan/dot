@@ -186,11 +186,8 @@ if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0"
   done
   tokens_fmt="${n}${tokens_fmt}"
   label="tokens"; [ "$ctx_tokens" = "1" ] && label="token"
-  if [ "$ctx_tokens" -gt 150000 ]; then
-    line2_parts+=("${C_RED}🧠 ${tokens_fmt} ${label} 🥴 dumb zone${C_RESET}")
-  else
-    line2_parts+=("${C_FG}🧠 ${tokens_fmt} ${label}${C_RESET}")
-  fi
+  warn=""; [ "$ctx_tokens" -gt 150000 ] && warn=" 🥴"
+  line2_parts+=("${C_FG}🧠 ${tokens_fmt} ${label}${warn}${C_RESET}")
 fi
 line2=""
 for i in "${!line2_parts[@]}"; do
