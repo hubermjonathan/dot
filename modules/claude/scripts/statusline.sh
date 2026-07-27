@@ -170,11 +170,11 @@ if [ -n "$model" ]; then
   model_lc=$(echo "$model" | tr '[:upper:]' '[:lower:]')
   if [ "$model_family" = "fable" ] && [ "$effort" = "max" ]; then
     # rainbow runs continuously across "model (effort)"
-    line2_parts+=("$(rainbow "$model_lc ($effort)")")
+    line2_parts+=("🤖 $(rainbow "$model_lc ($effort)")")
   elif [ "$model_family" = "fable" ]; then
-    line2_parts+=("$(rainbow "$model_lc")${effort:+${C_FG} (${effort})${C_RESET}}")
+    line2_parts+=("🤖 $(rainbow "$model_lc")${effort:+${C_FG} (${effort})${C_RESET}}")
   else
-    line2_parts+=("${C_FG}${model_lc}${effort:+ (${effort})}${C_RESET}")
+    line2_parts+=("${C_FG}🤖 ${model_lc}${effort:+ (${effort})}${C_RESET}")
   fi
 fi
 # tokens: input tokens currently in the context window, comma-grouped
@@ -186,7 +186,11 @@ if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0"
   done
   tokens_fmt="${n}${tokens_fmt}"
   label="tokens"; [ "$ctx_tokens" = "1" ] && label="token"
-  line2_parts+=("${C_FG}${tokens_fmt} ${label}${C_RESET}")
+  if [ "$ctx_tokens" -gt 150000 ]; then
+    line2_parts+=("${C_RED}🧠 ${tokens_fmt} ${label} 🥴 dumb zone${C_RESET}")
+  else
+    line2_parts+=("${C_FG}🧠 ${tokens_fmt} ${label}${C_RESET}")
+  fi
 fi
 line2=""
 for i in "${!line2_parts[@]}"; do
