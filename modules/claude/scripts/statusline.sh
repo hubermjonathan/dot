@@ -146,6 +146,14 @@ rainbow() {
   printf '%s%s' "$out" "$C_RESET"
 }
 
+# join_parts: join remaining args with separator $1 into $REPLY (no subshell)
+join_parts() {
+  local sep="$1"; shift
+  REPLY=""
+  local x
+  for x in "$@"; do REPLY="${REPLY:+$REPLY$sep}$x"; done
+}
+
 # --- Build output ---
 # line 1: dir › worktree › branch
 line1_parts=()
@@ -158,11 +166,7 @@ if [ -n "$worktree" ]; then
 elif [ -n "$branch" ]; then
   line1_parts+=("${C_BRANCH}🌿 ${branch}${dirty:+ (*)}${C_RESET}")
 fi
-line1=""
-for i in "${!line1_parts[@]}"; do
-  if [ "$i" -gt 0 ]; then line1+="${C_PIPE} › ${C_RESET}"; fi
-  line1+="${line1_parts[$i]}"
-done
+join_parts "${C_PIPE} › ${C_RESET}" "${line1_parts[@]}"; line1="$REPLY"
 
 # line 2: model (effort) | tokens
 line2_parts=()
@@ -189,11 +193,7 @@ if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0"
   warn=""; [ "$ctx_tokens" -gt 150000 ] && warn=" 🥴"
   line2_parts+=("${C_FG}🧠 ${tokens_fmt} ${label}${warn}${C_RESET}")
 fi
-line2=""
-for i in "${!line2_parts[@]}"; do
-  if [ "$i" -gt 0 ]; then line2+="${C_PIPE} › ${C_RESET}"; fi
-  line2+="${line2_parts[$i]}"
-done
+join_parts "${C_PIPE} › ${C_RESET}" "${line2_parts[@]}"; line2="$REPLY"
 
 # line 3: settings warnings, only shown when present, | separated
 line3_parts=()
@@ -203,11 +203,7 @@ fi
 if [ -n "$untracked" ]; then
   line3_parts+=("${C_YELLOW}📥 untracked settings (${untracked})${C_RESET}")
 fi
-line3=""
-for i in "${!line3_parts[@]}"; do
-  if [ "$i" -gt 0 ]; then line3+="${C_PIPE} | ${C_RESET}"; fi
-  line3+="${line3_parts[$i]}"
-done
+join_parts "${C_PIPE} | ${C_RESET}" "${line3_parts[@]}"; line3="$REPLY"
 
 # emit: line 1 always; line 2 (model) and line 3 (warnings) only when non-empty
 out="$line1"
