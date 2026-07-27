@@ -1,13 +1,11 @@
-- git branch names should follow the format `jon/<1-5-word-kebab-task-desc>`
+- only ever use lowercase for conversation, english writing, or git
 - worktree names should follow the format `<1-5-word-kebab-task-desc>`
-- use conventional commits in the format `type: description`, keeping the total commit message to at most 50 characters
-- for pr titles, use conventional commit in the format `type(scope): description (ticket)`, where scope is the impacted service(s) and ticket is the github issue or jira ticket associated with the changes (omitted if none available), keeping the description (not total message) to at most 50 characters
-- for each pr, the service version should be bumped accordingly, version can be found in terraform/published.json, gql should instead use `yarn changeset`
-- do not add yourself as a commit co-author
-- when commenting using github cli, end your comment with "\- claude" on a new line
-- when creating jira tickets, prepend the title with [FE|GQL|BE] and link blocked/blocking tickets
-- session naming: rename session to `[PR#-]<1-5-word-kebab-task-desc>` BEFORE your first code change (edit/write/bash that modifies files) or worktree enter
-  - applies to ALL sessions (interactive and background)
-  - prefix with PR# only when working on an existing PR (e.g. `1234-fix-token-expiry`)
-  - no prefix for new work (e.g. `refactor-collision`)
-  - if task is ambiguous, rename after first clarifying question is answered
+- branch names should follow the format `jon/<1-5-word-kebab-task-desc>` or `jon/<wt-name>` if on a worktree
+- commits should use scoped commits in the format `<scope>: <description>`, keeping the total commit message to at most 50 chars, never use body or trailers
+- never add yourself as a commit co-author
+- pr titles should use scoped commits similar to commits, append the associated task ticket in (), omit if none available, do not count the ticket towards char count
+- when commenting on prs, end your comment with "\- claude" on a new line
+- when creating task tickets always link blocked/blocking tasks
+
+read machine specific preferences here: @~/.claude/CLAUDE.local.md
+
