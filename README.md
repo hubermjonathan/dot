@@ -55,15 +55,6 @@ go test ./...        # run unit tests
 | `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
 | `zsh`     | `.zshrc` + `conf.d/` auto-discovery directory |
 
-## Claude Code marketplace
-
-This repo doubles as a Claude Code plugin marketplace. Manifest at `.claude-plugin/marketplace.json`; plugins under `modules/claude/plugins/`.
-
-```
-/plugin marketplace add hubermjonathan/dot
-/plugin install claude-skills@dot
-```
-
 ## Module schema (`module.toml`)
 
 ```toml
