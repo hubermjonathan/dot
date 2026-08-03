@@ -45,7 +45,7 @@ go test ./...        # run unit tests
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `apps`    | Brew + cask bundle: dust; ankerwork, bitwarden, spotify |
-| `claude`  | Claude Code config + statusline + repo settings merger |
+| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig`, `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
