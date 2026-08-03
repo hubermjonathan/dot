@@ -4,10 +4,8 @@ description = "Claude Code configuration"
 
 [links]
 "user-global.md" = "~/.claude/CLAUDE.md"
-"settings.repo.json" = "~/.claude/settings.repo.json"
+"settings.json" = "~/.claude/settings.json"
 "scripts" = "~/.claude/scripts"
-"caveman/config.json" = "~/.config/caveman/config.json"
-"ponytail/config.json" = "~/.config/ponytail/config.json"
 
 [deps]
 brew = ["node"]
@@ -17,10 +15,4 @@ post_link = [
   "command -v claude >/dev/null || curl -fsSL https://claude.ai/install.sh | bash",
   "chmod +x ~/.claude/scripts/*.sh",
   "touch ~/.claude/CLAUDE.local.md",
-  "if [ -L \"$HOME/.claude/settings.local.json\" ]; then rm \"$HOME/.claude/settings.local.json\"; fi",
-  "for old in merge-settings.sh check-settings.sh check-untracked.sh statusline-command.sh; do if [ -L \"$HOME/.claude/$old\" ]; then rm \"$HOME/.claude/$old\"; fi; done",
-  "[ -f \"$HOME/.claude/settings.work.json\" ] || echo '{}' > \"$HOME/.claude/settings.work.json\"",
-  "bash ~/.claude/scripts/merge-settings.sh",
-  "claude plugin marketplace list 2>/dev/null | grep -q ' dot$' || claude plugin marketplace add hubermjonathan/dot",
-  "claude plugin list 2>/dev/null | grep -q ' claude-skills@dot' || claude plugin install claude-skills@dot",
 ]

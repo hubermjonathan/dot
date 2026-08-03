@@ -30,15 +30,8 @@ function cl() {
   ls -a
 }
 
-# claude code
-function c() {
-  claude agents \
-        --model opus \
-        --effort xhigh \
-        --permission-mode auto
-}
-
 # aliases
 alias ..="cd .."
 alias rr="reset"
 alias pbc="pbcopy"
+alias c="claude agents"

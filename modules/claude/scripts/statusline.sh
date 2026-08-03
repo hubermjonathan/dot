@@ -95,18 +95,15 @@ if [ -z "$effort" ]; then
   if [ "$effort" = "null" ]; then effort=""; fi
 fi
 
-# settings drift: how many repo-required keys are missing/different on this machine
-drift=""
-if [ -x ~/.claude/scripts/check-settings.sh ] && [ -f ~/.claude/settings.repo.json ]; then
-  drift=$(bash ~/.claude/scripts/check-settings.sh 2>/dev/null || echo 0)
-  if [ "$drift" = "0" ]; then drift=""; fi
-fi
-
-# untracked: how many machine settings leaves are absent from both repo and work files
-untracked=""
-if [ -x ~/.claude/scripts/check-untracked.sh ] && [ -f ~/.claude/settings.json ]; then
-  untracked=$(bash ~/.claude/scripts/check-untracked.sh 2>/dev/null || echo 0)
-  if [ "$untracked" = "0" ]; then untracked=""; fi
+# settings state: ~/.claude/settings.json is a symlink into the dot repo, so
+# "uncommitted" covers every way it drifts — work tooling writing keys in, an
+# accidental /config change, or a keeper that still needs a commit.
+settings_state=""
+settings_link=$(readlink ~/.claude/settings.json 2>/dev/null)
+if [ -z "$settings_link" ]; then
+  settings_state="unlinked"
+elif [ -n "$(git -C "$(dirname "$settings_link")" --no-optional-locks status --porcelain -- "$settings_link" 2>/dev/null)" ]; then
+  settings_state="uncommitted"
 fi
 
 # dirty: single git call for tracked + untracked
@@ -130,7 +127,6 @@ C_CYAN="\033[38;2;139;233;253m"   # cyan
 C_PURPLE="\033[38;2;189;147;249m" # purple
 C_PINK="\033[38;2;255;121;198m"   # pink
 C_PIPE="\033[38;2;99;99;99m"      # grey39
-C_DRIFT="$C_RED"
 C_RESET="\033[0m"
 
 # rainbow: color each char of $1 with cycling Dracula palette
@@ -195,17 +191,14 @@ if [ -n "$ctx_tokens" ] && [ "$ctx_tokens" != "null" ] && [ "$ctx_tokens" != "0"
 fi
 join_parts "${C_PIPE} › ${C_RESET}" "${line2_parts[@]}"; line2="$REPLY"
 
-# line 3: settings warnings, only shown when present, | separated
-line3_parts=()
-if [ -n "$drift" ]; then
-  line3_parts+=("${C_DRIFT}🆘 settings diverged (${drift})${C_RESET}")
-fi
-if [ -n "$untracked" ]; then
-  line3_parts+=("${C_YELLOW}📥 untracked settings (${untracked})${C_RESET}")
-fi
-join_parts "${C_PIPE} | ${C_RESET}" "${line3_parts[@]}"; line3="$REPLY"
+# line 3: settings warning, only shown when settings.json drifts from the repo
+line3=""
+case "$settings_state" in
+  unlinked)    line3="${C_RED}🆘 settings not linked to repo${C_RESET}" ;;
+  uncommitted) line3="${C_YELLOW}📥 settings uncommitted${C_RESET}" ;;
+esac
 
-# emit: line 1 always; line 2 (model) and line 3 (warnings) only when non-empty
+# emit: line 1 always; line 2 (model) and line 3 (warning) only when non-empty
 out="$line1"
 [ -n "$line2" ] && out="${out}"$'\n'"${line2}"
 [ -n "$line3" ] && out="${out}"$'\n'"${line3}"
