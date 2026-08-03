@@ -15,7 +15,4 @@ post_link = [
   "command -v claude >/dev/null || curl -fsSL https://claude.ai/install.sh | bash",
   "chmod +x ~/.claude/scripts/*.sh",
   "touch ~/.claude/CLAUDE.local.md",
-  "for old in settings.local.json settings.repo.json settings.work.json settings.cli.snapshot.json; do rm -f \"$HOME/.claude/$old\"; done",
-  "for old in merge-settings.sh check-settings.sh check-untracked.sh statusline-command.sh; do if [ -L \"$HOME/.claude/$old\" ]; then rm \"$HOME/.claude/$old\"; fi; done",
-  "for old in caveman ponytail; do rm -rf \"$HOME/.config/$old\"; done",
 ]
