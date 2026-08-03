@@ -85,8 +85,8 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 - `provision` runs **only** on `dot install`, never on `dot doctor --fix`. Use it for things that must not run twice (e.g. `gh auth login`).
 - Health checks with `~` are expanded at runtime — fine to embed `~/.config/...` directly.
 - `[setup].interactive = true` is required for any command that prompts — without it, stdin is closed and the auth flow hangs.
-- The `claude` module links `user-global.md` to `~/.claude/CLAUDE.md` and `settings.repo.json` to `~/.claude/settings.repo.json`. The targets describe what they become on the machine, not what they're called in this repo — see `modules/claude/`. It also `touch`es `~/.claude/CLAUDE.local.md` on link — the machine-local, un-versioned companion that `CLAUDE.md` `@`-imports (mirrors `zsh`'s `~/local.zsh`).
-- Claude settings are split three ways: `settings.repo.json` (versioned, applies everywhere), `~/.claude/settings.work.json` (machine-local, work-specific, NOT versioned), and `~/.claude/settings.json` (the file Claude actually reads — produced by merging `machine ⊕ work ⊕ repo`, right wins). The statusline shows two indicators: 🆘 `settings diverged (N)` (red) when repo keys are missing/different on the machine, 📥 `untracked settings (N)` (yellow) when `settings.json` has leaves absent from both repo and work — the prompt to file each one into the appropriate layer.
+- The `claude` module links `user-global.md` to `~/.claude/CLAUDE.md` and `settings.json` to `~/.claude/settings.json`. The targets describe what they become on the machine, not what they're called in this repo — see `modules/claude/`. It also `touch`es `~/.claude/CLAUDE.local.md` on link — the machine-local, un-versioned companion that `CLAUDE.md` `@`-imports (mirrors `zsh`'s `~/local.zsh`).
+- Claude settings are one file: `modules/claude/settings.json` symlinked straight to `~/.claude/settings.json`. No layering, no merge step. Anything that writes to `~/.claude/settings.json` (Claude Code itself, work tooling) writes through the symlink and shows up as a dirty file in this repo — resolve those by hand and commit or revert. The statusline surfaces both failure modes: 📥 `settings uncommitted` (yellow) when the repo file has uncommitted changes, 🆘 `settings not linked to repo` (red) when `~/.claude/settings.json` is no longer a symlink (a tool replaced the file instead of writing in place — `dot doctor --fix` relinks it).
 
 ## Module catalogue
 
@@ -94,7 +94,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 |--------|--------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, spotify |
-| `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), repo-required settings (`settings.repo.json`), statusline + merge/check helpers |
+| `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), versioned `settings.json`, statusline |
 | `files` | Shared images under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git` | `.gitconfig`, `.gitignore`, `gh` install, interactive `gh auth login` on `dot install` |
