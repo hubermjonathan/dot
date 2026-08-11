@@ -7,3 +7,8 @@ brew = ["dust"]
 
 [apps]
 cask = ["ankerwork", "bitwarden", "handy", "ollama-app", "spotify"]
+
+[setup]
+provision = [
+  "command -v ollama >/dev/null || { echo 'ollama cli not on PATH — launch Ollama.app once, then rerun `dot install apps`'; exit 0; }; ollama list | grep -q 'gemma4:12b-mlx' || ollama pull gemma4:12b-mlx",
+]
