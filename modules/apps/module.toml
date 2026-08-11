@@ -6,4 +6,4 @@ description = "Applications"
 brew = ["dust"]
 
 [apps]
-cask = ["ankerwork", "bitwarden", "spotify"]
+cask = ["ankerwork", "bitwarden", "handy", "ollama-app", "spotify"]
