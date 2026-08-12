@@ -49,6 +49,7 @@ go test ./...        # run unit tests
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig`, `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
+| `handy`   | Handy speech-to-text: seeds `settings_store.json` (parakeet model, right-option hotkey, ollama post-processing) |
 | `macos`   | Dock, Finder, menu bar, dark mode, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tmux`    | `.tmux.conf` |

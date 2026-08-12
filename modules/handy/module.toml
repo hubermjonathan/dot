@@ -1,0 +1,26 @@
+[module]
+name = "handy"
+description = "Handy speech-to-text (parakeet model, ollama post-processing)"
+
+[links]
+"handy.json" = "~/.config/handy/handy.json"
+"apply.sh" = "~/.config/handy/apply.sh"
+
+[deps]
+brew = ["hf"]
+
+[apps]
+cask = ["handy"]
+
+[health]
+checks = [
+  "file_exists:~/.config/handy/handy.json",
+  "command_succeeds:test -d /Applications/Handy.app",
+  "command_succeeds:test -f ~/Library/Application\\ Support/com.pais.handy/settings_store.json",
+]
+
+[setup]
+post_link = [
+  "chmod +x ~/.config/handy/apply.sh",
+  "~/.config/handy/apply.sh",
+]

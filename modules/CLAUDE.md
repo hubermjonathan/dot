@@ -98,6 +98,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 | `files` | Shared images under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git` | `.gitconfig`, `.gitignore`, `gh` install, interactive `gh auth login` on `dot install` |
+| `handy` | Handy speech-to-text: merges `handy.json` into `~/Library/Application Support/com.pais.handy/settings_store.json`, pre-downloads the parakeet model |
 | `macos` | `defaults write` for Dock, Finder, menu bar, dark mode, wallpaper, profile picture; `pam_tid.so` for sudo Touch ID |
 | `scripts` | AppleScript sources compiled to `.app` bundles in `~/Applications/Scripts` |
 | `tmux` | `.tmux.conf` |
