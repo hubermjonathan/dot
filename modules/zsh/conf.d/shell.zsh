@@ -7,9 +7,8 @@ function git_branch() {
   if [[ $branch == "" ]]; then
     echo " "
   else
-    # dirty marker matches the claude status line: * for tracked or untracked changes
     if [[ -n $(git --no-optional-locks status --porcelain 2>/dev/null | head -1) ]]; then
-      echo " ($branch*) "
+      echo " ($branch *) "
     else
       echo " ($branch) "
     fi
