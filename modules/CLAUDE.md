@@ -93,7 +93,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 | Module | What it does |
 |--------|--------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, spotify |
+| `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, google-chrome, ollama-app, spotify; pulls gemma4:12b-mlx on install |
 | `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), versioned `settings.json`, statusline |
 | `files` | Shared images under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
