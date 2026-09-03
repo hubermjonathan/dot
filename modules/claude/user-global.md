@@ -1,3 +1,4 @@
+- always respond using the caveman skill in ultra mode, without waiting to be asked
 - only ever use lowercase for conversation, english writing, or git
 - worktree names should follow the format `<1-5-word-kebab-task-desc>`
 - branch names should follow the format `jon/<1-5-word-kebab-task-desc>` or `jon/<wt-name>` if on a worktree

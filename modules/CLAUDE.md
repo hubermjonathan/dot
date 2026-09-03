@@ -94,7 +94,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 |--------|--------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `apps` | Brew + cask bundle (no symlinks): dust; ankerwork, bitwarden, google-chrome, ollama-app, spotify; pulls gemma4:12b-mlx on install |
-| `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), versioned `settings.json`, statusline |
+| `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), versioned `settings.json`, statusline; installs the `caveman` skill from `hubermjonathan/skills` via `npx skills`, always-on in ultra |
 | `files` | Shared images under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git` | `.gitconfig`, `.gitignore`, `gh` install, interactive `gh auth login` on `dot install` |
