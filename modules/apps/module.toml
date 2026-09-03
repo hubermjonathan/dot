@@ -3,12 +3,14 @@ name = "apps"
 description = "Applications"
 
 [deps]
-brew = ["dust"]
+brew = ["dust", "ollama"]
 
 [apps]
-cask = ["ankerwork", "bitwarden", "google-chrome", "ollama-app", "spotify"]
+cask = ["ankerwork", "bitwarden", "google-chrome", "spotify"]
 
 [setup]
 provision = [
-  "command -v ollama >/dev/null || { echo 'ollama cli not on PATH — launch Ollama.app once, then rerun `dot install apps`'; exit 0; }; ollama list | grep -q 'gemma4:12b-mlx' || ollama pull gemma4:12b-mlx",
+  "brew services start ollama >/dev/null",
+  "for _ in $(seq 30); do curl -sf http://127.0.0.1:11434/api/tags >/dev/null && break; sleep 1; done",
+  "ollama list | grep -q 'gemma4:12b-mlx' || ollama pull gemma4:12b-mlx",
 ]
