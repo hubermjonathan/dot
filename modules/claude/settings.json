@@ -66,5 +66,6 @@
   "skipAutoPermissionPrompt": true,
   "viewMode": "focus",
   "autoCompactEnabled": false,
-  "promptSuggestionEnabled": false
+  "promptSuggestionEnabled": false,
+  "outputStyle": "Concise"
 }
