@@ -27,6 +27,26 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/scripts/caveman.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/scripts/caveman.sh"
+          }
+        ]
+      }
     ]
   },
   "worktree": {
@@ -37,8 +57,17 @@
     "command": "bash ~/.claude/scripts/statusline.sh",
     "refreshInterval": 10
   },
-  "enabledPlugins": {},
-  "extraKnownMarketplaces": {},
+  "enabledPlugins": {
+    "skills@hubermjonathan": true
+  },
+  "extraKnownMarketplaces": {
+    "hubermjonathan": {
+      "source": {
+        "source": "github",
+        "repo": "hubermjonathan/skills"
+      }
+    }
+  },
   "effortLevel": "medium",
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
