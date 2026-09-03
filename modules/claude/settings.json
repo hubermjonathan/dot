@@ -63,5 +63,8 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "viewMode": "focus",
+  "autoCompactEnabled": false,
+  "promptSuggestionEnabled": false
 }
