@@ -8,16 +8,6 @@
   },
   "model": "opus",
   "hooks": {
-    "PermissionRequest": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "tty=$(ps -eo tty,comm | awk '/zsh|bash|fish/ && /ttys/ {print \"/dev/\" $1; exit}'); [ -z \"$tty\" ] && exit 0; afplay /System/Library/Sounds/Frog.aiff & for i in 1 2 3 4 5; do printf '\\a' > \"$tty\" 2>/dev/null; sleep 2; done &"
-          }
-        ]
-      }
-    ],
     "SessionStart": [
       {
         "hooks": [
@@ -58,14 +48,14 @@
       }
     }
   },
+  "outputStyle": "Concise",
+  "viewMode": "focus",
   "effortLevel": "medium",
+  "promptSuggestionEnabled": false,
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
-  "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "viewMode": "focus",
   "autoCompactEnabled": false,
-  "promptSuggestionEnabled": false,
-  "outputStyle": "Concise"
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
