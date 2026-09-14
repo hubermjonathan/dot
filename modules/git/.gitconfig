@@ -1,6 +1,8 @@
 [user]
 	name = Jonathan Huber
 	email = hubermjonathan@gmail.com
+[core]
+	excludesFile = ~/.gitignore
 [pager]
 	branch = false
 	log = false
