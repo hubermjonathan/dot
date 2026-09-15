@@ -14,6 +14,7 @@ brew = ["node"]
 checks = [
   "dir_exists:~/.claude/plugins/marketplaces/hubermjonathan",
   "command_succeeds:ls ~/.claude/plugins/cache/hubermjonathan/skills/*/skills/caveman/SKILL.md >/dev/null 2>&1",
+  "command_succeeds:ls ~/.claude/plugins/cache/hubermjonathan/skills/*/skills/unslop/SKILL.md >/dev/null 2>&1",
   "file_exists:~/.claude/caveman-mode",
 ]
 

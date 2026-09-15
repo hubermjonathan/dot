@@ -94,7 +94,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 |--------|--------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `apps` | Brew + cask bundle (no symlinks): dust, ollama; ankerwork, bitwarden, google-chrome, spotify; pulls gemma4:12b-mlx on install |
-| `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), versioned `settings.json`, statusline; declares the `hubermjonathan/skills` marketplace and enables its `skills` plugin, and keeps `caveman` always-on via a `SessionStart`/`UserPromptSubmit` hook reading `~/.claude/caveman-mode` |
+| `claude` | Global Claude Code config (`user-global.md` → `~/.claude/CLAUDE.md`), versioned `settings.json`, statusline; declares the `hubermjonathan/skills` marketplace and enables its `skills` plugin, and keeps `unslop` always-on via a `SessionStart`/`UserPromptSubmit` hook running `scripts/unslop.sh` (no config, hooked means on). `scripts/caveman.sh` is kept alongside it, reading `~/.claude/caveman-mode` (`lite`/`full`/`ultra`/`off`), unhooked. Point the hooks back at it to re-enable |
 | `files` | Shared images under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git` | `.gitconfig` (sets `core.excludesFile = ~/.gitignore`), global `.gitignore` (`.DS_Store`, `.scratch/`, `**/.claude/settings.local.json`), `gh` install, interactive `gh auth login` on `dot install` |
