@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/caveman.sh"
+            "command": "bash ~/.claude/scripts/unslop.sh"
           }
         ]
       }
@@ -23,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/caveman.sh"
+            "command": "bash ~/.claude/scripts/unslop.sh"
           }
         ]
       }
