@@ -13,9 +13,7 @@ brew = ["node"]
 [health]
 checks = [
   "dir_exists:~/.claude/plugins/marketplaces/hubermjonathan",
-  "command_succeeds:ls ~/.claude/plugins/cache/hubermjonathan/skills/*/skills/caveman/SKILL.md >/dev/null 2>&1",
-  "command_succeeds:ls ~/.claude/plugins/cache/hubermjonathan/skills/*/skills/unslop/SKILL.md >/dev/null 2>&1",
-  "file_exists:~/.claude/caveman-mode",
+  "command_succeeds:ls ~/.claude/plugins/cache/hubermjonathan/skills/*/skills/*/technical-writing/SKILL.md >/dev/null 2>&1",
 ]
 
 [setup]
@@ -23,5 +21,4 @@ post_link = [
   "command -v claude >/dev/null || curl -fsSL https://claude.ai/install.sh | bash",
   "chmod +x ~/.claude/scripts/*.sh",
   "touch ~/.claude/CLAUDE.local.md",
-  "[ -f ~/.claude/caveman-mode ] || echo ultra > ~/.claude/caveman-mode",
 ]

@@ -4,6 +4,29 @@
     "CLAUDE_CODE_NO_FLICKER": "1"
   },
   "permissions": {
+    "allow": [
+      "Read(~/.claude/pipelines/**)",
+      "Write(~/.claude/pipelines/**)",
+      "Edit(~/.claude/pipelines/**)",
+      "Bash(~/.claude/pipelines/bin/*)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr comment *)",
+      "Bash(gh pr ready *)",
+      "Bash(gh pr merge --auto *)",
+      "Bash(gh pr create *)",
+      "Bash(gh api *)",
+      "Bash(gh ou promote *)",
+      "Bash(git push *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git status *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git worktree *)"
+    ],
     "defaultMode": "auto"
   },
   "model": "opus",
@@ -13,7 +36,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/unslop.sh"
+            "command": "bash ~/.claude/scripts/technical-writing.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/pipelines/bin/pipeline-session-start.sh"
           }
         ]
       }
@@ -23,7 +54,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/unslop.sh"
+            "command": "bash ~/.claude/scripts/technical-writing.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/pipelines/bin/pipeline-advance.sh"
           }
         ]
       }
@@ -38,13 +79,21 @@
     "refreshInterval": 10
   },
   "enabledPlugins": {
-    "skills@hubermjonathan": true
+    "skills@hubermjonathan": true,
+    "ou-bq-domain@ou-claude-plugins": true,
+    "design-profile@hubermjonathan": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
       "source": {
         "source": "github",
         "repo": "hubermjonathan/skills"
+      }
+    },
+    "ou-claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "OfferUp/claude-plugins-ou"
       }
     }
   },
@@ -54,6 +103,7 @@
   "promptSuggestionEnabled": false,
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "theme": "dark",
   "autoCompactEnabled": false,
   "agentPushNotifEnabled": true,
