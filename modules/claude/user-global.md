@@ -23,6 +23,7 @@ PR, CI, ticket, deploy, branch, and service status change while we work. A statu
 This Mac is set up by `~/Code/dot` (`hubermjonathan/dot`). Dot is how I take any machine from a fresh wipe to my machine, ready to work: apps, CLI tools, shell, git, and agent config all live in that repo and get applied from it. The repo is the source of truth for this machine, so a change made only on the machine is lost the next time I set one up.
 
 - **Change anything dot manages through dot.** That covers editing config and installing new apps or CLI tools. Many config files under `~` are symlinks into the repo; `readlink` tells you.
+- **Install software with Homebrew.** Prefer a formula or a cask over a curl script, a language package manager, or a manual download.
 - **Every dot change lands as a PR in `hubermjonathan/dot`.** If an open PR for that change already exists, push to it instead of opening another.
 - **Some config is machine-specific.** Dot has a concept of machine-specific files, such as `~/.claude/CLAUDE.local.md`, that it sets up but doesn't track. The repo is public, so anything that shouldn't be public goes there.
 
