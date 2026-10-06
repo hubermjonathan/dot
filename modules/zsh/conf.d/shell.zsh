@@ -55,4 +55,4 @@ function cl() {
 alias ..="cd .."
 alias rr="reset"
 alias pbc="pbcopy"
-alias c="claude agents"
+alias c="claude"
