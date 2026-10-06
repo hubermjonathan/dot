@@ -40,6 +40,7 @@ tab() {
 
 # cd ls
 function chpwd() {
+  [[ -n $CLAUDECODE ]] && return
   emulate -L zsh
   ls -a
 }
