@@ -40,7 +40,7 @@ tab() {
 
 # cd ls
 function chpwd() {
-  [[ -n $CLAUDECODE ]] && return
+  [[ -n $CODING_AGENT ]] && return
   emulate -L zsh
   ls -a
 }

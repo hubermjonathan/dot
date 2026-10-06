@@ -1,35 +1,13 @@
 {
   "env": {
     "CLAUDE_CODE_ENABLE_AUTO_MODE": "1",
-    "CLAUDE_CODE_NO_FLICKER": "1"
+    "CLAUDE_CODE_NO_FLICKER": "1",
+    "CODING_AGENT": "claude"
   },
   "permissions": {
-    "allow": [
-      "Read(~/.claude/pipelines/**)",
-      "Write(~/.claude/pipelines/**)",
-      "Edit(~/.claude/pipelines/**)",
-      "Bash(~/.claude/pipelines/bin/*)",
-      "Bash(gh pr view *)",
-      "Bash(gh pr checks *)",
-      "Bash(gh pr list *)",
-      "Bash(gh pr diff *)",
-      "Bash(gh pr comment *)",
-      "Bash(gh pr ready *)",
-      "Bash(gh pr merge --auto *)",
-      "Bash(gh pr create *)",
-      "Bash(gh api *)",
-      "Bash(gh ou promote *)",
-      "Bash(git push *)",
-      "Bash(git diff *)",
-      "Bash(git log *)",
-      "Bash(git status *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(git worktree *)"
-    ],
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "claude-opus-5-5[1m]",
   "hooks": {
     "SessionStart": [
       {
@@ -37,14 +15,6 @@
           {
             "type": "command",
             "command": "bash ~/.claude/scripts/technical-writing.sh"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/pipelines/bin/pipeline-session-start.sh"
           }
         ]
       }
@@ -55,16 +25,6 @@
           {
             "type": "command",
             "command": "bash ~/.claude/scripts/technical-writing.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/pipelines/bin/pipeline-advance.sh"
           }
         ]
       }
@@ -99,13 +59,13 @@
   },
   "outputStyle": "Concise",
   "viewMode": "focus",
-  "effortLevel": "medium",
+  "effortLevel": "xhigh",
   "promptSuggestionEnabled": false,
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "autoCompactEnabled": false,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "autoCompactWindow": 500000
 }
