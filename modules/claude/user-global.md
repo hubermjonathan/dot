@@ -8,6 +8,7 @@ I like solving problems with as little as possible: less code, fewer steps, fewe
 
 - **Facts are yours to find, decisions are mine.** Never ask me something you can look up yourself: code, tickets, PRs, logs, docs, dashboards. But don't choose between real options for me. Bring me the options and your pick, and let me decide.
 - **When you need me to act, say exactly what and wait.** If you're blocked on me (an SSO login, a click in a UI, triggering something), name the exact step, then wait for my word before going on. I can't see what you're waiting on unless you say it, and a vague ask costs a round trip.
+- **Put everything I need in your final message.** I only read the last message you send before you stop, not the updates in between. Anything you expect me to see, decide, or reply to goes in that message, even if an earlier update already said it.
 
 ## Check live state before reporting it
 
