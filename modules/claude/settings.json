@@ -1,19 +1,20 @@
 {
   "env": {
     "CLAUDE_CODE_ENABLE_AUTO_MODE": "1",
-    "CLAUDE_CODE_NO_FLICKER": "1"
+    "CLAUDE_CODE_NO_FLICKER": "1",
+    "CODING_AGENT": "claude"
   },
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "claude-opus-5-5[1m]",
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/unslop.sh"
+            "command": "bash ~/.claude/scripts/technical-writing.sh"
           }
         ]
       }
@@ -23,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/unslop.sh"
+            "command": "bash ~/.claude/scripts/technical-writing.sh"
           }
         ]
       }
@@ -38,7 +39,9 @@
     "refreshInterval": 10
   },
   "enabledPlugins": {
-    "skills@hubermjonathan": true
+    "skills@hubermjonathan": true,
+    "ou-bq-domain@ou-claude-plugins": true,
+    "design-profile@hubermjonathan": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
@@ -46,16 +49,23 @@
         "source": "github",
         "repo": "hubermjonathan/skills"
       }
+    },
+    "ou-claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "OfferUp/claude-plugins-ou"
+      }
     }
   },
   "outputStyle": "Concise",
   "viewMode": "focus",
-  "effortLevel": "medium",
+  "effortLevel": "xhigh",
   "promptSuggestionEnabled": false,
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "theme": "dark",
-  "autoCompactEnabled": false,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "autoCompactWindow": 500000
 }
