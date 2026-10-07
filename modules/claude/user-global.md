@@ -37,10 +37,10 @@ This machine is set up by `~/Code/dot` (`hubermjonathan/dot`). Dot is how I take
 - **Install software with Homebrew.** Prefer a formula or a cask over a curl script, a language package manager, or a manual download.
 - **Every dot change lands as a PR in `hubermjonathan/dot`.** If an open PR for that change already exists, push to it instead of opening another.
 - **Work machine config lives in dot-work.** Dot's repo is public, so private config for the work machine goes in `~/Code/dot-work` (`hubermjonathan/dot-work`, private), such as private skills, personal details, or config that fits only that machine. Its config files are symlinked into place, and its skills install as the `work` plugin, the same way the public skills do. Commit and push each change straight to its `main`. A skill change reaches an agent after a plugin update.
-- **Secrets never go in a repo.** They go in `~/.zshrc.secrets`, which loads in every shell.
+- **Secrets never go in a repo.** They go in `~/.zshrc.secrets`, which loads in every shell. dot-work tracks each secret's name, never its value, so add a new secret's name there too.
 
 ## Other
 
 - **Temporary files go in `.scratch`.** Use the `.scratch` dir at the repo or folder root for files that support the work but aren't part of it: handoff prompts, test plans, scratch notes. It's in the global gitignore, so nothing there gets committed by accident. Docs and files that belong in the project go where the project keeps them.
 
-Read and follow machine-specific preferences here: @~/.claude/CLAUDE.local.md
+Read and follow machine-specific preferences here: @~/.agents/AGENTS.local.md
