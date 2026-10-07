@@ -11,13 +11,12 @@ cask = ["rectangle"]
 
 [health]
 checks = [
-  "file_exists:~/.config/rectangle/RectangleConfig.json",
-  "command_succeeds:test -d /Applications/Rectangle.app",
+  { name = "app-installed", check = "command_succeeds:test -d /Applications/Rectangle.app" },
 ]
 
 [setup]
 post_link = [
-  "chmod +x ~/.config/rectangle/apply.sh",
-  "~/.config/rectangle/apply.sh",
-  "pgrep -x Rectangle >/dev/null && killall Rectangle; open -gja Rectangle",
+  { name = "chmod-apply", run = "chmod +x ~/.config/rectangle/apply.sh" },
+  { name = "apply-settings", run = "~/.config/rectangle/apply.sh" },
+  { name = "restart-rectangle", run = "pgrep -x Rectangle >/dev/null && killall Rectangle; open -gja Rectangle" },
 ]

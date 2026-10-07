@@ -13,8 +13,7 @@ import (
 )
 
 func runInteractive() error {
-	modulesDir := filepath.Join(getRepoRoot(), "modules")
-	modules, err := module.Discover(modulesDir)
+	modules, err := getModules(nil)
 	if err != nil {
 		return err
 	}

@@ -14,13 +14,12 @@ cask = ["handy"]
 
 [health]
 checks = [
-  "file_exists:~/.config/handy/handy.json",
-  "command_succeeds:test -d /Applications/Handy.app",
-  "command_succeeds:test -f ~/Library/Application\\ Support/com.pais.handy/settings_store.json",
+  { name = "app-installed", check = "command_succeeds:test -d /Applications/Handy.app" },
+  { name = "settings-store", check = "command_succeeds:test -f ~/Library/Application\\ Support/com.pais.handy/settings_store.json" },
 ]
 
 [setup]
 post_link = [
-  "chmod +x ~/.config/handy/apply.sh",
-  "~/.config/handy/apply.sh",
+  { name = "chmod-apply", run = "chmod +x ~/.config/handy/apply.sh" },
+  { name = "apply-settings", run = "~/.config/handy/apply.sh" },
 ]

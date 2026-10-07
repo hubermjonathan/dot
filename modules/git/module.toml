@@ -9,16 +9,11 @@ description = "Git configuration"
 [deps]
 brew = ["git", "gh"]
 
-[health]
-checks = [
-  "command_succeeds:gh auth status",
-]
-
 [setup]
 interactive = true
 post_link = [
-  "if [ ! -f ~/.gitconfig.local ]; then touch ~/.gitconfig.local; else echo '~/.gitconfig.local already exists, skipping...'; fi",
+  { name = "create-gitconfig-local", run = "if [ ! -f ~/.gitconfig.local ]; then touch ~/.gitconfig.local; else echo '~/.gitconfig.local already exists, skipping...'; fi" },
 ]
 provision = [
-  "gh auth status >/dev/null 2>&1 || gh auth login --git-protocol ssh --web",
+  { name = "gh-auth", run = "gh auth status >/dev/null 2>&1 || gh auth login --git-protocol ssh --web", check = "command_succeeds:gh auth status" },
 ]

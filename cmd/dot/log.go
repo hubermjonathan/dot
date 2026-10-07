@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hubermjonathan/dotfiles/internal/installer"
+	"github.com/hubermjonathan/dotfiles/internal/module"
 	"github.com/hubermjonathan/dotfiles/internal/ui"
 )
 
@@ -64,7 +65,7 @@ func runStep(label, doneStatus string, fn func(*ui.Step) []error) int {
 // picking spinner-vs-passthrough based on mod.Interactive. Interactive scripts
 // stream stdout/stderr directly so prompts (auth flows, sudo) are visible;
 // non-interactive scripts buffer behind the spinner.
-func runScriptsStep(label, doneStatus, kind string, scripts []string, interactive bool) int {
+func runScriptsStep(label, doneStatus, kind string, scripts []module.Step, interactive bool) int {
 	if !interactive {
 		return runStep(label, doneStatus, func(s *ui.Step) []error {
 			return installer.RunScripts(scripts, kind, false, s)
