@@ -8,5 +8,8 @@
 	log = false
 [pull]
 	rebase = false
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
 [include]
 	path = ~/.gitconfig.local
