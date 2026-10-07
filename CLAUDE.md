@@ -25,7 +25,7 @@ Personal macOS dotfiles managed by `dot`, a Go CLI (Cobra-based) that walks `mod
 | `dot link [mod...]` | Create symlinks, run `setup.post_link` |
 | `dot unlink [mod...]` | Remove symlinks |
 | `dot install [mod...]` | brew formulae + casks + `setup.provision` |
-| `dot doctor [--fix]` | Run symlink + `[health]` checks; optionally repair |
+| `dot doctor [--fix]` | Run symlink checks plus every named check (`[health]` and step `check`s); optionally repair |
 | `dot status [--diff]` | Per-module link state; `--diff` shows divergence vs repo |
 
 Module args optional → omit to act on every module. Exit codes: `0` ok, `1` partial, `2` fatal.
@@ -37,6 +37,7 @@ Output: each subprocess step renders as a single spinner row (label + most recen
 - **Continue-on-error**: one module failing must not stop later modules. Commands collect failures and exit non-zero at the end.
 - **Symlink direction**: source = file in repo, target = path under `~`. `~` expanded at runtime via `internal/pathutil`.
 - **Idempotent post_link**: every command in `[setup].post_link` runs on every `dot link`. Always guard side effects (`test -f ...`, `grep -q ...`, etc.).
+- **Every step is named**: `post_link`, `provision`, and `[health]` entries are `{ name = ... }` tables, so `~/.dot-skips` can skip a whole module or one `<module>/<name>` on this machine. `getModules` applies the skips file for every command. See `modules/CLAUDE.md`.
 - **Provision is one-shot**: `[setup].provision` runs only on `dot install`. Use it for things that must not re-run (e.g. `gh auth login`).
 - **Backups before replace**: `dot link` moves a pre-existing regular file to `~/.dotfiles-backup/<module>/<basename>.<hash>` before linking. `dot doctor --fix` does *not* back up — it assumes prior `dot link`.
 - **Directory symlinks supported**: e.g. `zsh/conf.d` → `~/.config/zsh`. Files dropped inside are immediately live.

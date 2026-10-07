@@ -7,4 +7,4 @@ description = "Common files shared across machines"
 "zoom-background.jpg" = "~/Pictures/zoom-background.jpg"
 
 [setup]
-post_link = ["mkdir -p ~/Code"]
+post_link = [{ name = "create-code-dir", run = "mkdir -p ~/Code" }]

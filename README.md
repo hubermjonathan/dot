@@ -75,22 +75,35 @@ brew = ["mytool"]            # brew formulae
 cask = ["mytool-desktop"]    # brew casks
 
 [health]
-# Run during `dot doctor`. Three check kinds:
+# Run during `dot doctor`. Three check kinds: file_exists, dir_exists, command_succeeds
 checks = [
-  "file_exists:~/.myrc",
-  "dir_exists:~/.config/mytool",
-  "command_succeeds:mytool --version",
+  { name = "config-dir", check = "dir_exists:~/.config/mytool" },
 ]
 
 [setup]
 interactive = false          # if true, post_link/provision get tty passthrough
 post_link = [                # runs after `dot link` — MUST be idempotent
-  "touch ~/.myrc.local",
+  { name = "create-local-rc", run = "touch ~/.myrc.local" },
 ]
 provision = [                # runs only on `dot install` — one-shot side effects
-  "mytool auth login",
+  # `check` is optional; it runs in `dot doctor` and is skipped with its step
+  { name = "auth", run = "mytool auth login", check = "command_succeeds:mytool auth status" },
 ]
 ```
+
+Every step and check needs a `name`: kebab-case and unique within the module.
+
+### Skipping on one machine
+
+`~/.dot-skips` lists what dot skips on this machine, one entry per line. It isn't tracked in the repo. `dot install` and `dot link` create it with a comment header if it's missing, so new and existing machines both get it.
+
+```
+# work Mac
+macos/sudo-touchid    # one step, plus its check
+apps                  # a whole module
+```
+
+`install`, `link`, `doctor`, `status`, `unlink`, and the picker all leave skipped modules and steps out. An entry that matches no module or step prints a warning. To skip something on a new machine before its first install, create `~/.dot-skips` before running the installer.
 
 ### Symlink behavior
 

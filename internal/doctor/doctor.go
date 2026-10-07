@@ -89,10 +89,10 @@ func Check(mod *module.Module) []Issue {
 
 	// Check health
 	home, _ := os.UserHomeDir()
-	for _, h := range mod.Health {
-		expanded := h
+	for _, h := range mod.Checks() {
+		expanded := h.Check
 		if home != "" {
-			expanded = strings.ReplaceAll(h, "~/", home+"/")
+			expanded = strings.ReplaceAll(h.Check, "~/", home+"/")
 		}
 		check := ParseCheck(expanded)
 		if check == nil {
@@ -102,7 +102,7 @@ func Check(mod *module.Module) []Issue {
 			issues = append(issues, Issue{
 				Module:      mod.Name,
 				Type:        "health",
-				Description: err.Error(),
+				Description: fmt.Sprintf("%s: %v", h.Name, err),
 				FixAction:   nil,
 			})
 		}

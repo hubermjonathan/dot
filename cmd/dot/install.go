@@ -21,12 +21,14 @@ func init() {
 }
 
 func runInstall(cmd *cobra.Command, args []string) error {
+	fmt.Println("install")
+	if err := ensureSkips(); err != nil {
+		return err
+	}
 	modules, err := getModules(args)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("install")
 	var failures int
 	for _, mod := range modules {
 		failures += installModule(mod)

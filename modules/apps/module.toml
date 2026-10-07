@@ -10,7 +10,7 @@ cask = ["ankerwork", "bitwarden", "google-chrome", "spotify"]
 
 [setup]
 provision = [
-  "brew services start ollama >/dev/null",
-  "for _ in $(seq 30); do curl -sf http://127.0.0.1:11434/api/tags >/dev/null && break; sleep 1; done",
-  "ollama list | grep -q 'gemma4:12b-mlx' || ollama pull gemma4:12b-mlx",
+  { name = "start-ollama", run = "brew services start ollama >/dev/null" },
+  { name = "wait-for-ollama", run = "for _ in $(seq 30); do curl -sf http://127.0.0.1:11434/api/tags >/dev/null && break; sleep 1; done" },
+  { name = "pull-gemma", run = "ollama list | grep -q 'gemma4:12b-mlx' || ollama pull gemma4:12b-mlx" },
 ]

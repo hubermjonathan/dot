@@ -6,11 +6,11 @@ Pure logic, no CLI concerns. Each package exports a small surface; `cmd/dot/` wi
 
 | Package | Responsibility |
 |---------|---------------|
-| `module/` | `Module` struct, TOML parsing (`toml.go`), filesystem discovery (`discover.go`) |
+| `module/` | `Module` and `Step` structs, TOML parsing and step-name validation (`toml.go`), filesystem discovery (`discover.go`), the `~/.dot-skips` file (`skips.go`: `EnsureSkips`, `LoadSkips`, `ApplySkips`) |
 | `linker/` | Symlink create / remove / verify, with backup-before-replace for regular files |
 | `installer/` | `brew install` / `brew install --cask` (`InstallBrew`/`InstallCask`) and `RunScripts` for `post_link`/`provision`. Entry points take `io.Writer` for combined stdout/stderr; the caller (typically `ui.Step`) owns buffering. Failures are reported as `*CommandError` |
 | `ui/` | Single-line spinner that renders a step label + most recent output line, captures the full buffer for replay, and degrades to plain status lines off-TTY. `Step` implements `io.Writer` |
-| `doctor/` | Aggregates symlink + `[health]` issues into `Issue`s, attaches optional `FixAction` |
+| `doctor/` | Aggregates symlink + check issues (`Module.Checks()`: `[health]` plus step `check`s) into `Issue`s, attaches optional `FixAction` |
 | `tui/` | Bubble Tea picker — list of modules with selection state |
 | `pathutil/` | `ExpandHome` (`~` → `$HOME`) — used by both `cmd/dot/` and `internal/` |
 

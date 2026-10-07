@@ -8,8 +8,8 @@ Each subdirectory is one module. Required: a `module.toml` plus the config files
 2. Drop config files into the module directory.
 3. Declare symlinks in `[links]`: `"source-relative" = "~/target-absolute"`.
 4. Add brew formulae in `[deps].brew`, casks in `[apps].cask`.
-5. Add `[setup].post_link` for idempotent setup, `[setup].provision` for one-shot bootstrap.
-6. Add `[health].checks` so `dot doctor` can verify the module.
+5. Add `[setup].post_link` for idempotent setup, `[setup].provision` for one-shot bootstrap. Give each step a `name`.
+6. Add checks so `dot doctor` can verify the module: a `check` on the step it verifies, or a named entry in `[health].checks` when no step matches.
 7. `dot link <name>` (and `dot install <name>` if it pulls anything new from brew).
 
 ## `module.toml` schema
@@ -32,16 +32,35 @@ cask = ["mytool-app"]     # `brew install --cask`
 
 [health]
 checks = [
-  "file_exists:~/.myrc",
-  "dir_exists:~/.config/mytool",
-  "command_succeeds:mytool --version",
+  { name = "app-installed", check = "dir_exists:/Applications/MyTool.app" },
 ]
 
 [setup]
 interactive = false        # if true, post_link/provision get tty passthrough
-post_link = ["..."]        # runs every `dot link` — MUST be idempotent
-provision = ["..."]        # runs only on `dot install` — one-shot
+post_link = [              # runs every `dot link` — MUST be idempotent
+  { name = "create-local-rc", run = "touch ~/.myrc.local" },
+]
+provision = [              # runs only on `dot install` — one-shot
+  { name = "auth", run = "mytool auth login", check = "command_succeeds:mytool auth status" },
+]
 ```
+
+## Steps and checks
+
+Every `post_link` step, `provision` step, and `[health]` check is a table with a `name`. Names are kebab-case and unique within the module, because `~/.dot-skips` names them as `<module>/<name>`. `module.Load` rejects a step without a name, and `TestRepoModulesLoad` fails `go test` if any module in the repo doesn't load.
+
+- Setup steps need `run`, an `sh -c` command. An optional `check` verifies the step in `dot doctor`, and skipping the step skips its check too.
+- `[health]` checks have `check` and no `run`. Use them only for checks that no step owns, such as an app installed by a cask.
+- Don't add a check for a file in `[links]`; `dot doctor` already verifies every link.
+
+## Skips file
+
+`~/.dot-skips` is machine-local and untracked, like `~/local.zsh`. One entry per line, `#` starts a comment:
+
+- `<module>` skips the whole module.
+- `<module>/<name>` skips one step or check.
+
+`getModules` in `cmd/dot/link.go` applies it, so every command leaves skipped items out, and it prints each applied entry once per run. Entries that match nothing print a warning. `dot install` and `dot link` create the file with a comment header when it's missing.
 
 ## Sections cheat-sheet
 
@@ -51,9 +70,9 @@ provision = ["..."]        # runs only on `dot install` — one-shot
 | `[links]` | Optional | Files or directories. `~` expanded at runtime |
 | `[deps].brew` | Optional | Formulae, installed via `dot install` |
 | `[apps].cask` | Optional | Casks, installed via `dot install` |
-| `[health].checks` | Optional | `kind:arg` strings; see below |
-| `[setup].post_link` | Optional | Sh-exec, runs after every `dot link` |
-| `[setup].provision` | Optional | Sh-exec, runs only on `dot install` |
+| `[health].checks` | Optional | `{ name, check }` tables; `check` is a `kind:arg` string, see below |
+| `[setup].post_link` | Optional | `{ name, run, check? }` tables. `run` is sh-exec, runs after every `dot link` |
+| `[setup].provision` | Optional | `{ name, run, check? }` tables. `run` is sh-exec, runs only on `dot install` |
 | `[setup].interactive` | Optional | Default false. True → setup commands inherit stdin/stdout/stderr |
 
 ## Health check kinds

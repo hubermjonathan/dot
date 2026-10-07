@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
@@ -25,12 +26,14 @@ func init() {
 }
 
 func runLink(cmd *cobra.Command, args []string) error {
+	fmt.Println("link")
+	if err := ensureSkips(); err != nil {
+		return err
+	}
 	modules, err := getModules(args)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("link")
 	var failures int
 	for _, mod := range modules {
 		failures += linkModule(mod)
@@ -86,16 +89,47 @@ func linkModule(mod *module.Module) int {
 
 // Shared helpers used by all commands
 
+// reportSkips prints skipped entries once per run, even when a command such as
+// the interactive picker loads modules more than once.
+var reportSkips sync.Once
+
+// ensureSkips creates ~/.dot-skips on first install or link.
+func ensureSkips() error {
+	created, err := module.EnsureSkips(expandHome(module.SkipsPath))
+	if err != nil {
+		return err
+	}
+	if created {
+		result(iconOK, "created  "+module.SkipsPath)
+	}
+	return nil
+}
+
 func expandHome(path string) string {
 	return pathutil.ExpandHome(path)
 }
 
+// getModules loads the repo's modules minus what ~/.dot-skips skips, so every
+// command respects the skips file.
 func getModules(filter []string) ([]*module.Module, error) {
 	modulesDir := filepath.Join(getRepoRoot(), "modules")
 	all, err := module.Discover(modulesDir)
 	if err != nil {
 		return nil, err
 	}
+	entries, err := module.LoadSkips(expandHome(module.SkipsPath))
+	if err != nil {
+		return nil, err
+	}
+	all, applied, unknown := module.ApplySkips(all, entries)
+	reportSkips.Do(func() {
+		for _, id := range applied {
+			result(iconSkip, fmt.Sprintf("skipped  %s (%s)", id, module.SkipsPath))
+		}
+		for _, id := range unknown {
+			fmt.Fprintf(os.Stderr, "    %s %s: no module or step named %q\n", iconWarn, module.SkipsPath, id)
+		}
+	})
 	if len(filter) == 0 {
 		return all, nil
 	}

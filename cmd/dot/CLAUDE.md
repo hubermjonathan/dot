@@ -9,7 +9,7 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 | `main.go` | `rootCmd` | Wires Cobra, owns persistent `-v` / `--verbose` flag, exits `2` on error |
 | `log.go` | (helpers) | Shared output formatters: `modHeader`, `result`, `resultErr`, `reportErrs`, `runStep`, `runScriptsStep`, `runInteractiveStep`, `indentWriter`, status icons |
 | `interactive.go` | `dot` (no subcommand) | TUI picker → install + link selected |
-| `link.go` | `dot link` | Owns shared helpers (`expandHome`, `getModules`, `getRepoRoot`) |
+| `link.go` | `dot link` | Owns shared helpers (`expandHome`, `getModules`, `getRepoRoot`, `ensureSkips`). `getModules` applies `~/.dot-skips` |
 | `unlink.go` | `dot unlink` | Removes only entries that are actually symlinks |
 | `install.go` | `dot install` | brew + cask + `provision` |
 | `doctor.go` | `dot doctor [--fix]` | Walks all modules; `--fix` invokes `Issue.FixAction`. `--orphans` walks `~`/`~/.config`/`~/.claude`/`~/Library/{Preferences,Application Support}` for symlinks pointing into the repo that no module declares; `--fix` removes them and rmdirs empty parents. |
@@ -20,7 +20,7 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 1. Create `cmd/dot/<name>.go`.
 2. Declare `var <name>Cmd = &cobra.Command{...}` and register in `func init() { rootCmd.AddCommand(<name>Cmd) }`.
 3. Implement `run<Name>(cmd *cobra.Command, args []string) error`.
-4. Resolve modules with `getModules(args)` (empty filter = all modules).
+4. Resolve modules with `getModules(args)` (empty filter = all modules). It already drops what `~/.dot-skips` skips, so commands don't check skips themselves.
 5. Expand any `~` paths via `expandHome` (or `pathutil.ExpandHome` in `internal/`).
 
 ## Conventions
