@@ -7,7 +7,7 @@ description = "Zsh shell configuration"
 "conf.d" = "~/.config/zsh"
 
 [setup]
-post_link = ["touch ~/local.zsh"]
+post_link = [{ name = "create-local-zsh", run = "touch ~/local.zsh" }]
 
 [deps]
 brew = ["zsh"]

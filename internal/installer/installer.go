@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/hubermjonathan/dotfiles/internal/module"
 )
 
 func BuildBrewArgs(formulae []string) []string {
@@ -53,18 +55,18 @@ func InstallCask(casks []string, out io.Writer) error {
 	return run(exec.Command("brew", BuildCaskArgs(casks)...), "brew install --cask", out)
 }
 
-// RunScripts runs each command with `sh -c`. stdout+stderr are routed to out.
-// When interactive is true, the child also inherits the controlling stdin so
-// prompts work; the caller is responsible for passing os.Stdout/os.Stderr (or
-// the equivalent) as out so prompts are visible.
-func RunScripts(commands []string, label string, interactive bool, out io.Writer) []error {
+// RunScripts runs each step's command with `sh -c`. stdout+stderr are routed
+// to out. When interactive is true, the child also inherits the controlling
+// stdin so prompts work; the caller is responsible for passing
+// os.Stdout/os.Stderr (or the equivalent) as out so prompts are visible.
+func RunScripts(steps []module.Step, label string, interactive bool, out io.Writer) []error {
 	var errs []error
-	for _, c := range commands {
-		cmd := exec.Command("sh", "-c", c)
+	for _, s := range steps {
+		cmd := exec.Command("sh", "-c", s.Run)
 		if interactive {
 			cmd.Stdin = os.Stdin
 		}
-		if err := run(cmd, fmt.Sprintf("%s %q", label, c), out); err != nil {
+		if err := run(cmd, fmt.Sprintf("%s %s", label, s.Name), out); err != nil {
 			errs = append(errs, err)
 		}
 	}
