@@ -51,6 +51,18 @@ function cl() {
   ls -a
 }
 
+# delete every .scratch dir under ~, or under the dirs given, after a prompt
+function rmscratch() {
+  local -a dirs
+  dirs=(${(f)"$(find "${@:-$HOME}" \( -path "$HOME/Library" -o -name node_modules -o -name .git \) -prune -o -type d -name .scratch -prune -print 2>/dev/null)"})
+  (( ${#dirs} )) || { echo "no .scratch dirs"; return 0 }
+  du -shc "${dirs[@]}" | sed "s#$HOME#~#"
+  local reply
+  read "reply?delete ${#dirs} dirs? [y/N] "
+  [[ $reply == [yY] ]] || return 1
+  rm -rf -- "${dirs[@]}" && echo "deleted ${#dirs} dirs"
+}
+
 # aliases
 alias ..="cd .."
 alias rr="reset"
