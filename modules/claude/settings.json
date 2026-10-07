@@ -41,7 +41,8 @@
   "enabledPlugins": {
     "skills@hubermjonathan": true,
     "ou-bq-domain@ou-claude-plugins": true,
-    "design-profile@hubermjonathan": true
+    "design-profile@hubermjonathan": true,
+    "work@dot-work": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
@@ -54,6 +55,12 @@
       "source": {
         "source": "github",
         "repo": "OfferUp/claude-plugins-ou"
+      }
+    },
+    "dot-work": {
+      "source": {
+        "source": "github",
+        "repo": "hubermjonathan/dot-work"
       }
     }
   },
