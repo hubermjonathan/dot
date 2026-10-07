@@ -51,7 +51,7 @@ function cl() {
   ls -a
 }
 
-# delete every .scratch dir under ~, or under the dirs given, after a prompt
+# delete scratch dirs
 function rmscratch() {
   local -a dirs
   dirs=(${(f)"$(find "${@:-$HOME}" \( -path "$HOME/Library" -o -name node_modules -o -name .git \) -prune -o -type d -name .scratch -prune -print 2>/dev/null)"})
