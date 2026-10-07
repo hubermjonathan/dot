@@ -55,7 +55,7 @@ Every `post_link` step, `provision` step, and `[health]` check is a table with a
 
 ## Skips file
 
-`~/.dot-skips` is machine-local and untracked, like `~/local.zsh`. One entry per line, `#` starts a comment:
+`~/.dot-skips` is machine-local and not tracked by dot, like `~/.zshrc.local`. One entry per line, `#` starts a comment:
 
 - `<module>` skips the whole module.
 - `<module>/<name>` skips one step or check.
@@ -104,7 +104,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 - `provision` runs **only** on `dot install`, never on `dot doctor --fix`. Use it for things that must not run twice (e.g. `gh auth login`).
 - Health checks with `~` are expanded at runtime — fine to embed `~/.config/...` directly.
 - `[setup].interactive = true` is required for any command that prompts — without it, stdin is closed and the auth flow hangs.
-- The `claude` module links `user-global.md` to `~/.claude/CLAUDE.md` and `settings.json` to `~/.claude/settings.json`. The targets describe what they become on the machine, not what they're called in this repo — see `modules/claude/`. It also `touch`es `~/.claude/CLAUDE.local.md` on link — the machine-local, un-versioned companion that `CLAUDE.md` `@`-imports (mirrors `zsh`'s `~/local.zsh`).
+- The `claude` module links `user-global.md` to `~/.claude/CLAUDE.md` and `settings.json` to `~/.claude/settings.json`. The targets describe what they become on the machine, not what they're called in this repo — see `modules/claude/`. It also `touch`es `~/.agents/AGENTS.local.md` on link. That file is the machine-local companion, not tracked by dot, that `CLAUDE.md` `@`-imports, like `zsh`'s `~/.zshrc.local`. It lives under `~/.agents/`, not `~/.claude/`, so any agent can read it.
 - Claude settings are one file: `modules/claude/settings.json` symlinked straight to `~/.claude/settings.json`. No layering, no merge step. Anything that writes to `~/.claude/settings.json` (Claude Code itself, work tooling) writes through the symlink and shows up as a dirty file in this repo — resolve those by hand and commit or revert. The statusline surfaces both failure modes: 📥 `settings uncommitted` (yellow) when the repo file has uncommitted changes, 🆘 `settings not linked to repo` (red) when `~/.claude/settings.json` is no longer a symlink (a tool replaced the file instead of writing in place — `dot doctor --fix` relinks it).
 
 ## Module catalogue

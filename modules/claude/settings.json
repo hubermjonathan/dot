@@ -40,13 +40,20 @@
   },
   "enabledPlugins": {
     "skills@hubermjonathan": true,
-    "design-profile@hubermjonathan": true
+    "design-profile@hubermjonathan": true,
+    "work@dot-work": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
       "source": {
         "source": "github",
         "repo": "hubermjonathan/skills"
+      }
+    },
+    "dot-work": {
+      "source": {
+        "source": "github",
+        "repo": "hubermjonathan/dot-work"
       }
     }
   },
