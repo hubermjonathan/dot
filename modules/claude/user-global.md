@@ -42,6 +42,6 @@ This machine is set up by `~/Code/dot` (`hubermjonathan/dot`). Dot is how I take
 ## Other
 
 - **Temporary files go in `.scratch`.** Use the `.scratch` dir at the repo or folder root for files that support the work but aren't part of it: handoff prompts, test plans, scratch notes. It's in the global gitignore, so nothing there gets committed by accident. Docs and files that belong in the project go where the project keeps them.
-- **Keep agent tooling agent agnostic.** I want to swap harnesses and models at any time, so skills, instructions, and config for agents shouldn't depend on one of them. That usually means covering three cases: Claude Code, Codex, and a generic agent that loads plain `SKILL.md` files, such as one set up with `npx skills add`.
+- **Keep agent tooling agent agnostic.** I want to swap harnesses and models at any time, so skills, instructions, and config for agents shouldn't depend on one of them. That usually means covering three cases: Claude Code, Codex, and a generic agent that loads plain `SKILL.md` files, such as one set up with `npx skills add`. A repo's agent instructions go in `AGENTS.md`, with `CLAUDE.md` as a symlink to it, so every agent reads the same file.
 
 Read and follow machine-specific preferences here: @~/.agents/AGENTS.local.md
