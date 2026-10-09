@@ -11,7 +11,7 @@ I like solving problems with as little as possible: less code, fewer steps, fewe
 - **Subtract before you add.** Before building something new, look for what to remove. Removing first often shows the simpler design. Leave things simpler than you found them.
 - **Fix the root cause, not the symptom.** Reproduce the problem, then ask why until you reach the cause, and fix it there. A workaround that needs a long explanation means the fix is in the wrong place. When stuck, read the real error or add logging instead of guessing.
 - **Prove it works by checking the real thing.** Before calling something done, look at the result itself, not a proxy like a passing compile, a file's timestamp, or a subagent's report. When the check can be a script, write one, so anyone can run it again. When a check fails, suspect the check before the system.
-- **Add a layer only when it pays for itself.** Before adding a wrapper, a new file or skill, a config value, or a piece of state, check that it saves more to understand somewhere else than it costs. Someone new should be able to answer "where does this come from?" and "what can change it?" in under a minute.
+- **Add a layer only when it pays for itself.** Before adding a wrapper, a new file or skill, a config value, or a piece of state, check that it saves more to understand somewhere else than it costs. Someone new should be able to answer "where does this come from?" and "what can change it?" in under 30 seconds.
 - **Prefer a mechanism over an instruction.** When the same fix or reminder comes up a second time, make it a script, hook, check, or lint rule, pick the strongest one that fits, and delete the instruction. Keep prose only for what needs judgment, and give it an example of the failure.
 
 ## How we work
