@@ -54,7 +54,7 @@ go test ./...        # run unit tests
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tmux`    | `.tmux.conf` |
 | `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
-| `zsh`     | `.zshrc` + `conf.d/` auto-discovery directory |
+| `zsh`     | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
 
 ## Module schema (`module.toml`)
 
@@ -121,6 +121,8 @@ apps                  # a whole module
 ## Zsh config
 
 Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every file in it on shell start. No `module.toml` change required.
+
+`.zshenv` sources `~/.zshrc.secrets`. zsh reads `.zshenv` in every shell, including the non-interactive `zsh -c` that agents run, so secrets reach those shells too.
 
 ## Repository layout
 
