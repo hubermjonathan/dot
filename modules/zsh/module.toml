@@ -4,6 +4,7 @@ description = "Zsh shell configuration"
 
 [links]
 ".zshrc" = "~/.zshrc"
+".zshenv" = "~/.zshenv"
 "conf.d" = "~/.config/zsh"
 
 [setup]

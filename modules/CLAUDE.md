@@ -122,4 +122,4 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 | `scripts` | AppleScript sources compiled to `.app` bundles in `~/Applications/Scripts` |
 | `tmux` | `.tmux.conf` |
 | `vim` | `.vimrc`, noir colorscheme, Vundle bootstrap |
-| `zsh` | `.zshrc` + `conf.d/` auto-discovery directory |
+| `zsh` | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
