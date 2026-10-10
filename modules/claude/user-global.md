@@ -36,7 +36,7 @@ This machine is set up by `~/Code/dot` (`hubermjonathan/dot`). Dot is how I take
 - **Change anything dot manages through dot.** That covers editing config and installing new apps or CLI tools. Many config files under `~` are symlinks into the repo; `readlink` tells you.
 - **Install software with Homebrew.** Prefer a formula or a cask over a curl script, a language package manager, or a manual download.
 - **Every dot change lands as a PR in `hubermjonathan/dot`.** If an open PR for that change already exists, push to it instead of opening another.
-- **Work machine config lives in dot-work.** Dot's repo is public, so private config for the work machine goes in `~/Code/dot-work` (`hubermjonathan/dot-work`, private), such as private skills, personal details, or config that fits only that machine. Its config files are symlinked into place, and its skills install as the `work` plugin, the same way the public skills do. Commit and push each change straight to its `main`. A skill change reaches an agent after a plugin update.
+- **Work machine config lives in dot-work.** Dot's repo is public, so private config for the work machine goes in `~/Code/dot-work` (`hubermjonathan/dot-work`, private), such as private skills, personal details, or config that fits only that machine. Its config files are symlinked into place, and its skills install as the `work` plugin, the same way the public skills do. Every dot-work change lands as a PR in `hubermjonathan/dot-work`, the same way. A skill change reaches an agent after it merges and the plugin updates.
 - **Secrets never go in a repo.** They go in `~/.zshrc.secrets`, which loads in every shell. dot-work tracks each secret's name, never its value, so add a new secret's name there too.
 
 ## Other
