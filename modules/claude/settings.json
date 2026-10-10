@@ -42,7 +42,8 @@
     "skills@hubermjonathan": true,
     "ou-bq-domain@ou-claude-plugins": true,
     "design-profile@hubermjonathan": true,
-    "work@dot-work": true
+    "work@dot-work": true,
+    "sso@dot-work": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
