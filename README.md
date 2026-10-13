@@ -122,7 +122,7 @@ apps                  # a whole module
 
 Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every file in it on shell start. No `module.toml` change required.
 
-`.zshenv` sources `~/.zshrc.secrets`. zsh reads `.zshenv` in every shell, including the non-interactive `zsh -c` that agents run, so secrets reach those shells too.
+`.zshenv` sources `~/.zshrc.secrets`, then `~/.zshenv.local`, the machine-local file for environment every shell needs, such as a JDK on `PATH`. zsh reads `.zshenv` in every shell, including the non-interactive `zsh -c` that agents run, so both reach those shells too.
 
 ## Repository layout
 
