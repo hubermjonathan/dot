@@ -120,6 +120,7 @@ Use a directory entry in `[links]` (e.g. `"conf.d" = "~/.config/zsh"`) for auto-
 | `handy` | Handy speech-to-text: merges `handy.json` into `~/Library/Application Support/com.pais.handy/settings_store.json`, pre-downloads the parakeet model |
 | `macos` | `defaults write` for Dock, Finder, menu bar, dark mode, monday week start, wallpaper, profile picture; `pam_tid.so` for sudo Touch ID |
 | `scripts` | AppleScript sources compiled to `.app` bundles in `~/Applications/Scripts` |
+| `tailscale` | Tailscale, with its daemon started at boot as a root brew service; `tailscale up` on `dot install` joins the network |
 | `tmux` | `.tmux.conf` |
 | `vim` | `.vimrc`, noir colorscheme, Vundle bootstrap |
 | `zsh` | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
