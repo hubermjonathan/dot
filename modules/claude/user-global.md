@@ -38,7 +38,7 @@ This machine is set up by `~/Code/dot` (`hubermjonathan/dot`). Dot is how I take
 - **Every dot change lands as a PR in `hubermjonathan/dot`.** If an open PR for that change already exists, push to it instead of opening another.
 - **Work machine config lives in dot-work.** Dot's repo is public, so private config for the work machine goes in `~/Code/dot-work` (`hubermjonathan/dot-work`, private), such as private skills, personal details, or config that fits only that machine. Its config files are symlinked into place, and its skills install as the `work` plugin, the same way the public skills do. Every dot-work change lands as a PR in `hubermjonathan/dot-work`, the same way. A skill change reaches an agent after it merges and the plugin updates.
 - **Secrets never go in a repo.** They go in `~/.zshrc.secrets`, which loads in every shell. dot-work tracks each secret's name, never its value, so add a new secret's name there too.
-- **My dot machines and personal devices share a Tailscale network.** Each one reaches the others by its Tailscale name, which `tailscale status` lists. To let me open something you serve here from my phone or another machine, bind the server to all interfaces, not only `localhost`, and give me `http://<this machine's Tailscale name>:<port>`.
+- **My dot machines and personal devices share a Tailscale network.** Dot's `tailscale` module installs it and joins the machine. Each one reaches the others by its Tailscale name, which `tailscale status` lists. To let me open something you serve here from my phone or another machine, bind the server to all interfaces, not only `localhost`, and give me `http://<this machine's Tailscale name>:<port>`.
 
 ## Other
 

@@ -52,6 +52,7 @@ go test ./...        # run unit tests
 | `handy`   | Handy speech-to-text: seeds `settings_store.json` (parakeet model, right-option hotkey, ollama post-processing) |
 | `macos`   | Dock, Finder, menu bar, dark mode, monday week start, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
+| `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `tmux`    | `.tmux.conf` |
 | `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
 | `zsh`     | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
