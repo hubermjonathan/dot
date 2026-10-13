@@ -13,7 +13,7 @@ brew = ["node", "qrencode"]
 [health]
 checks = [
   { name = "plugin-marketplace", check = "dir_exists:~/.claude/plugins/marketplaces/hubermjonathan" },
-  { name = "technical-writing-skill", check = "command_succeeds:ls ~/.claude/plugins/cache/hubermjonathan/skills/*/skills/*/technical-writing/SKILL.md >/dev/null 2>&1" },
+  { name = "technical-writing-skill", check = "command_succeeds:ls ~/.claude/plugins/cache/hubermjonathan/communication/*/skills/technical-writing/SKILL.md >/dev/null 2>&1" },
 ]
 
 [setup]
