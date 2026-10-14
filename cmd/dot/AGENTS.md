@@ -30,8 +30,8 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 - Collect failures, return `fmt.Errorf("%d operation(s) failed", n)` at end — Cobra surfaces it and `main.go` exits `2`.
 - Never panic on a malformed module — log and continue.
 - `getRepoRoot` finds the repo from the binary's own path, `<repo>/bin/dot`, not from the working directory. The `dot` on `PATH` acts on the main checkout. To run a worktree's modules, build there and run its `./bin/dot`.
-- Module list is sorted by `[links]` source key before iteration so output is deterministic.
+- `module.Discover` sorts modules by name, and each command walks a module's links sorted by source, so output is deterministic.
 
 ## Gotchas
 
-- `interactive.go` is the root handler — it shells out to `runInstall` then `runLink`, so install errors are warned but link still runs.
+- `interactive.go` is the root handler. It calls `runInstall` and then `runLink` in the same process, so an install error prints a warning and link still runs.
