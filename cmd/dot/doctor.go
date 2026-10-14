@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/hubermjonathan/dotfiles/internal/doctor"
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
+	"github.com/hubermjonathan/dotfiles/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -75,7 +75,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		fmt.Printf("\nfixed: %d, failed: %d\n", fixed, failed)
 	}
 
-	if failed > 0 || (!fixFlag && len(allIssues) > 0) {
+	if fixed < len(allIssues) {
 		os.Exit(1)
 	}
 	return nil
@@ -85,7 +85,7 @@ func runOrphans(modules []*module.Module) error {
 	declared := map[string]bool{}
 	for _, m := range modules {
 		for _, tgt := range m.Links {
-			declared[expandHome(tgt)] = true
+			declared[pathutil.ExpandHome(tgt)] = true
 		}
 	}
 
@@ -93,16 +93,12 @@ func runOrphans(modules []*module.Module) error {
 	if err != nil {
 		return err
 	}
-	roots := []string{
-		home,
-		filepath.Join(home, ".config"),
-		filepath.Join(home, ".claude"),
-		filepath.Join(home, "Library", "Preferences"),
-		filepath.Join(home, "Library", "Application Support"),
-	}
 
-	repoRoot := getMainRepoRoot()
-	orphans, err := linker.FindOrphans(roots, repoRoot, declared)
+	repoRoot, err := getMainRepoRoot()
+	if err != nil {
+		return err
+	}
+	orphans, err := linker.FindOrphans(home, repoRoot, declared)
 	if err != nil {
 		return err
 	}

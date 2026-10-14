@@ -9,18 +9,6 @@ import (
 	"github.com/hubermjonathan/dotfiles/internal/module"
 )
 
-func BuildBrewArgs(formulae []string) []string {
-	args := []string{"install"}
-	args = append(args, formulae...)
-	return args
-}
-
-func BuildCaskArgs(casks []string) []string {
-	args := []string{"install", "--cask"}
-	args = append(args, casks...)
-	return args
-}
-
 // CommandError reports a failed subprocess.
 type CommandError struct {
 	Label string
@@ -45,29 +33,29 @@ func InstallBrew(formulae []string, out io.Writer) error {
 	if len(formulae) == 0 {
 		return nil
 	}
-	return run(exec.Command("brew", BuildBrewArgs(formulae)...), "brew install", out)
+	return run(exec.Command("brew", append([]string{"install"}, formulae...)...), "brew install", out)
 }
 
 func InstallCask(casks []string, out io.Writer) error {
 	if len(casks) == 0 {
 		return nil
 	}
-	return run(exec.Command("brew", BuildCaskArgs(casks)...), "brew install --cask", out)
+	return run(exec.Command("brew", append([]string{"install", "--cask"}, casks...)...), "brew install --cask", out)
 }
 
-// RunScripts runs each step's command with `sh -c`. stdout+stderr are routed
-// to out. When interactive is true, the child also inherits the controlling
-// stdin so prompts work; the caller is responsible for passing
-// os.Stdout/os.Stderr (or the equivalent) as out so prompts are visible.
+// RunScripts runs each step's command with `sh -c`, with stdout and stderr
+// routed to out. Interactive steps run on dot's own stdin, stdout, and stderr
+// instead, so prompts work, and ignore out.
 func RunScripts(steps []module.Step, label string, interactive bool, out io.Writer) []error {
 	var errs []error
 	for _, s := range steps {
 		cmd := exec.Command("sh", "-c", s.Run)
+		cmd.Stdout, cmd.Stderr = out, out
 		if interactive {
-			cmd.Stdin = os.Stdin
+			cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		}
-		if err := run(cmd, fmt.Sprintf("%s %s", label, s.Name), out); err != nil {
-			errs = append(errs, err)
+		if err := cmd.Run(); err != nil {
+			errs = append(errs, &CommandError{Label: fmt.Sprintf("%s %s", label, s.Name), Err: err})
 		}
 	}
 	return errs

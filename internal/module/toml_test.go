@@ -20,9 +20,6 @@ func loadTOML(t *testing.T, body string) (*module.Module, error) {
 
 func TestLoadNamedSteps(t *testing.T) {
 	mod, err := loadTOML(t, `
-[module]
-name = "demo"
-
 [health]
 checks = [{ name = "app-installed", check = "dir_exists:/Applications" }]
 
@@ -59,7 +56,7 @@ func TestLoadRejectsBadSteps(t *testing.T) {
 			if !strings.HasPrefix(body, "[health]") {
 				body = "[setup]\n" + body
 			}
-			if _, err := loadTOML(t, "[module]\nname = \"demo\"\n"+body); err == nil {
+			if _, err := loadTOML(t, body); err == nil {
 				t.Fatal("expected an error")
 			}
 		})

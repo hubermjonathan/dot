@@ -1,5 +1,4 @@
 [module]
-name = "files"
 description = "Common files shared across machines"
 
 [links]

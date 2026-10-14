@@ -1,0 +1,37 @@
+# cmd/dot — CLI commands
+
+One Cobra subcommand per file. Root command lives in `main.go` and delegates to `runInteractive()` when no subcommand is supplied.
+
+## Files
+
+| File | Command | Notes |
+|------|---------|-------|
+| `main.go` | `rootCmd` | Wires Cobra, owns persistent `-v` / `--verbose` flag |
+| `log.go` | (helpers) | Shared output formatters: `modHeader`, `result`, `resultErr`, `reportErrs`, `runStep`, `runScriptsStep`, status icons |
+| `interactive.go` | `dot` (no subcommand) | TUI picker → install + link selected |
+| `link.go` | `dot link` | Owns shared helpers (`getModules`, `getRepoRoot`, `ensureSkips`). `getModules` applies `~/.dot-skips` |
+| `unlink.go` | `dot unlink` | Removes only entries that are actually symlinks |
+| `install.go` | `dot install` | brew + cask + `provision` |
+| `doctor.go` | `dot doctor [--fix]` | Walks all modules; `--fix` invokes `Issue.FixAction`. `--orphans` walks `~` for symlinks pointing into the repo that no module declares; `--fix` removes them and rmdirs empty parents. |
+| `status.go` | `dot status [--diff]` | Aggregates link state; `--diff` runs `diff -u` for diverged files |
+
+## Adding a new command
+
+1. Create `cmd/dot/<name>.go`.
+2. Declare `var <name>Cmd = &cobra.Command{...}` and register in `func init() { rootCmd.AddCommand(<name>Cmd) }`.
+3. Implement `run<Name>(cmd *cobra.Command, args []string) error`.
+4. Resolve modules with `getModules(args)` (empty filter = all modules). It already drops what `~/.dot-skips` skips, so commands don't check skips themselves.
+5. Expand any `~` paths with `pathutil.ExpandHome`.
+
+## Conventions
+
+- Print progress to `stdout`, errors to `stderr`. Use the helpers in `log.go`: `modHeader(name)` per module, `runStep(label, doneStatus, fn)` for any subprocess wrapped in a spinner (single-error callers wrap with `errSlice` in `install.go`), `runScriptsStep(label, doneStatus, kind, scripts, interactive)` for installer script lists, which buffers behind a spinner through `runStep`, or for an interactive module runs the scripts on the terminal itself so prompts work. Both emit a final `icon label — status (elapsed)` row for parity. `result(icon, msg)` / `resultErr(msg)` for plain non-spinner outcomes (used by symlink ops in `link.go`).
+- `internal/ui.Step` owns spinner rendering, the captured stdout/stderr buffer, and the elapsed timer.
+- Collect failures, return `fmt.Errorf("%d operation(s) failed", n)` at end — Cobra surfaces it and `main.go` exits `2`.
+- Never panic on a malformed module — log and continue.
+- `getRepoRoot` finds the repo from the binary's own path, `<repo>/bin/dot`, not from the working directory. The `dot` on `PATH` acts on the main checkout. To run a worktree's modules, build there and run its `./bin/dot`.
+- `module.Discover` sorts modules by name, and each command walks a module's links sorted by source, so output is deterministic.
+
+## Gotchas
+
+- `interactive.go` is the root handler. It calls `runInstall` and then `runLink` in the same process, so an install error prints a warning and link still runs.

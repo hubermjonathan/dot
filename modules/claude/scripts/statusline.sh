@@ -36,15 +36,16 @@ shorten_path() {
   if [ -z "$begin" ]; then printf '/%s' "$body"; else printf '%s/%s' "$begin" "$body"; fi
 }
 
-# worktree: from JSON, else derive from cwd path (.claude/worktrees/<name>/...)
-if [ -z "$worktree" ] && [[ "$cwd" == */.claude/worktrees/* ]]; then
-  wt_rest="${cwd#*/.claude/worktrees/}"
+# worktree: from JSON, else derive from cwd path (.claude/worktrees/<name>/... or .scratch/worktrees/<name>/...)
+shopt -s extglob
+if [ -z "$worktree" ] && [[ "$cwd" == */@(.claude|.scratch)/worktrees/* ]]; then
+  wt_rest="${cwd#*/@(.claude|.scratch)/worktrees/}"
   worktree="${wt_rest%%/*}"
 fi
 
 # cwd display: show parent repo (strip the worktree suffix), middle folders elided
-if [[ "$cwd" == */.claude/worktrees/* ]]; then
-  parent_repo="${cwd%%/.claude/worktrees/*}"
+if [[ "$cwd" == */@(.claude|.scratch)/worktrees/* ]]; then
+  parent_repo="${cwd%%/@(.claude|.scratch)/worktrees/*}"
   cwd_display=$(shorten_path "$(tildify "$parent_repo")")
 elif [ -n "$cwd" ]; then
   cwd_display=$(shorten_path "$(tildify "$cwd")")
@@ -58,41 +59,20 @@ if [ -z "$branch" ]; then
   branch="$wt_branch"
 fi
 
-# model: map ARN/name to short name using ANTHROPIC_DEFAULT_*_MODEL settings
+# model: map the model ID or name to its family
 model=""
 model_family=""
-if [ -n "$model_raw" ]; then
-  eval "$(jq -r '
-    .env // {} |
-    "opus_arn="    + ((.ANTHROPIC_DEFAULT_OPUS_MODEL    // "") | @sh) + " " +
-    "sonnet_arn="  + ((.ANTHROPIC_DEFAULT_SONNET_MODEL  // "") | @sh) + " " +
-    "haiku_arn="   + ((.ANTHROPIC_DEFAULT_HAIKU_MODEL   // "") | @sh) + " " +
-    "fable_arn="   + ((.ANTHROPIC_DEFAULT_FABLE_MODEL   // "") | @sh) + " " +
-    "opus_name="   + ((.ANTHROPIC_DEFAULT_OPUS_MODEL_NAME   // "Opus")   | @sh) + " " +
-    "sonnet_name=" + ((.ANTHROPIC_DEFAULT_SONNET_MODEL_NAME // "Sonnet") | @sh) + " " +
-    "haiku_name="  + ((.ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME  // "Haiku")  | @sh) + " " +
-    "fable_name="  + ((.ANTHROPIC_DEFAULT_FABLE_MODEL_NAME  // "Fable")  | @sh)
-  ' ~/.claude/settings.json 2>/dev/null)"
-
-  if   [ -n "$opus_arn" ]   && [ "$model_raw" = "$opus_arn" ];   then model="$opus_name";   model_family="opus"
-  elif [ -n "$sonnet_arn" ] && [ "$model_raw" = "$sonnet_arn" ]; then model="$sonnet_name"; model_family="sonnet"
-  elif [ -n "$haiku_arn" ]  && [ "$model_raw" = "$haiku_arn" ];  then model="$haiku_name";  model_family="haiku"
-  elif [ -n "$fable_arn" ]  && [ "$model_raw" = "$fable_arn" ];  then model="$fable_name";  model_family="fable"
-  else
-    case "$model_raw" in
-      *opus*|*Opus*)     model="${opus_name:-Opus}";     model_family="opus" ;;
-      *sonnet*|*Sonnet*) model="${sonnet_name:-Sonnet}"; model_family="sonnet" ;;
-      *haiku*|*Haiku*)   model="${haiku_name:-Haiku}";   model_family="haiku" ;;
-      *fable*|*Fable*)   model="${fable_name:-Fable}";   model_family="fable" ;;
-      *) model="$model_raw" ;;
-    esac
-  fi
-fi
+case "$model_raw" in
+  *opus*|*Opus*)     model="Opus";   model_family="opus" ;;
+  *sonnet*|*Sonnet*) model="Sonnet"; model_family="sonnet" ;;
+  *haiku*|*Haiku*)   model="Haiku";  model_family="haiku" ;;
+  *fable*|*Fable*)   model="Fable";  model_family="fable" ;;
+  *) model="$model_raw" ;;
+esac
 
 # effort: session value from stdin, falling back to persisted setting
 if [ -z "$effort" ]; then
   effort=$(jq -r '.effortLevel // empty' ~/.claude/settings.json 2>/dev/null)
-  if [ "$effort" = "null" ]; then effort=""; fi
 fi
 
 # settings state: ~/.claude/settings.json is a symlink into the dot repo, so

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Translate Rectangle's exported JSON into `defaults write` calls + import shortcuts via plist.
+# Translate Rectangle's exported JSON into `defaults write` calls.
 set -euo pipefail
 
 CONFIG="${1:-$HOME/.config/rectangle/RectangleConfig.json}"
@@ -9,7 +9,7 @@ DOMAIN="com.knollsoft.Rectangle"
 
 # Defaults: each key has exactly one of {bool,int,float,string} or empty (skip).
 python3 - "$CONFIG" "$DOMAIN" <<'PY'
-import json, plistlib, subprocess, sys, tempfile, os
+import json, subprocess, sys
 
 cfg_path, domain = sys.argv[1], sys.argv[2]
 cfg = json.load(open(cfg_path))
@@ -23,22 +23,13 @@ for key, payload in cfg.get("defaults", {}).items():
     subprocess.run(["defaults", "write", domain, key, flag, val], check=True)
 
 shortcuts = cfg.get("shortcuts", {})
-if shortcuts:
-    plist = {k: {"keyCode": v["keyCode"], "modifierFlags": v["modifierFlags"]}
-             for k, v in shortcuts.items()}
-    with tempfile.NamedTemporaryFile(suffix=".plist", delete=False) as f:
-        plistlib.dump(plist, f)
-        path = f.name
-    try:
-        for k in plist:
-            subprocess.run(["defaults", "delete", domain, k], check=False,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        for k, v in plist.items():
-            subprocess.run([
-                "defaults", "write", domain, k, "-dict",
-                "keyCode", "-int", str(v["keyCode"]),
-                "modifierFlags", "-int", str(v["modifierFlags"]),
-            ], check=True)
-    finally:
-        os.unlink(path)
+for k in shortcuts:
+    subprocess.run(["defaults", "delete", domain, k], check=False,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+for k, v in shortcuts.items():
+    subprocess.run([
+        "defaults", "write", domain, k, "-dict",
+        "keyCode", "-int", str(v["keyCode"]),
+        "modifierFlags", "-int", str(v["modifierFlags"]),
+    ], check=True)
 PY

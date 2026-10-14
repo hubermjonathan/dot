@@ -19,7 +19,6 @@ type tomlConfig struct {
 }
 
 type tomlModule struct {
-	Name        string `toml:"name"`
 	Description string `toml:"description"`
 }
 
@@ -57,7 +56,7 @@ func Load(dir string) (*Module, error) {
 	}
 
 	return &Module{
-		Name:        cfg.Module.Name,
+		Name:        filepath.Base(dir),
 		Description: cfg.Module.Description,
 		Path:        dir,
 		Links:       cfg.Links,

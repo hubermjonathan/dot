@@ -38,7 +38,7 @@ func TestFindOrphansBasic(t *testing.T) {
 	}
 
 	declared := map[string]bool{currentTgt: true}
-	orphans, err := FindOrphans([]string{home}, repo, declared)
+	orphans, err := FindOrphans(home, repo, declared)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func TestFindOrphansIgnoresNonRepoSymlinks(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	orphans, err := FindOrphans([]string{home}, repo, nil)
+	orphans, err := FindOrphans(home, repo, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,6 +72,12 @@ func TestFindOrphansIgnoresNonRepoSymlinks(t *testing.T) {
 }
 
 func TestFindOrphansSkipsWorktrees(t *testing.T) {
+	for _, dir := range worktreeDirs {
+		t.Run(dir, func(t *testing.T) { testFindOrphansSkipsWorktrees(t, dir) })
+	}
+}
+
+func testFindOrphansSkipsWorktrees(t *testing.T, dir string) {
 	repo := t.TempDir()
 	home := t.TempDir()
 
@@ -84,7 +90,7 @@ func TestFindOrphansSkipsWorktrees(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	worktreeDir := filepath.Join(repo, ".claude", "worktrees", "wt1")
+	worktreeDir := filepath.Join(repo, dir, "wt1")
 	if err := os.MkdirAll(worktreeDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -92,7 +98,7 @@ func TestFindOrphansSkipsWorktrees(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	orphans, err := FindOrphans([]string{repo}, repo, nil)
+	orphans, err := FindOrphans(repo, repo, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,10 +109,16 @@ func TestFindOrphansSkipsWorktrees(t *testing.T) {
 }
 
 func TestFindOrphansIncludesDanglingWorktreeLinks(t *testing.T) {
+	for _, dir := range worktreeDirs {
+		t.Run(dir, func(t *testing.T) { testFindOrphansIncludesDanglingWorktreeLinks(t, dir) })
+	}
+}
+
+func testFindOrphansIncludesDanglingWorktreeLinks(t *testing.T, dir string) {
 	repo := t.TempDir()
 	home := t.TempDir()
 
-	dangling := filepath.Join(repo, ".claude", "worktrees", "deleted", "modules", "macos", "wallpaper.jpg")
+	dangling := filepath.Join(repo, dir, "deleted", "modules", "macos", "wallpaper.jpg")
 	tgt := filepath.Join(home, "Documents", "Images", "wallpaper.jpg")
 	if err := os.MkdirAll(filepath.Dir(tgt), 0755); err != nil {
 		t.Fatal(err)
@@ -115,7 +127,7 @@ func TestFindOrphansIncludesDanglingWorktreeLinks(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	orphans, err := FindOrphans([]string{home}, repo, nil)
+	orphans, err := FindOrphans(home, repo, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

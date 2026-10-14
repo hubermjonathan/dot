@@ -1,5 +1,4 @@
 [module]
-name = "macos"
 description = "macOS system preferences"
 
 [links]
