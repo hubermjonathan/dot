@@ -10,7 +10,7 @@ cask = ["rectangle"]
 
 [health]
 checks = [
-  { name = "app-installed", check = "command_succeeds:test -d /Applications/Rectangle.app" },
+  { name = "app-installed", check = "dir_exists:/Applications/Rectangle.app" },
 ]
 
 [setup]

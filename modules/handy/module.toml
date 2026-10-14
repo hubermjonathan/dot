@@ -13,8 +13,8 @@ cask = ["handy"]
 
 [health]
 checks = [
-  { name = "app-installed", check = "command_succeeds:test -d /Applications/Handy.app" },
-  { name = "settings-store", check = "command_succeeds:test -f ~/Library/Application\\ Support/com.pais.handy/settings_store.json" },
+  { name = "app-installed", check = "dir_exists:/Applications/Handy.app" },
+  { name = "settings-store", check = "file_exists:~/Library/Application Support/com.pais.handy/settings_store.json" },
 ]
 
 [setup]
