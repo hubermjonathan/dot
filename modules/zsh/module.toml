@@ -1,5 +1,4 @@
 [module]
-name = "zsh"
 description = "Zsh shell configuration"
 
 [links]

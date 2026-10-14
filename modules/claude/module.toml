@@ -1,5 +1,4 @@
 [module]
-name = "claude"
 description = "Claude Code configuration"
 
 [links]

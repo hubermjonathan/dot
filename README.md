@@ -63,7 +63,7 @@ go test ./...        # run unit tests
 
 ```toml
 [module]
-name = "mytool"
+# the module's name is its folder name
 description = "What it is"
 
 [links]

@@ -1,5 +1,4 @@
 [module]
-name = "handy"
 description = "Handy speech-to-text (parakeet model, ollama post-processing)"
 
 [links]

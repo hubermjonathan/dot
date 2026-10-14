@@ -1,5 +1,4 @@
 [module]
-name = "scripts"
 description = "AppleScript utilities compiled to .app bundles"
 
 [links]

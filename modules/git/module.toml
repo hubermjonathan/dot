@@ -1,5 +1,4 @@
 [module]
-name = "git"
 description = "Git configuration"
 
 [links]

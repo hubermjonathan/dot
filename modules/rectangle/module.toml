@@ -1,5 +1,4 @@
 [module]
-name = "rectangle"
 description = "Rectangle window manager (grid resize + move-to-display)"
 
 [links]

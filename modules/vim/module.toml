@@ -1,5 +1,4 @@
 [module]
-name = "vim"
 description = "Vim editor configuration"
 
 [links]
