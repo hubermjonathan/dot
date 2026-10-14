@@ -143,5 +143,5 @@ scripts/build.sh     — go build helper
 cmd/dot/             — Cobra CLI commands (one file per subcommand)
 internal/            — module discovery, linker, installer, doctor, TUI
 modules/             — one subdirectory per module (each with module.toml)
-bin/                 — built `dot` binary (committed for bootstrap)
+bin/                 — built `dot` binary, gitignored; `bootstrap.sh` and `build.sh` write it
 ```
