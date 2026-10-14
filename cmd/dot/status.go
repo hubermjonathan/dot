@@ -9,6 +9,7 @@ import (
 	"sort"
 
 	"github.com/hubermjonathan/dotfiles/internal/linker"
+	"github.com/hubermjonathan/dotfiles/internal/module"
 	"github.com/spf13/cobra"
 )
 
@@ -32,58 +33,11 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	for _, mod := range modules {
-		linked, broken, missing, diverged := 0, 0, 0, 0
-		total := len(mod.Links)
-		keys := make([]string, 0, len(mod.Links))
-		for k := range mod.Links {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-
-		type linkDetail struct {
-			source, target string
-			status         linker.Status
-		}
-		var details []linkDetail
-
-		for _, source := range keys {
-			target := mod.Links[source]
-			sourcePath := filepath.Join(mod.Path, source)
-			targetPath := expandHome(target)
-			status := linker.Verify(sourcePath, targetPath)
-
-			detail := linkDetail{source: source, target: target, status: status}
-
-			switch status {
-			case linker.StatusOK:
-				linked++
-			case linker.StatusBroken, linker.StatusWrongTarget:
-				broken++
-			case linker.StatusNotSymlink:
-				diverged++
-			default:
-				missing++
-			}
-			details = append(details, detail)
-		}
-
-		state := "unlinked"
-		if total == 0 {
-			state = "no-links"
-		} else if linked == total {
-			state = "linked"
-		} else if broken > 0 {
-			state = "broken"
-		} else if diverged > 0 {
-			state = "diverged"
-		} else if linked > 0 {
-			state = "partial"
-		}
-
+		state, links := moduleState(mod)
 		fmt.Printf("%-12s [%s] %s\n", mod.Name, state, mod.Description)
 
 		if diffFlag {
-			for _, d := range details {
+			for _, d := range links {
 				sourcePath := filepath.Join(mod.Path, d.source)
 				targetPath := expandHome(d.target)
 				switch d.status {
@@ -108,6 +62,51 @@ func runStatus(cmd *cobra.Command, args []string) error {
 		}
 	}
 	return nil
+}
+
+type linkStatus struct {
+	source, target string
+	status         linker.Status
+}
+
+// moduleState verifies each of the module's links, in source order, and sums
+// them into one state for `dot status` and the picker.
+func moduleState(mod *module.Module) (string, []linkStatus) {
+	keys := make([]string, 0, len(mod.Links))
+	for k := range mod.Links {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	var links []linkStatus
+	linked, broken, diverged := 0, 0, 0
+	for _, source := range keys {
+		target := mod.Links[source]
+		status := linker.Verify(filepath.Join(mod.Path, source), expandHome(target))
+		links = append(links, linkStatus{source: source, target: target, status: status})
+		switch status {
+		case linker.StatusOK:
+			linked++
+		case linker.StatusBroken, linker.StatusWrongTarget:
+			broken++
+		case linker.StatusNotSymlink:
+			diverged++
+		}
+	}
+
+	switch {
+	case len(links) == 0:
+		return "no-links", links
+	case linked == len(links):
+		return "linked", links
+	case broken > 0:
+		return "broken", links
+	case diverged > 0:
+		return "diverged", links
+	case linked > 0:
+		return "partial", links
+	}
+	return "unlinked", links
 }
 
 func filesIdentical(a, b string) bool {
