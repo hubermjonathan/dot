@@ -39,9 +39,13 @@
     "refreshInterval": 10
   },
   "enabledPlugins": {
-    "skills@hubermjonathan": true,
+    "engineering@hubermjonathan": true,
+    "communication@hubermjonathan": true,
+    "agents@hubermjonathan": true,
     "design-profile@hubermjonathan": true,
-    "work@dot-work": true
+    "admin@hubermjonathan-work": true,
+    "sso@hubermjonathan-work": true,
+    "factory@hubermjonathan-work": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
@@ -50,7 +54,7 @@
         "repo": "hubermjonathan/skills"
       }
     },
-    "dot-work": {
+    "hubermjonathan-work": {
       "source": {
         "source": "github",
         "repo": "hubermjonathan/dot-work"

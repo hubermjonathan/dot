@@ -45,7 +45,7 @@ go test ./...        # run unit tests
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `apps`    | Brew + cask bundle: dust, ollama; ankerwork, bitwarden, google-chrome, spotify; pulls gemma4:12b-mlx on install |
-| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, `hubermjonathan/skills` marketplace |
+| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, `hubermjonathan/skills` and `hubermjonathan/dot-work` marketplaces |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
