@@ -9,18 +9,6 @@ import (
 	"github.com/hubermjonathan/dotfiles/internal/module"
 )
 
-func BuildBrewArgs(formulae []string) []string {
-	args := []string{"install"}
-	args = append(args, formulae...)
-	return args
-}
-
-func BuildCaskArgs(casks []string) []string {
-	args := []string{"install", "--cask"}
-	args = append(args, casks...)
-	return args
-}
-
 // CommandError reports a failed subprocess.
 type CommandError struct {
 	Label string
@@ -45,14 +33,14 @@ func InstallBrew(formulae []string, out io.Writer) error {
 	if len(formulae) == 0 {
 		return nil
 	}
-	return run(exec.Command("brew", BuildBrewArgs(formulae)...), "brew install", out)
+	return run(exec.Command("brew", append([]string{"install"}, formulae...)...), "brew install", out)
 }
 
 func InstallCask(casks []string, out io.Writer) error {
 	if len(casks) == 0 {
 		return nil
 	}
-	return run(exec.Command("brew", BuildCaskArgs(casks)...), "brew install --cask", out)
+	return run(exec.Command("brew", append([]string{"install", "--cask"}, casks...)...), "brew install --cask", out)
 }
 
 // RunScripts runs each step's command with `sh -c`, with stdout and stderr
