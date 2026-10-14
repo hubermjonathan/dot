@@ -1,15 +1,15 @@
 function git_dir() {
   local dir=$PWD
-  if [[ $dir == */.claude/worktrees/* ]]; then
-    dir=${dir%%/.claude/worktrees/*}
+  if [[ $dir == */(.claude|.scratch)/worktrees/* ]]; then
+    dir=${dir%%/(.claude|.scratch)/worktrees/*}
   fi
   echo "${dir/#$HOME/~}"
 }
 
 function git_branch() {
   local label open close rest
-  if [[ $PWD == */.claude/worktrees/* ]]; then
-    rest=${PWD#*/.claude/worktrees/}
+  if [[ $PWD == */(.claude|.scratch)/worktrees/* ]]; then
+    rest=${PWD#*/(.claude|.scratch)/worktrees/}
     label=${rest%%/*}
     open="[" close="]"
   else

@@ -36,15 +36,16 @@ shorten_path() {
   if [ -z "$begin" ]; then printf '/%s' "$body"; else printf '%s/%s' "$begin" "$body"; fi
 }
 
-# worktree: from JSON, else derive from cwd path (.claude/worktrees/<name>/...)
-if [ -z "$worktree" ] && [[ "$cwd" == */.claude/worktrees/* ]]; then
-  wt_rest="${cwd#*/.claude/worktrees/}"
+# worktree: from JSON, else derive from cwd path (.claude/worktrees/<name>/... or .scratch/worktrees/<name>/...)
+shopt -s extglob
+if [ -z "$worktree" ] && [[ "$cwd" == */@(.claude|.scratch)/worktrees/* ]]; then
+  wt_rest="${cwd#*/@(.claude|.scratch)/worktrees/}"
   worktree="${wt_rest%%/*}"
 fi
 
 # cwd display: show parent repo (strip the worktree suffix), middle folders elided
-if [[ "$cwd" == */.claude/worktrees/* ]]; then
-  parent_repo="${cwd%%/.claude/worktrees/*}"
+if [[ "$cwd" == */@(.claude|.scratch)/worktrees/* ]]; then
+  parent_repo="${cwd%%/@(.claude|.scratch)/worktrees/*}"
   cwd_display=$(shorten_path "$(tildify "$parent_repo")")
 elif [ -n "$cwd" ]; then
   cwd_display=$(shorten_path "$(tildify "$cwd")")
