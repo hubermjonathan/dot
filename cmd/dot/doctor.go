@@ -101,7 +101,10 @@ func runOrphans(modules []*module.Module) error {
 		filepath.Join(home, "Library", "Application Support"),
 	}
 
-	repoRoot := getMainRepoRoot()
+	repoRoot, err := getMainRepoRoot()
+	if err != nil {
+		return err
+	}
 	orphans, err := linker.FindOrphans(roots, repoRoot, declared)
 	if err != nil {
 		return err

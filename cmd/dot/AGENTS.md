@@ -29,7 +29,7 @@ One Cobra subcommand per file. Root command lives in `main.go` and delegates to 
 - `internal/ui.Step` owns spinner rendering, the captured stdout/stderr buffer, and the elapsed timer.
 - Collect failures, return `fmt.Errorf("%d operation(s) failed", n)` at end — Cobra surfaces it and `main.go` exits `2`.
 - Never panic on a malformed module — log and continue.
-- Repo root resolved via `git rev-parse --show-toplevel`, with a walk-up fallback for non-git checkouts.
+- `getRepoRoot` finds the repo from the binary's own path, `<repo>/bin/dot`, not from the working directory. The `dot` on `PATH` acts on the main checkout. To run a worktree's modules, build there and run its `./bin/dot`.
 - Module list is sorted by `[links]` source key before iteration so output is deterministic.
 
 ## Gotchas
