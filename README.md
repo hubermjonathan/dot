@@ -30,7 +30,7 @@ Module args are optional — omit them to act on every module. The interactive p
 
 `-v` / `--verbose` (any subcommand): after every successful subprocess step, dump the full captured `stdout`/`stderr` indented under the step's status line. Without it, output is suppressed on success and only surfaced on failure. Either way each step renders as a one-line spinner showing the most recent line of output. Modules with `setup.interactive = true` bypass the spinner so prompts work. Off a terminal, such as in a pipe or CI, each step prints its label and its final status line only.
 
-Exit codes: `0` success, `1` partial failure, `2` fatal.
+Exit codes: `0` success. `1` when `dot doctor` leaves an issue or an orphan unfixed. `2` for any other failure, even one failed step.
 
 ## Build
 
