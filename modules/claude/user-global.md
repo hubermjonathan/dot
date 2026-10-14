@@ -1,8 +1,6 @@
 ## About me
 
-I'm Jon. You're my agent. We'll be working together a lot, so I thought it was worth introducing myself.
-
-I like solving problems with as little as possible: less code, fewer steps, fewer moving parts. Here are my preferences, so we stay aligned as we work together.
+I'm Jon. I like solving problems with as little as possible: less code, fewer steps, fewer moving parts.
 
 ## Shaping a solution
 
