@@ -10,6 +10,7 @@ import (
 
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
+	"github.com/hubermjonathan/dotfiles/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -39,7 +40,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 		if diffFlag {
 			for _, d := range links {
 				sourcePath := filepath.Join(mod.Path, d.source)
-				targetPath := expandHome(d.target)
+				targetPath := pathutil.ExpandHome(d.target)
 				switch d.status {
 				case linker.StatusOK:
 					fmt.Printf("  ✓ %s\n", d.source)
@@ -82,7 +83,7 @@ func moduleState(mod *module.Module) (string, []linkStatus) {
 	linked, broken, diverged := 0, 0, 0
 	for _, source := range keys {
 		target := mod.Links[source]
-		status := linker.Verify(filepath.Join(mod.Path, source), expandHome(target))
+		status := linker.Verify(filepath.Join(mod.Path, source), pathutil.ExpandHome(target))
 		links = append(links, linkStatus{source: source, target: target, status: status})
 		switch status {
 		case linker.StatusOK:

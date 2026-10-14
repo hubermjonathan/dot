@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/hubermjonathan/dotfiles/internal/linker"
+	"github.com/hubermjonathan/dotfiles/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ func runUnlink(cmd *cobra.Command, args []string) error {
 		sort.Strings(keys)
 		for _, source := range keys {
 			target := mod.Links[source]
-			targetPath := expandHome(target)
+			targetPath := pathutil.ExpandHome(target)
 			if err := linker.Unlink(targetPath); err != nil {
 				resultErr(fmt.Sprintf("%s: %v", source, err))
 				failures++

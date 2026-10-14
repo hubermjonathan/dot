@@ -94,7 +94,7 @@ var reportSkips sync.Once
 
 // ensureSkips creates ~/.dot-skips on first install or link.
 func ensureSkips() error {
-	created, err := module.EnsureSkips(expandHome(module.SkipsPath))
+	created, err := module.EnsureSkips(pathutil.ExpandHome(module.SkipsPath))
 	if err != nil {
 		return err
 	}
@@ -102,10 +102,6 @@ func ensureSkips() error {
 		result(iconOK, "created  "+module.SkipsPath)
 	}
 	return nil
-}
-
-func expandHome(path string) string {
-	return pathutil.ExpandHome(path)
 }
 
 // getModules loads the repo's modules minus what ~/.dot-skips skips, so every
@@ -119,7 +115,7 @@ func getModules(filter []string) ([]*module.Module, error) {
 	if err != nil {
 		return nil, err
 	}
-	entries, err := module.LoadSkips(expandHome(module.SkipsPath))
+	entries, err := module.LoadSkips(pathutil.ExpandHome(module.SkipsPath))
 	if err != nil {
 		return nil, err
 	}

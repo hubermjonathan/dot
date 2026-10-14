@@ -7,6 +7,7 @@ import (
 	"github.com/hubermjonathan/dotfiles/internal/doctor"
 	"github.com/hubermjonathan/dotfiles/internal/linker"
 	"github.com/hubermjonathan/dotfiles/internal/module"
+	"github.com/hubermjonathan/dotfiles/internal/pathutil"
 	"github.com/spf13/cobra"
 )
 
@@ -84,7 +85,7 @@ func runOrphans(modules []*module.Module) error {
 	declared := map[string]bool{}
 	for _, m := range modules {
 		for _, tgt := range m.Links {
-			declared[expandHome(tgt)] = true
+			declared[pathutil.ExpandHome(tgt)] = true
 		}
 	}
 
