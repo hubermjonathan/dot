@@ -95,11 +95,11 @@ func Check(mod *module.Module) []Issue {
 		if home != "" {
 			expanded = strings.ReplaceAll(h.Check, "~/", home+"/")
 		}
-		check := ParseCheck(expanded)
-		if check == nil {
-			continue
+		err := fmt.Errorf("unknown check kind: %s", h.Check)
+		if check := ParseCheck(expanded); check != nil {
+			err = check()
 		}
-		if err := check(); err != nil {
+		if err != nil {
 			issues = append(issues, Issue{
 				Module:      mod.Name,
 				Type:        "health",

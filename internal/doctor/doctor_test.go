@@ -3,6 +3,7 @@ package doctor_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/hubermjonathan/dotfiles/internal/doctor"
@@ -70,5 +71,13 @@ func TestFixBacksUpFile(t *testing.T) {
 	}
 	if data, _ := os.ReadFile(backups[0]); string(data) != "mine" {
 		t.Fatalf("backup holds %q, want %q", data, "mine")
+	}
+}
+
+func TestCheckReportsUnknownKind(t *testing.T) {
+	mod := &module.Module{Name: "demo", Health: []module.Step{{Name: "typo", Check: "dir_exist:/"}}}
+	issues := doctor.Check(mod)
+	if len(issues) != 1 || !strings.Contains(issues[0].Description, "unknown check kind") {
+		t.Fatalf("want one unknown-kind issue, got %+v", issues)
 	}
 }
