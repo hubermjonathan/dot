@@ -75,7 +75,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		fmt.Printf("\nfixed: %d, failed: %d\n", fixed, failed)
 	}
 
-	if failed > 0 || (!fixFlag && len(allIssues) > 0) {
+	if fixed < len(allIssues) {
 		os.Exit(1)
 	}
 	return nil
