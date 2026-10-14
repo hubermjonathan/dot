@@ -42,7 +42,7 @@ Output: each subprocess step renders as a single spinner row (label + most recen
 - **Backups before replace**: `dot link` moves a pre-existing regular file to `~/.dotfiles-backup/<module>/<basename>.<hash>` before linking. `dot doctor --fix` does *not* back up — it assumes prior `dot link`.
 - **Directory symlinks supported**: e.g. `zsh/conf.d` → `~/.config/zsh`. Files dropped inside are immediately live.
 - **No global state in `internal/`**: dependencies passed explicitly. `expandHome` lives in `cmd/dot/` (CLI concern).
-- **Docs stay in sync**: any change to the CLI surface, module schema, or layout must update `README.md` plus the relevant `CLAUDE.md` (root, `cmd/dot/`, `internal/`, `modules/`). Adding/removing a command → update both. Adding a module → update the module catalogue in `README.md` and `modules/CLAUDE.md`. Adding a TOML section or health-check kind → update `modules/CLAUDE.md` schema + cheat-sheet.
+- **Docs stay in sync**: any change to the CLI surface, module schema, or layout must update `README.md` plus the relevant `CLAUDE.md` (root, `cmd/dot/`, `internal/`, `modules/`). Adding/removing a command → update both. Adding a module → update the module table in `README.md`. Adding a TOML section or health-check kind → update `modules/CLAUDE.md` schema + cheat-sheet.
 
 ## Testing patterns
 
