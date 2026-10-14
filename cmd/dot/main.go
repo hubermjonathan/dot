@@ -9,8 +9,9 @@ import (
 var verbose bool
 
 var rootCmd = &cobra.Command{
-	Use:   "dot",
-	Short: "Dotfiles management tool",
+	Use:          "dot",
+	Short:        "Dotfiles management tool",
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInteractive()
 	},
