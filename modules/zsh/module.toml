@@ -6,8 +6,5 @@ description = "Zsh shell configuration"
 ".zshenv" = "~/.zshenv"
 "conf.d" = "~/.config/zsh"
 
-[setup]
-post_link = [{ name = "create-zshrc-local", run = "touch ~/.zshrc.local" }]
-
 [deps]
 brew = ["zsh"]
