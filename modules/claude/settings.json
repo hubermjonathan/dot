@@ -39,10 +39,15 @@
     "refreshInterval": 10
   },
   "enabledPlugins": {
-    "skills@hubermjonathan": true,
-    "ou-bq-domain@ou-claude-plugins": true,
+    "engineering@hubermjonathan": true,
+    "communication@hubermjonathan": true,
+    "agents@hubermjonathan": true,
     "design-profile@hubermjonathan": true,
-    "work@dot-work": true
+    "admin@hubermjonathan-work": true,
+    "sso@hubermjonathan-work": true,
+    "factory@hubermjonathan-work": true,
+    "factory-mono-repo-apps@hubermjonathan-work": true,
+    "ou-bq-domain@ou-claude-plugins": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
@@ -51,16 +56,16 @@
         "repo": "hubermjonathan/skills"
       }
     },
+    "hubermjonathan-work": {
+      "source": {
+        "source": "github",
+        "repo": "hubermjonathan/dot-work"
+      }
+    },
     "ou-claude-plugins": {
       "source": {
         "source": "github",
         "repo": "OfferUp/claude-plugins-ou"
-      }
-    },
-    "dot-work": {
-      "source": {
-        "source": "github",
-        "repo": "hubermjonathan/dot-work"
       }
     }
   },
