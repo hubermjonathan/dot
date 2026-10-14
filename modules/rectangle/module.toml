@@ -15,7 +15,6 @@ checks = [
 
 [setup]
 post_link = [
-  { name = "chmod-apply", run = "chmod +x ~/.config/rectangle/apply.sh" },
   { name = "apply-settings", run = "~/.config/rectangle/apply.sh" },
   { name = "restart-rectangle", run = "pgrep -x Rectangle >/dev/null && killall Rectangle; open -gja Rectangle" },
 ]

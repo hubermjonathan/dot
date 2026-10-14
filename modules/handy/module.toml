@@ -19,6 +19,5 @@ checks = [
 
 [setup]
 post_link = [
-  { name = "chmod-apply", run = "chmod +x ~/.config/handy/apply.sh" },
   { name = "apply-settings", run = "~/.config/handy/apply.sh" },
 ]
