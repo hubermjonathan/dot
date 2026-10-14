@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/hubermjonathan/dotfiles/internal/doctor"
 	"github.com/hubermjonathan/dotfiles/internal/linker"
@@ -93,19 +92,12 @@ func runOrphans(modules []*module.Module) error {
 	if err != nil {
 		return err
 	}
-	roots := []string{
-		home,
-		filepath.Join(home, ".config"),
-		filepath.Join(home, ".claude"),
-		filepath.Join(home, "Library", "Preferences"),
-		filepath.Join(home, "Library", "Application Support"),
-	}
 
 	repoRoot, err := getMainRepoRoot()
 	if err != nil {
 		return err
 	}
-	orphans, err := linker.FindOrphans(roots, repoRoot, declared)
+	orphans, err := linker.FindOrphans(home, repoRoot, declared)
 	if err != nil {
 		return err
 	}

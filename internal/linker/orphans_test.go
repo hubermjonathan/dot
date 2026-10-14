@@ -38,7 +38,7 @@ func TestFindOrphansBasic(t *testing.T) {
 	}
 
 	declared := map[string]bool{currentTgt: true}
-	orphans, err := FindOrphans([]string{home}, repo, declared)
+	orphans, err := FindOrphans(home, repo, declared)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func TestFindOrphansIgnoresNonRepoSymlinks(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	orphans, err := FindOrphans([]string{home}, repo, nil)
+	orphans, err := FindOrphans(home, repo, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,7 +92,7 @@ func TestFindOrphansSkipsWorktrees(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	orphans, err := FindOrphans([]string{repo}, repo, nil)
+	orphans, err := FindOrphans(repo, repo, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func TestFindOrphansIncludesDanglingWorktreeLinks(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	orphans, err := FindOrphans([]string{home}, repo, nil)
+	orphans, err := FindOrphans(home, repo, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
