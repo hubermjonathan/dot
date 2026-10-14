@@ -1,5 +1,11 @@
 package module
 
+import (
+	"path/filepath"
+
+	"github.com/hubermjonathan/dotfiles/internal/pathutil"
+)
+
 type Module struct {
 	Name        string
 	Description string
@@ -27,6 +33,12 @@ type Step struct {
 	Name  string `toml:"name"`
 	Run   string `toml:"run"`   // sh -c command; empty for a [health] check
 	Check string `toml:"check"` // optional for setup steps; see doctor.ParseCheck
+}
+
+// BackupDir is where dot moves a file that sits where one of the module's
+// links should go.
+func (m *Module) BackupDir() string {
+	return filepath.Join(pathutil.ExpandHome("~/.dotfiles-backup"), m.Name)
 }
 
 // Checks returns every health check in the module: the [health] checks plus

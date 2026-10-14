@@ -3,12 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"sort"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hubermjonathan/dotfiles/internal/linker"
-	"github.com/hubermjonathan/dotfiles/internal/module"
 	"github.com/hubermjonathan/dotfiles/internal/tui"
 )
 
@@ -20,7 +16,7 @@ func runInteractive() error {
 
 	items := make([]tui.Item, len(modules))
 	for i, mod := range modules {
-		state := getModuleState(mod)
+		state, _ := moduleState(mod)
 		items[i] = tui.Item{
 			Name:        mod.Name,
 			Description: mod.Description,
@@ -51,39 +47,4 @@ func runInteractive() error {
 		fmt.Fprintf(os.Stderr, "install errors (continuing): %v\n", err)
 	}
 	return runLink(nil, selected)
-}
-
-func getModuleState(mod *module.Module) string {
-	if len(mod.Links) == 0 {
-		return "no-links"
-	}
-	linked, broken := 0, 0
-	keys := make([]string, 0, len(mod.Links))
-	for k := range mod.Links {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, source := range keys {
-		target := mod.Links[source]
-		sourcePath := filepath.Join(mod.Path, source)
-		targetPath := expandHome(target)
-		status := linker.Verify(sourcePath, targetPath)
-		switch status {
-		case linker.StatusOK:
-			linked++
-		case linker.StatusBroken, linker.StatusWrongTarget:
-			broken++
-		}
-	}
-	total := len(mod.Links)
-	if linked == total {
-		return "linked"
-	}
-	if broken > 0 {
-		return "broken"
-	}
-	if linked > 0 {
-		return "partial"
-	}
-	return "unlinked"
 }

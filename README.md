@@ -26,11 +26,13 @@ dot doctor --orphans # Walk for stale repo symlinks (slow); --fix removes them
 dot status [--diff]  # Per-module link state; --diff shows divergence vs repo
 ```
 
-Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `unlinked`, `no-links`).
+The `zsh` module puts the repo's `bin/` on `PATH`, and `dot` finds the repo from its own path, so it runs from any directory.
 
-`-v` / `--verbose` (any subcommand): after every successful subprocess step, dump the full captured `stdout`/`stderr` indented under the step's status line. Without it, output is suppressed on success and only surfaced on failure. Either way each step renders as a one-line spinner showing the most recent line of output. Modules with `setup.interactive = true` bypass the spinner so prompts work.
+Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `diverged`, `unlinked`, `no-links`), the same as `dot status`.
 
-Exit codes: `0` success, `1` partial failure, `2` fatal.
+`-v` / `--verbose` (any subcommand): after every successful subprocess step, dump the full captured `stdout`/`stderr` indented under the step's status line. Without it, output is suppressed on success and only surfaced on failure. Either way each step renders as a one-line spinner showing the most recent line of output. Modules with `setup.interactive = true` bypass the spinner so prompts work. Off a terminal, such as in a pipe or CI, each step prints its label and its final status line only.
+
+Exit codes: `0` success. `1` when `dot doctor` leaves an issue or an orphan unfixed. `2` for any other failure, even one failed step.
 
 ## Build
 
@@ -45,7 +47,7 @@ go test ./...        # run unit tests
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `apps`    | Brew + cask bundle: dust, ollama; ankerwork, bitwarden, google-chrome, spotify; pulls gemma4:12b-mlx on install |
-| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, `hubermjonathan/skills` and `hubermjonathan/dot-work` marketplaces |
+| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, the `technical-writing` hook, and two plugin marketplaces: `hubermjonathan` from `hubermjonathan/skills` and `hubermjonathan-work` from `hubermjonathan/dot-work` |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
@@ -54,14 +56,14 @@ go test ./...        # run unit tests
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `tmux`    | `.tmux.conf` |
-| `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
+| `vim`     | `.vimrc`, noir colorscheme, Vundle and its plugins |
 | `zsh`     | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
 
 ## Module schema (`module.toml`)
 
 ```toml
 [module]
-name = "mytool"
+# the module's name is its folder name
 description = "What it is"
 
 [links]
@@ -76,7 +78,7 @@ brew = ["mytool"]            # brew formulae
 cask = ["mytool-desktop"]    # brew casks
 
 [health]
-# Run during `dot doctor`. Three check kinds: file_exists, dir_exists, command_succeeds
+# Run during `dot doctor`. The check kinds are listed below.
 checks = [
   { name = "config-dir", check = "dir_exists:~/.config/mytool" },
 ]
@@ -92,7 +94,15 @@ provision = [                # runs only on `dot install` — one-shot side effe
 ]
 ```
 
-Every step and check needs a `name`: kebab-case and unique within the module.
+Every step and check needs a `name`: kebab-case and unique within the module. A setup step needs `run`, an `sh -c` command, and can add a `check` that `dot doctor` runs. Skipping the step skips its check too. A `[health]` check has a `check` and no `run`.
+
+### Health check kinds
+
+A `check` is a `kind:arg` string. A `~/` in the argument expands to your home directory.
+
+- `file_exists:<path>`: the path exists.
+- `dir_exists:<path>`: the path exists and is a directory.
+- `command_succeeds:<command>`: `sh -c <command>` exits 0.
 
 ### Skipping on one machine
 
@@ -110,8 +120,8 @@ apps                  # a whole module
 
 - Source paths are relative to the module directory; targets are absolute and may use `~`.
 - Directory symlinks are supported — e.g. `zsh/conf.d` → `~/.config/zsh` makes every file dropped into `conf.d/` live on the next shell start, no `[links]` edit needed.
-- If a target already exists as a regular file, `dot link` backs it up to `~/.dotfiles-backup/<module>/<basename>.<hash>` before replacing it.
-- `dot doctor --fix` recreates broken/missing symlinks but does not back up — it expects `dot link` to have run before.
+- A symlink that points somewhere else is replaced with no backup.
+- If a target already exists as a regular file, `dot link` and `dot doctor --fix` back it up to `~/.dotfiles-backup/<module>/<basename>.<utc-time>.<hash>` before replacing it.
 
 ### post_link vs provision
 
@@ -134,5 +144,5 @@ scripts/build.sh     — go build helper
 cmd/dot/             — Cobra CLI commands (one file per subcommand)
 internal/            — module discovery, linker, installer, doctor, TUI
 modules/             — one subdirectory per module (each with module.toml)
-bin/                 — built `dot` binary (committed for bootstrap)
+bin/                 — built `dot` binary, gitignored; `bootstrap.sh` and `build.sh` write it
 ```

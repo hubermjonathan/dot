@@ -44,12 +44,8 @@ func Link(source, target, backupDir string) (Result, error) {
 			}
 			return createLink(source, target, Replaced)
 		}
-		if backupDir != "" {
-			if err := backup(target, backupDir); err != nil {
-				return 0, fmt.Errorf("backup failed: %w", err)
-			}
-		} else if err := os.Remove(target); err != nil {
-			return 0, err
+		if err := backup(target, backupDir); err != nil {
+			return 0, fmt.Errorf("backup failed: %w", err)
 		}
 		return createLink(source, target, Replaced)
 	}

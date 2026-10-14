@@ -16,7 +16,6 @@ func TestDiscover(t *testing.T) {
 	os.MkdirAll(modDir, 0755)
 	os.WriteFile(filepath.Join(modDir, "module.toml"), []byte(`
 [module]
-name = "git"
 description = "Git config"
 
 [links]

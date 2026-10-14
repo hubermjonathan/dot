@@ -1,14 +1,10 @@
 [module]
-name = "zsh"
 description = "Zsh shell configuration"
 
 [links]
 ".zshrc" = "~/.zshrc"
 ".zshenv" = "~/.zshenv"
 "conf.d" = "~/.config/zsh"
-
-[setup]
-post_link = [{ name = "create-zshrc-local", run = "touch ~/.zshrc.local" }]
 
 [deps]
 brew = ["zsh"]

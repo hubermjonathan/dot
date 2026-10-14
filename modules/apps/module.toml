@@ -1,5 +1,4 @@
 [module]
-name = "apps"
 description = "Applications"
 
 [deps]

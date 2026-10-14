@@ -62,8 +62,7 @@ func linkModule(mod *module.Module) int {
 			target := mod.Links[source]
 			sourcePath := filepath.Join(mod.Path, source)
 			targetPath := pathutil.ExpandHome(target)
-			backupDir := filepath.Join(pathutil.ExpandHome("~/.dotfiles-backup"), mod.Name)
-			res, err := linker.Link(sourcePath, targetPath, backupDir)
+			res, err := linker.Link(sourcePath, targetPath, mod.BackupDir())
 			if err != nil {
 				resultErr(fmt.Sprintf("%s %s %s: %v", source, iconArrow, target, err))
 				failures++
@@ -95,7 +94,7 @@ var reportSkips sync.Once
 
 // ensureSkips creates ~/.dot-skips on first install or link.
 func ensureSkips() error {
-	created, err := module.EnsureSkips(expandHome(module.SkipsPath))
+	created, err := module.EnsureSkips(pathutil.ExpandHome(module.SkipsPath))
 	if err != nil {
 		return err
 	}
@@ -105,19 +104,18 @@ func ensureSkips() error {
 	return nil
 }
 
-func expandHome(path string) string {
-	return pathutil.ExpandHome(path)
-}
-
 // getModules loads the repo's modules minus what ~/.dot-skips skips, so every
 // command respects the skips file.
 func getModules(filter []string) ([]*module.Module, error) {
-	modulesDir := filepath.Join(getRepoRoot(), "modules")
-	all, err := module.Discover(modulesDir)
+	root, err := getRepoRoot()
 	if err != nil {
 		return nil, err
 	}
-	entries, err := module.LoadSkips(expandHome(module.SkipsPath))
+	all, err := module.Discover(filepath.Join(root, "modules"))
+	if err != nil {
+		return nil, err
+	}
+	entries, err := module.LoadSkips(pathutil.ExpandHome(module.SkipsPath))
 	if err != nil {
 		return nil, err
 	}
@@ -146,28 +144,31 @@ func getModules(filter []string) ([]*module.Module, error) {
 	return out, nil
 }
 
-func getRepoRoot() string {
-	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err == nil {
-		return strings.TrimSpace(string(out))
+// getRepoRoot returns the checkout this binary was built in. The binary lives
+// at <repo>/bin/dot, so dot works from any directory and through a symlink.
+func getRepoRoot() (string, error) {
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
 	}
-	cwd, _ := os.Getwd()
-	for d := cwd; d != "/"; d = filepath.Dir(d) {
-		if _, err := os.Stat(filepath.Join(d, "modules")); err == nil {
-			return d
-		}
+	exe, err = filepath.EvalSymlinks(exe)
+	if err != nil {
+		return "", err
 	}
-	return cwd
+	return filepath.Dir(filepath.Dir(exe)), nil
 }
 
 // getMainRepoRoot returns the path of the primary repo checkout, even when
 // running from a linked worktree. Used by orphan scanning so it recognizes
 // symlinks pointing at either the main checkout or any worktree.
-func getMainRepoRoot() string {
-	out, err := exec.Command("git", "rev-parse", "--path-format=absolute", "--git-common-dir").Output()
-	if err == nil {
-		gitDir := strings.TrimSpace(string(out))
-		return filepath.Dir(gitDir)
+func getMainRepoRoot() (string, error) {
+	root, err := getRepoRoot()
+	if err != nil {
+		return "", err
 	}
-	return getRepoRoot()
+	out, err := exec.Command("git", "-C", root, "rev-parse", "--path-format=absolute", "--git-common-dir").Output()
+	if err != nil {
+		return root, nil
+	}
+	return filepath.Dir(strings.TrimSpace(string(out))), nil
 }

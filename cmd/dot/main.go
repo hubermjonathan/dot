@@ -9,15 +9,16 @@ import (
 var verbose bool
 
 var rootCmd = &cobra.Command{
-	Use:   "dot",
-	Short: "Dotfiles management tool",
+	Use:          "dot",
+	Short:        "Dotfiles management tool",
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runInteractive()
 	},
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "stream subcommand stdout/stderr to the terminal")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "print each step's full output, even when it succeeds")
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }
 

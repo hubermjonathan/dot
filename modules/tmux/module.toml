@@ -1,5 +1,4 @@
 [module]
-name = "tmux"
 description = "Terminal multiplexer"
 
 [links]
