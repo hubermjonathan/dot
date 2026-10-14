@@ -56,7 +56,7 @@ go test ./...        # run unit tests
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `tmux`    | `.tmux.conf` |
-| `vim`     | `.vimrc`, noir colorscheme, Vundle bootstrap |
+| `vim`     | `.vimrc`, noir colorscheme, Vundle and its plugins |
 | `zsh`     | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
 
 ## Module schema (`module.toml`)
