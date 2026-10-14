@@ -12,6 +12,9 @@ type Orphan struct {
 	Target string
 }
 
+// worktreeDirs are where agents put a repo's worktrees, relative to the repo root.
+var worktreeDirs = []string{".claude/worktrees", ".scratch/worktrees"}
+
 var skipDirs = map[string]bool{
 	"Caches":       true,
 	".Trash":       true,
@@ -21,21 +24,25 @@ var skipDirs = map[string]bool{
 
 func FindOrphans(root, repoRoot string, declared map[string]bool) ([]Orphan, error) {
 	repoModulesPrefix := filepath.Join(repoRoot, "modules") + string(filepath.Separator)
-	worktreesPrefix := filepath.Join(repoRoot, ".claude", "worktrees") + string(filepath.Separator)
+	inWorktree := func(p string) bool {
+		for _, dir := range worktreeDirs {
+			if strings.HasPrefix(p, filepath.Join(repoRoot, dir)+string(filepath.Separator)) {
+				return true
+			}
+		}
+		return false
+	}
 
 	var orphans []Orphan
 	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
-			if os.IsPermission(err) || os.IsNotExist(err) {
-				return nil
-			}
 			return nil
 		}
 		if d.IsDir() {
 			if skipDirs[d.Name()] {
 				return fs.SkipDir
 			}
-			if strings.HasPrefix(p+string(filepath.Separator), worktreesPrefix) {
+			if inWorktree(p + string(filepath.Separator)) {
 				return fs.SkipDir
 			}
 			return nil
@@ -50,7 +57,7 @@ func FindOrphans(root, repoRoot string, declared map[string]bool) ([]Orphan, err
 		if !strings.Contains(lname, "/modules/") {
 			return nil
 		}
-		if !strings.HasPrefix(lname, repoModulesPrefix) && !strings.Contains(lname, "/.claude/worktrees/") {
+		if !strings.HasPrefix(lname, repoModulesPrefix) && !inWorktree(lname) {
 			return nil
 		}
 		if declared[p] {

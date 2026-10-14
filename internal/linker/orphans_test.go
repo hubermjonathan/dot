@@ -72,6 +72,12 @@ func TestFindOrphansIgnoresNonRepoSymlinks(t *testing.T) {
 }
 
 func TestFindOrphansSkipsWorktrees(t *testing.T) {
+	for _, dir := range worktreeDirs {
+		t.Run(dir, func(t *testing.T) { testFindOrphansSkipsWorktrees(t, dir) })
+	}
+}
+
+func testFindOrphansSkipsWorktrees(t *testing.T, dir string) {
 	repo := t.TempDir()
 	home := t.TempDir()
 
@@ -84,7 +90,7 @@ func TestFindOrphansSkipsWorktrees(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	worktreeDir := filepath.Join(repo, ".claude", "worktrees", "wt1")
+	worktreeDir := filepath.Join(repo, dir, "wt1")
 	if err := os.MkdirAll(worktreeDir, 0755); err != nil {
 		t.Fatal(err)
 	}
@@ -103,10 +109,16 @@ func TestFindOrphansSkipsWorktrees(t *testing.T) {
 }
 
 func TestFindOrphansIncludesDanglingWorktreeLinks(t *testing.T) {
+	for _, dir := range worktreeDirs {
+		t.Run(dir, func(t *testing.T) { testFindOrphansIncludesDanglingWorktreeLinks(t, dir) })
+	}
+}
+
+func testFindOrphansIncludesDanglingWorktreeLinks(t *testing.T, dir string) {
 	repo := t.TempDir()
 	home := t.TempDir()
 
-	dangling := filepath.Join(repo, ".claude", "worktrees", "deleted", "modules", "macos", "wallpaper.jpg")
+	dangling := filepath.Join(repo, dir, "deleted", "modules", "macos", "wallpaper.jpg")
 	tgt := filepath.Join(home, "Documents", "Images", "wallpaper.jpg")
 	if err := os.MkdirAll(filepath.Dir(tgt), 0755); err != nil {
 		t.Fatal(err)
