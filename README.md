@@ -119,8 +119,7 @@ apps                  # a whole module
 - Source paths are relative to the module directory; targets are absolute and may use `~`.
 - Directory symlinks are supported — e.g. `zsh/conf.d` → `~/.config/zsh` makes every file dropped into `conf.d/` live on the next shell start, no `[links]` edit needed.
 - A symlink that points somewhere else is replaced with no backup.
-- If a target already exists as a regular file, `dot link` backs it up to `~/.dotfiles-backup/<module>/<basename>.<hash>` before replacing it.
-- `dot doctor --fix` recreates broken/missing symlinks but does not back up — it expects `dot link` to have run before.
+- If a target already exists as a regular file, `dot link` and `dot doctor --fix` back it up to `~/.dotfiles-backup/<module>/<basename>.<hash>` before replacing it.
 
 ### post_link vs provision
 

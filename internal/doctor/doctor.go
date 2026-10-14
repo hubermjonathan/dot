@@ -62,6 +62,7 @@ func Check(mod *module.Module) []Issue {
 	var issues []Issue
 
 	// Check symlinks
+	backupDir := mod.BackupDir()
 	keys := make([]string, 0, len(mod.Links))
 	for k := range mod.Links {
 		keys = append(keys, k)
@@ -80,7 +81,7 @@ func Check(mod *module.Module) []Issue {
 				Type:        "symlink",
 				Description: fmt.Sprintf("%s → %s (%s)", source, target, statusName(status)),
 				FixAction: func() error {
-					_, err := linker.Link(src, tgt, "")
+					_, err := linker.Link(src, tgt, backupDir)
 					return err
 				},
 			})

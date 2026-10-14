@@ -62,8 +62,7 @@ func linkModule(mod *module.Module) int {
 			target := mod.Links[source]
 			sourcePath := filepath.Join(mod.Path, source)
 			targetPath := pathutil.ExpandHome(target)
-			backupDir := filepath.Join(pathutil.ExpandHome("~/.dotfiles-backup"), mod.Name)
-			res, err := linker.Link(sourcePath, targetPath, backupDir)
+			res, err := linker.Link(sourcePath, targetPath, mod.BackupDir())
 			if err != nil {
 				resultErr(fmt.Sprintf("%s %s %s: %v", source, iconArrow, target, err))
 				failures++
