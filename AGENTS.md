@@ -1,59 +1,14 @@
-# dot — Claude guide
+# dot
 
-Personal macOS dotfiles managed by `dot`, a Go CLI (Cobra-based) that walks `modules/`, creates symlinks, runs Homebrew installs, and executes per-module setup hooks. Modules are self-describing TOML files with their config payload alongside.
-
-## Build / test
-
-    ./scripts/build.sh   # writes ./bin/dot
-    go test ./...
-
-## Repo layout
-
-- `scripts/install.sh` — curl-piped one-liner: installs Xcode CLT (so `git` exists), clones the repo into `$DOT_DEST` (default `~/Code/dot`), then execs `scripts/bootstrap.sh`. Source repo overridable via `$DOT_REPO`.
-- `scripts/bootstrap.sh` — first-run installer (Xcode CLT → Homebrew → Go → build → `dot install` → `dot link`); safe to run standalone if the repo is already cloned.
-- `cmd/dot/` — Cobra subcommands, one file per command. See `cmd/dot/CLAUDE.md`.
-- `internal/` — discovery, linker, installer, doctor, TUI. See `internal/CLAUDE.md`.
-- `modules/` — pluggable config modules. See `modules/CLAUDE.md`.
-- `bin/dot` — committed binary so `scripts/bootstrap.sh` can run before Go is installed (rebuilt and re-committed on changes that touch the CLI).
-- `scripts/build.sh` — `go build -o bin/dot ./cmd/dot`.
-
-## Commands (CLI surface)
-
-| Command | Purpose |
-|---------|---------|
-| `dot` | Bubble Tea picker → `install` then `link` for selected modules |
-| `dot link [mod...]` | Create symlinks, run `setup.post_link` |
-| `dot unlink [mod...]` | Remove symlinks |
-| `dot install [mod...]` | brew formulae + casks + `setup.provision` |
-| `dot doctor [--fix]` | Run symlink checks plus every named check (`[health]` and step `check`s); optionally repair |
-| `dot status [--diff]` | Per-module link state; `--diff` shows divergence vs repo |
-
-Module args optional → omit to act on every module. Exit codes: `0` ok, `1` partial, `2` fatal.
-
-Output: each subprocess step renders as a single spinner row (label + most recent line of output) via `internal/ui`. On success the row collapses to `✓ label — status (elapsed)`; on failure the captured buffer is dumped indented below the row. `-v` / `--verbose` keeps the spinner UI but always dumps the buffer at the end of every successful step. Non-TTY (pipes/CI) prints the opening label and final status line only — no redraw, no escape codes. `setup.interactive = true` modules bypass the spinner so stdin/stdout pass through directly (auth flows).
+`README.md` is the reference for this repo: how to install, build, and test, the commands and their exit codes, the module schema, the skips file, and the module table. The `AGENTS.md` files hold only what the README doesn't: invariants and gotchas. `cmd/dot/`, `internal/`, and `modules/` each have one.
 
 ## Key invariants
 
 - **Continue-on-error**: one module failing must not stop later modules. Commands collect failures and exit non-zero at the end.
-- **Symlink direction**: source = file in repo, target = path under `~`. `~` expanded at runtime via `internal/pathutil`.
-- **Idempotent post_link**: every command in `[setup].post_link` runs on every `dot link`. Always guard side effects (`test -f ...`, `grep -q ...`, etc.).
-- **Every step is named**: `post_link`, `provision`, and `[health]` entries are `{ name = ... }` tables, so `~/.dot-skips` can skip a whole module or one `<module>/<name>` on this machine. `getModules` applies the skips file for every command. See `modules/CLAUDE.md`.
-- **Provision is one-shot**: `[setup].provision` runs only on `dot install`. Use it for things that must not re-run (e.g. `gh auth login`).
-- **Backups before replace**: `dot link` moves a pre-existing regular file to `~/.dotfiles-backup/<module>/<basename>.<hash>` before linking. `dot doctor --fix` does *not* back up — it assumes prior `dot link`.
-- **Directory symlinks supported**: e.g. `zsh/conf.d` → `~/.config/zsh`. Files dropped inside are immediately live.
-- **No global state in `internal/`**: dependencies passed explicitly. `expandHome` lives in `cmd/dot/` (CLI concern).
-- **Docs stay in sync**: any change to the CLI surface, module schema, or layout must update `README.md` plus the relevant `CLAUDE.md` (root, `cmd/dot/`, `internal/`, `modules/`). Adding/removing a command → update both. Adding a module → update the module table in `README.md`. Adding a TOML section or health-check kind → update `modules/CLAUDE.md` schema + cheat-sheet.
+- **README owns the reference**: a change to the CLI surface, the module schema, the repo layout, or the module list updates `README.md` in the same commit. Don't copy a README fact into an `AGENTS.md`. Point to it.
 
 ## Testing patterns
 
 - Filesystem tests use `t.TempDir()`.
 - Tests live next to the code (`internal/<pkg>/<pkg>_test.go`).
 - No mocks for filesystem — use real temp dirs.
-
-## Adding a module
-
-    mkdir modules/mytool
-    # write modules/mytool/module.toml + drop config files alongside
-    dot link mytool
-
-See `modules/CLAUDE.md` for the full schema (links, deps, apps, health, setup).

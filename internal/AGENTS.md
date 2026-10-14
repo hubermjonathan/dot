@@ -18,14 +18,9 @@ Pure logic, no CLI concerns. Each package exports a small surface; `cmd/dot/` wi
 
 - **No global state** — pass dependencies through arguments.
 - **Functions return errors** — the caller decides whether to continue or abort. The CLI relies on this to keep going across modules.
-- **Tests use `t.TempDir()`** for filesystem isolation. No mocks; real symlinks against real temp dirs.
 - **Linker statuses are exhaustive** — `StatusOK`, `StatusBroken`, `StatusMissing`, `StatusWrongTarget`, `StatusNotSymlink`. Add a new state only when an existing one cannot represent the case.
-- **Health check kinds** are limited to three: `file_exists`, `dir_exists`, `command_succeeds`. New kinds go in `doctor.ParseCheck`.
+- **Health check kinds** live in `doctor.ParseCheck`. A new kind goes there and in the README's list of kinds.
 - **`expandHome` lives in `cmd/dot/`** — it's a CLI concern. Internal packages take already-expanded paths or use `pathutil.ExpandHome` directly.
-
-## Testing
-
-    go test ./internal/...
 
 ## Adding a package
 

@@ -28,7 +28,7 @@ dot status [--diff]  # Per-module link state; --diff shows divergence vs repo
 
 Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `unlinked`, `no-links`).
 
-`-v` / `--verbose` (any subcommand): after every successful subprocess step, dump the full captured `stdout`/`stderr` indented under the step's status line. Without it, output is suppressed on success and only surfaced on failure. Either way each step renders as a one-line spinner showing the most recent line of output. Modules with `setup.interactive = true` bypass the spinner so prompts work.
+`-v` / `--verbose` (any subcommand): after every successful subprocess step, dump the full captured `stdout`/`stderr` indented under the step's status line. Without it, output is suppressed on success and only surfaced on failure. Either way each step renders as a one-line spinner showing the most recent line of output. Modules with `setup.interactive = true` bypass the spinner so prompts work. Off a terminal, such as in a pipe or CI, each step prints its label and its final status line only.
 
 Exit codes: `0` success, `1` partial failure, `2` fatal.
 
@@ -76,7 +76,7 @@ brew = ["mytool"]            # brew formulae
 cask = ["mytool-desktop"]    # brew casks
 
 [health]
-# Run during `dot doctor`. Three check kinds: file_exists, dir_exists, command_succeeds
+# Run during `dot doctor`. The check kinds are listed below.
 checks = [
   { name = "config-dir", check = "dir_exists:~/.config/mytool" },
 ]
@@ -92,7 +92,15 @@ provision = [                # runs only on `dot install` — one-shot side effe
 ]
 ```
 
-Every step and check needs a `name`: kebab-case and unique within the module.
+Every step and check needs a `name`: kebab-case and unique within the module. A setup step needs `run`, an `sh -c` command, and can add a `check` that `dot doctor` runs. Skipping the step skips its check too. A `[health]` check has a `check` and no `run`.
+
+### Health check kinds
+
+A `check` is a `kind:arg` string. A `~/` in the argument expands to your home directory.
+
+- `file_exists:<path>`: the path exists.
+- `dir_exists:<path>`: the path exists and is a directory.
+- `command_succeeds:<command>`: `sh -c <command>` exits 0.
 
 ### Skipping on one machine
 
@@ -110,6 +118,7 @@ apps                  # a whole module
 
 - Source paths are relative to the module directory; targets are absolute and may use `~`.
 - Directory symlinks are supported — e.g. `zsh/conf.d` → `~/.config/zsh` makes every file dropped into `conf.d/` live on the next shell start, no `[links]` edit needed.
+- A symlink that points somewhere else is replaced with no backup.
 - If a target already exists as a regular file, `dot link` backs it up to `~/.dotfiles-backup/<module>/<basename>.<hash>` before replacing it.
 - `dot doctor --fix` recreates broken/missing symlinks but does not back up — it expects `dot link` to have run before.
 
