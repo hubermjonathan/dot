@@ -37,4 +37,5 @@ function rmscratch() {
 alias ..="cd .."
 alias rr="reset"
 alias pbc="pbcopy"
+alias pbp="pbpaste"
 alias c="claude"
