@@ -1,5 +1,6 @@
 {
   "env": {
+    "CLAUDE_CODE_ARTIFACT": "1",
     "CLAUDE_CODE_ENABLE_AUTO_MODE": "1",
     "CLAUDE_CODE_NO_FLICKER": "1",
     "CODING_AGENT": "claude"
