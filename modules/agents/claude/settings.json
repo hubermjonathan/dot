@@ -52,23 +52,13 @@
     "engineering@hubermjonathan": true,
     "communication@hubermjonathan": true,
     "agents@hubermjonathan": true,
-    "design-profile@hubermjonathan": true,
-    "admin@hubermjonathan-work": true,
-    "sso@hubermjonathan-work": true,
-    "factory@hubermjonathan-work": true
+    "design-profile@hubermjonathan": true
   },
   "extraKnownMarketplaces": {
     "hubermjonathan": {
       "source": {
         "source": "github",
         "repo": "hubermjonathan/skills"
-      },
-      "autoUpdate": true
-    },
-    "hubermjonathan-work": {
-      "source": {
-        "source": "github",
-        "repo": "hubermjonathan/skills-work"
       },
       "autoUpdate": true
     }
