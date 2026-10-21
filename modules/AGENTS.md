@@ -4,23 +4,15 @@ Each subdirectory is one module. The README documents the `module.toml` schema, 
 
 ## Adding a module
 
-1. Create `modules/<name>/module.toml`.
-2. Drop config files into the module directory.
-3. Declare symlinks in `[links]`: `"source-relative" = "~/target-absolute"`.
-4. Add brew formulae in `[deps].brew`, casks in `[apps].cask`.
-5. Add `[setup].post_link` for idempotent setup, `[setup].provision` for one-shot bootstrap. Give each step a `name`.
-6. Add checks so `dot doctor` can verify the module: a `check` on the step it verifies, or a named entry in `[health].checks` when no step matches.
-7. `dot link <name>` (and `dot install <name>` if it pulls anything new from brew).
-
-## Steps and checks
-
-`module.Load` rejects a step without a name, and `TestRepoModulesLoad` fails `go test` if any module in the repo doesn't load.
-
-Don't add a check for a file in `[links]`. `dot doctor` already verifies every link.
+1. Create `modules/<name>/` with a `module.toml` and the config files it links. The README's module schema lists every field.
+2. Add a `check` for each side effect `dot doctor` should verify: on the step it verifies, or in `[health].checks` when no step matches. `dot doctor` already verifies every link.
+3. Run `go test ./...`. `dot` skips a module whose `module.toml` fails to load and prints only a warning, so `TestRepoModulesLoad` loads every module to catch it.
+4. Run `dot install <name>` if the module has `[deps]`, `[apps]`, or `provision` steps. Then run `dot link <name>`. Install goes first because a `post_link` step can call a tool that install puts in place, such as `desktoppr` in `macos`.
 
 ## Gotchas
 
-- `post_link` runs on **every** `dot link`. Always guard side effects (`test -f ...`, `grep -q ...`). It's the most common source of footguns.
-- The `agents` module links `instructions.md` to `~/.claude/CLAUDE.md` and `claude/settings.json` to `~/.claude/settings.json`. The targets describe what they become on the machine, not what they're called in this repo — see `modules/agents/`. Files any agent reads sit at the module root. Files only one agent reads go in a folder named for it, such as `claude/`. The module also `touch`es `~/.agents/AGENTS.local.md` on link. That file is the machine-local companion, not tracked by dot, that `CLAUDE.md` `@`-imports, like `zsh`'s `~/.zshrc.local`. It lives under `~/.agents/`, not `~/.claude/`, so any agent can read it.
-- A link works only for an app that writes through the symlink. T3 Code does: it resolves a symlinked `settings.json` before its atomic rename, so the `t3code` link survives saves, and a change made in the app shows up as a dirty file in this repo. Rectangle doesn't, so it gets an `apply.sh` instead.
-- Claude settings are one file: `modules/agents/claude/settings.json` symlinked straight to `~/.claude/settings.json`. No layering, no merge step. Anything that writes to `~/.claude/settings.json` (Claude Code itself, work tooling) writes through the symlink and shows up as a dirty file in this repo — resolve those by hand and commit or revert. The statusline surfaces both failure modes: 📥 `settings uncommitted` (yellow) when the repo file has uncommitted changes, 🆘 `settings not linked to repo` (red) when `~/.claude/settings.json` is no longer a symlink (a tool replaced the file instead of writing in place — `dot doctor --fix` relinks it).
+- `post_link` runs on every `dot link`, so guard each side effect, as in `test -f ... ||` or `grep -q ... ||`.
+- `modules/agents/instructions.md` holds the global instructions for every project and is linked as `~/.claude/CLAUDE.md`. The `CLAUDE.md` files in this repo are different files: symlinks to the `AGENTS.md` beside them. In `agents`, files any agent reads sit at the module root, and files only one agent reads go in a folder named for it, such as `claude/`.
+- `instructions.md` `@`-imports `~/.agents/AGENTS.local.md`, the machine-local file dot doesn't track, like `zsh`'s `~/.zshrc.local`. `agents` creates it empty on link. It lives under `~/.agents/` so any agent can read it.
+- A link works only for an app that writes through the symlink. T3 Code and Claude Code do, so a change made in either app shows up as a dirty file in this repo. Commit it or revert it. Rectangle doesn't, so it gets an `apply.sh`.
+- When a tool replaces `~/.claude/settings.json` instead of writing through it, the statusline shows `settings not linked to repo`. Run `dot doctor --fix` to relink it. The tool's copy moves to `~/.dotfiles-backup/agents/`.

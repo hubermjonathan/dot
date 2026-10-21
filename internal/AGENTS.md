@@ -1,28 +1,9 @@
 # internal — core packages
 
-Pure logic, no CLI concerns. Each package exports a small surface; `cmd/dot/` wires them together.
-
-## Packages
-
-| Package | Responsibility |
-|---------|---------------|
-| `module/` | `Module` and `Step` structs, TOML parsing and step-name validation (`toml.go`), filesystem discovery (`discover.go`), the `~/.dot-skips` file (`skips.go`: `EnsureSkips`, `LoadSkips`, `ApplySkips`) |
-| `linker/` | Symlink create / remove / verify, with backup-before-replace for regular files |
-| `installer/` | `brew install` / `brew install --cask` (`InstallBrew`/`InstallCask`) and `RunScripts` for `post_link`/`provision`. Entry points take `io.Writer` for combined stdout/stderr; the caller (typically `ui.Step`) owns buffering. Failures are reported as `*CommandError` |
-| `ui/` | Single-line spinner that renders a step label + most recent output line, captures the full buffer for replay, and degrades to plain status lines off-TTY. `Step` implements `io.Writer` |
-| `doctor/` | Aggregates symlink + check issues (`Module.Checks()`: `[health]` plus step `check`s) into `Issue`s, attaches optional `FixAction` |
-| `tui/` | Bubble Tea picker — list of modules with selection state |
-| `pathutil/` | `ExpandHome` (`~` → `$HOME`) — used by both `cmd/dot/` and `internal/` |
+Nothing here imports Cobra or reads a flag. `cmd/dot/` wires the packages together.
 
 ## Conventions
 
-- **No global state** — pass dependencies through arguments.
-- **Functions return errors** — the caller decides whether to continue or abort. The CLI relies on this to keep going across modules.
-- **Linker statuses are exhaustive** — `StatusOK`, `StatusBroken`, `StatusMissing`, `StatusWrongTarget`, `StatusNotSymlink`. Add a new state only when an existing one cannot represent the case.
+- **No global state**: pass dependencies through arguments.
+- **New linker states**: a new `linker.Status` needs a case in `doctor.statusName` and in both switches in `cmd/dot/status.go`. Without them, `dot doctor` prints it as `unknown`, and `dot status` leaves it out of the module state.
 - **Health check kinds** live in `doctor.ParseCheck`. A new kind goes there and in the README's list of kinds.
-
-## Adding a package
-
-1. `internal/<pkg>/<pkg>.go` with a tight exported API.
-2. `internal/<pkg>/<pkg>_test.go` next to it.
-3. Wire it into `cmd/dot/` — no `init()` magic, no service locators.

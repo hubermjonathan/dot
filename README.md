@@ -2,35 +2,36 @@
 
 Personal macOS configuration managed by `dot`, a Go CLI that handles symlinks, Homebrew installs, and health checks for a set of pluggable modules.
 
-Each subdirectory under `modules/` is a self-contained module: a `module.toml` plus its config files. The CLI walks that directory at runtime, so adding a new tool means dropping in a folder — no code changes.
+Each subdirectory under `modules/` is a self-contained module: a `module.toml` plus its config files. The CLI walks that directory at runtime, so adding a new tool means adding a folder, with no code changes. Private config for the work machine lives in [hubermjonathan/dot-work](https://github.com/hubermjonathan/dot-work).
 
-## Quick start (new machine)
+## Set up a machine
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh | bash
-```
+1. To skip modules or steps on this machine, create `~/.dot-skips` first, as [Skipping on one machine](#skipping-on-one-machine) describes.
+2. Run the installer:
 
-`install.sh` installs Xcode CLT (so `git` exists), clones this repo into `~/Code/dot`, then execs `bootstrap.sh`, which installs Homebrew + Go, builds `bin/dot`, and runs `dot install` followed by `dot link` to apply every module.
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh | bash
+   ```
 
-Override with `DOT_DEST=<path>` or `DOT_REPO=<owner>/<name>`.
+   `install.sh` installs the Xcode command line tools, so `git` exists, and clones this repo into `~/Code/dot`. It then runs `bootstrap.sh`, which installs Homebrew and Go, builds `bin/dot`, and runs `dot install` and then `dot link` for every module. To clone somewhere else, set `DOT_DEST=<path>` or `DOT_REPO=<owner>/<name>`.
 
 ## Commands
 
 ```bash
-dot                  # Interactive picker (TUI) — choose modules to install + link
-dot link [mod...]    # Create symlinks; runs setup.post_link after
-dot unlink [mod...]  # Remove symlinks
-dot install [mod...] # brew/cask install + setup.provision
-dot doctor [--fix]   # Health check; --fix repairs symlinks
-dot doctor --orphans # Walk for stale repo symlinks (slow); --fix removes them
-dot status [--diff]  # Per-module link state; --diff shows divergence vs repo
+dot                          # Interactive picker (TUI) — choose modules to install + link
+dot link [mod...]            # Create symlinks; runs setup.post_link after
+dot unlink [mod...]          # Remove symlinks
+dot install [mod...]         # brew/cask install + setup.provision
+dot doctor [--fix]           # Health check; --fix repairs symlinks
+dot doctor --orphans         # Walk for stale repo symlinks (slow); --fix removes them
+dot status [mod...] [--diff] # Per-module link state; --diff shows divergence vs repo
 ```
 
 The `zsh` module puts the repo's `bin/` on `PATH`, and `dot` finds the repo from its own path, so it runs from any directory.
 
 Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `diverged`, `unlinked`, `no-links`), the same as `dot status`.
 
-`-v` / `--verbose` (any subcommand): after every successful subprocess step, dump the full captured `stdout`/`stderr` indented under the step's status line. Without it, output is suppressed on success and only surfaced on failure. Either way each step renders as a one-line spinner showing the most recent line of output. Modules with `setup.interactive = true` bypass the spinner so prompts work. Off a terminal, such as in a pipe or CI, each step prints its label and its final status line only.
+`-v` or `--verbose` works with any subcommand. Each step shows as a one-line spinner with its latest line of output. When a step succeeds, its output stays hidden unless you pass `-v`. When a step fails, its full output always prints under the status line. A module with `setup.interactive = true` runs its `post_link` and `provision` steps on the terminal with no spinner, so prompts work. Its brew and cask steps still use the spinner. Off a terminal, such as in a pipe or CI, a step prints its label in place of the spinner.
 
 Exit codes: `0` success. `1` when `dot doctor` leaves an issue or an orphan unfixed. `2` for any other failure, even one failed step.
 
@@ -46,7 +47,7 @@ go test ./...        # run unit tests
 | Module    | Description |
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `agents`  | Coding agent config: the global instructions (`instructions.md`, linked as `~/.claude/CLAUDE.md`) and, under `claude/`, Claude Code's versioned `settings.json`, statusline, the `technical-writing` and `t3-thread-name` hooks, and three plugin marketplaces, each with `autoUpdate` on: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/skills-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou`. It also registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
+| `agents`  | Coding agent config: installs Claude Code, links the global instructions (`instructions.md`, as `~/.claude/CLAUDE.md`) and, from `claude/`, Claude Code's `settings.json` (hooks, plugin marketplaces) and `scripts/` (statusline, hooks), creates `~/.agents/AGENTS.local.md`, and registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
@@ -112,14 +113,14 @@ macos/sudo-touchid    # one step, plus its check
 apps                  # a whole module
 ```
 
-`install`, `link`, `doctor`, `status`, `unlink`, and the picker all leave skipped modules and steps out. An entry that matches no module or step prints a warning. To skip something on a new machine before its first install, create `~/.dot-skips` before running the installer.
+`install`, `link`, `doctor`, `status`, `unlink`, and the picker all leave skipped modules and steps out. An entry that matches no module or step prints a warning.
 
 ### Symlink behavior
 
 - Source paths are relative to the module directory; targets are absolute and may use `~`.
-- Directory symlinks are supported — e.g. `zsh/conf.d` → `~/.config/zsh` makes every file dropped into `conf.d/` live on the next shell start, no `[links]` edit needed.
+- A source can be a directory. Every file in it then shows up at the target, so a new file needs no `[links]` change. `zsh/conf.d` works this way.
 - A symlink that points somewhere else is replaced with no backup.
-- If a target already exists as a regular file, `dot link` and `dot doctor --fix` back it up to `~/.dotfiles-backup/<module>/<basename>.<utc-time>.<hash>` before replacing it.
+- If a target exists and isn't a symlink, such as a file or a directory, `dot link` and `dot doctor --fix` move it to `~/.dotfiles-backup/<module>/<basename>.<utc-time>.<hash>` before linking.
 
 ### post_link vs provision
 
@@ -135,14 +136,15 @@ Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~
 
 `.zshenv` sources `~/.zshrc.secrets`, then `~/.zshenv.local`, the machine-local file for environment every shell needs, such as a JDK on `PATH`. zsh reads `.zshenv` in every shell, including the non-interactive `zsh -c` that agents run, so both reach those shells too.
 
-## Repository layout
+## Layout
 
-```
-scripts/install.sh   — curl-piped one-liner (Xcode CLT + clone + exec bootstrap)
-scripts/bootstrap.sh — first-run installer (Homebrew + Go + build + dot install/link)
-scripts/build.sh     — go build helper
-cmd/dot/             — Cobra CLI commands (one file per subcommand)
-internal/            — module discovery, linker, installer, doctor, TUI
-modules/             — one subdirectory per module (each with module.toml)
-bin/                 — built `dot` binary, gitignored; `bootstrap.sh` and `build.sh` write it
-```
+| Path | What it is |
+|---|---|
+| `AGENTS.md` | Conventions for agents that edit this repo. Each `CLAUDE.md` links to the `AGENTS.md` beside it |
+| `scripts/install.sh` | The installer `curl` runs: the Xcode command line tools, the clone, then `bootstrap.sh` |
+| `scripts/bootstrap.sh` | First-run setup: Homebrew, Go, the build, then `dot install` and `dot link` |
+| `scripts/build.sh` | Builds `bin/dot` |
+| `cmd/dot/` | The Cobra CLI, one file per subcommand |
+| `internal/` | Module discovery, the linker, installer, doctor, and picker |
+| `modules/` | One folder per module, each with a `module.toml` |
+| `bin/` | The built `dot` binary, gitignored. `bootstrap.sh` and `build.sh` write it |
