@@ -10,7 +10,7 @@ Each subdirectory under `modules/` is a self-contained module: a `module.toml` p
 curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh | bash
 ```
 
-`install.sh` installs Xcode CLT (so `git` exists), clones this repo into `~/Code/dot`, then execs `bootstrap.sh`, which installs Homebrew + Go, builds `bin/dot`, and runs `dot install` followed by `dot link` to apply every module.
+`install.sh` installs Xcode CLT (so `git` exists), clones this repo into `~/Code/dot`, then execs `bootstrap.sh`, which installs Homebrew + Go, builds `bin/dot`, and runs `dot install` followed by `dot link` to apply every module, then `brew bundle` on the root `Brewfile`.
 
 Override with `DOT_DEST=<path>` or `DOT_REPO=<owner>/<name>`.
 
@@ -139,10 +139,11 @@ Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~
 
 ```
 scripts/install.sh   — curl-piped one-liner (Xcode CLT + clone + exec bootstrap)
-scripts/bootstrap.sh — first-run installer (Homebrew + Go + build + dot install/link)
+scripts/bootstrap.sh — first-run installer (Homebrew + Go + build + dot install/link + brew bundle)
 scripts/build.sh     — go build helper
 cmd/dot/             — Cobra CLI commands (one file per subcommand)
 internal/            — module discovery, linker, installer, doctor, TUI
 modules/             — one subdirectory per module (each with module.toml)
+Brewfile             — extra Homebrew packages outside any module; `bootstrap.sh` runs `brew bundle` on it
 bin/                 — built `dot` binary, gitignored; `bootstrap.sh` and `build.sh` write it
 ```

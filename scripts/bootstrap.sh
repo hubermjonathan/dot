@@ -43,5 +43,7 @@ echo "running dot install..."
 ./bin/dot install
 echo "running dot link..."
 ./bin/dot link
+echo "running brew bundle..."
+brew bundle --file=Brewfile
 
 echo "done"
