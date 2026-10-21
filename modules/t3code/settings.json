@@ -20,6 +20,7 @@
   "sidebarAutoSettleAfterDays": null,
   "sidebarAutoSettleOnMerge": false,
   "defaultThreadEnvMode": "local",
+  "branchNamePrefix": "jon",
   "pullRequestMergeMethod": "squash",
   "providerInstances": {
     "codex": {
