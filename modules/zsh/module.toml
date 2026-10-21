@@ -13,5 +13,5 @@ brew = ["zsh"]
 [setup]
 interactive = true
 post_link = [
-  { name = "caf-daemon", run = "cmp -s ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist || { sudo launchctl bootout system/dot.caf 2>/dev/null; sudo install -m 644 -o root -g wheel ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist && sudo launchctl bootstrap system /Library/LaunchDaemons/dot.caf.plist; }", check = "command_succeeds:cmp -s ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist" },
+  { name = "caf-daemon", run = "cmp -s ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist && launchctl print system/dot.caf >/dev/null 2>&1 || { sudo launchctl bootout system/dot.caf 2>/dev/null; sudo install -m 644 -o root -g wheel ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist && sudo launchctl bootstrap system /Library/LaunchDaemons/dot.caf.plist; }", check = "command_succeeds:cmp -s ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist && launchctl print system/dot.caf >/dev/null" },
 ]
