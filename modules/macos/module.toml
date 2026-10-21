@@ -26,11 +26,12 @@ post_link = [
   { name = "hot-corner-br", run = "defaults write com.apple.dock wvous-br-corner -int 4" },
   { name = "clock-seconds", run = "defaults write com.apple.menuextra.clock ShowSeconds -bool true" },
   { name = "hide-desktop-widgets", run = "defaults write com.apple.WindowManager showStandardWidgets -bool false" },
+  { name = "hide-stage-manager-widgets", run = "defaults write com.apple.WindowManager showStageManagerWidgets -bool false" },
   { name = "no-edge-tiling", run = "defaults write com.apple.WindowManager EnableTilingByEdgeDrag -bool false" },
   { name = "no-top-edge-tiling", run = "defaults write com.apple.WindowManager EnableTopTilingByEdgeDrag -bool false" },
   { name = "no-tiling-option-key", run = "defaults write com.apple.WindowManager EnableTilingOptionAccelerator -bool false" },
   { name = "no-tiled-margins", run = "defaults write com.apple.WindowManager EnableTiledWindowMargins -bool false" },
-  { name = "clear-notification-widgets", run = "defaults write com.apple.notificationcenterui widgets '<dict><key>instances</key><array/><key>vers</key><integer>1</integer></dict>'" },
+  { name = "clear-notification-widgets", run = "python3 -c \"import plistlib,subprocess,tempfile,os; r=subprocess.run(['defaults','export','com.apple.notificationcenterui','-'],capture_output=True); p=plistlib.loads(r.stdout); p['widgets']={'instances':[],'vers':1}; f=tempfile.NamedTemporaryFile(suffix='.plist',delete=False); plistlib.dump(p,f); f.close(); subprocess.run(['defaults','import','com.apple.notificationcenterui',f.name]); os.unlink(f.name)\"" },
   # AppleFirstWeekday counts Sunday as 1, iCal counts it as 0
   { name = "week-starts-monday", run = "defaults write NSGlobalDomain AppleFirstWeekday -dict gregorian 2" },
   { name = "calendar-week-starts-monday", run = "defaults write com.apple.iCal 'first day of week' -int 1" },
