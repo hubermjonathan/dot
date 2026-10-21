@@ -20,5 +20,14 @@
   "sidebarAutoSettleAfterDays": null,
   "sidebarAutoSettleOnMerge": false,
   "defaultThreadEnvMode": "local",
-  "pullRequestMergeMethod": "squash"
+  "pullRequestMergeMethod": "squash",
+  "providerInstances": {
+    "claudeAgent": {
+      "driver": "claudeAgent",
+      "enabled": true,
+      "config": {
+        "binaryPath": "t3-claude"
+      }
+    }
+  }
 }

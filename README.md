@@ -52,7 +52,7 @@ go test ./...        # run unit tests
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
 | `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, and Zoom background images under `~/Pictures`, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
-| `t3code`  | T3 Code app and its server `settings.json` |
+| `t3code`  | T3 Code app and its server `settings.json`, which starts Claude through `bin/t3-claude` so Claude loads `~/.zshenv` |
 | `tmux`    | `.tmux.conf` |
 | `vim`     | `.vimrc` and its plugins, including the 256noir colorscheme, cloned as Vim packages |
 | `zsh`     | `.zshrc`, `.zshenv`, the `conf.d/` auto-discovery directory, and the `dot.caf` LaunchDaemon behind `caf` |
@@ -146,4 +146,4 @@ Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~
 | `cmd/dot/` | The Cobra CLI, one file per subcommand |
 | `internal/` | Module discovery, the linker, installer, doctor, and picker |
 | `modules/` | One folder per module, each with a `module.toml` |
-| `bin/` | The built `dot` binary, gitignored. `bootstrap.sh` and `build.sh` write it |
+| `bin/` | On `PATH`: `dot`, the binary `bootstrap.sh` and `build.sh` build (gitignored), and `t3-claude` |
