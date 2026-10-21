@@ -22,17 +22,6 @@
   "defaultThreadEnvMode": "local",
   "pullRequestMergeMethod": "squash",
   "providerInstances": {
-    "codex": {
-      "driver": "codex",
-      "enabled": true,
-      "config": {
-        "binaryPath": "codex",
-        "homePath": "",
-        "shadowHomePath": "",
-        "launchArgs": "",
-        "customModels": []
-      }
-    },
     "claudeAgent": {
       "driver": "claudeAgent",
       "enabled": true,

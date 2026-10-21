@@ -1,26 +1,21 @@
-# path
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="${${(%):-%x}:A:h:h:h:h}/bin:$PATH" # dot bin
+export PATH="$HOME/Code/dot/bin:$PATH"
 
-# tab renaming
 tab() {
   echo -ne "\033]0;$*\007"
 }
 
-# cd ls
 function chpwd() {
   [[ -n $CODING_AGENT ]] && return
   emulate -L zsh
   ls -a
 }
 
-# clear
 function cl() {
   clear
   ls -a
 }
 
-# delete scratch dirs
 function rmscratch() {
   local -a dirs
   dirs=(${(f)"$(find "${@:-$HOME}" \( -path "$HOME/Library" -o -name node_modules -o -name .git \) -prune -o -type d -name .scratch -prune -print 2>/dev/null)"})
@@ -32,7 +27,6 @@ function rmscratch() {
   rm -rf -- "${dirs[@]}" && echo "deleted ${#dirs} dirs"
 }
 
-# aliases
 alias ..="cd .."
 alias pbc="pbcopy"
 alias pbp="pbpaste"

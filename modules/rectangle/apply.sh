@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-# Translate Rectangle's exported JSON into `defaults write` calls.
+# Rectangle refuses a symlinked RectangleConfig.json and asks before importing one, so write its defaults directly.
 set -euo pipefail
 
-CONFIG="${1:-$HOME/.config/rectangle/RectangleConfig.json}"
+CONFIG="$HOME/.config/rectangle/RectangleConfig.json"
 DOMAIN="com.knollsoft.Rectangle"
 
-[ -f "$CONFIG" ] || { echo "missing: $CONFIG"; exit 1; }
-
-# Defaults: each key has exactly one of {bool,int,float,string} or empty (skip).
 python3 - "$CONFIG" "$DOMAIN" <<'PY'
 import json, subprocess, sys
 
@@ -22,11 +19,7 @@ for key, payload in cfg.get("defaults", {}).items():
     val = "true" if (t == "bool" and v) else "false" if t == "bool" else str(v)
     subprocess.run(["defaults", "write", domain, key, flag, val], check=True)
 
-shortcuts = cfg.get("shortcuts", {})
-for k in shortcuts:
-    subprocess.run(["defaults", "delete", domain, k], check=False,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-for k, v in shortcuts.items():
+for k, v in cfg.get("shortcuts", {}).items():
     subprocess.run([
         "defaults", "write", domain, k, "-dict",
         "keyCode", "-int", str(v["keyCode"]),
