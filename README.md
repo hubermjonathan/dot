@@ -46,14 +46,11 @@ go test ./...        # run unit tests
 | Module    | Description |
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `apps`    | Brew + cask bundle: dust, ollama; ankerwork, bitwarden, google-chrome, spotify; pulls gemma4:12b-mlx on install |
+| `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, the `technical-writing` hook, and three plugin marketplaces: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/dot-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou` |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
-| `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
-| `handy`   | Handy speech-to-text: seeds `settings_store.json` (parakeet model, right-option hotkey, ollama post-processing) |
 | `macos`   | Dock, Finder, menu bar, dark mode, monday week start, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
-| `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `tmux`    | `.tmux.conf` |
 | `vim`     | `.vimrc`, noir colorscheme, Vundle and its plugins |

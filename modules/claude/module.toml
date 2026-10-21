@@ -7,7 +7,7 @@ description = "Claude Code configuration"
 "scripts" = "~/.claude/scripts"
 
 [deps]
-brew = ["node", "qrencode"]
+brew = ["jq", "node", "qrencode"]
 
 [health]
 checks = [
