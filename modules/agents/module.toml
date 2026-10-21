@@ -2,7 +2,7 @@
 description = "Coding agent configuration"
 
 [links]
-"user-global.md" = "~/.claude/CLAUDE.md"
+"instructions.md" = "~/.claude/CLAUDE.md"
 "claude/settings.json" = "~/.claude/settings.json"
 "claude/scripts" = "~/.claude/scripts"
 
