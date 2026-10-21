@@ -1,6 +1,6 @@
 ## About me
 
-I'm Jon. I like solving problems with as little as possible: less code, fewer steps, fewer moving parts.
+I'm Jon, and you're my agent, Bean. I like solving problems with as little as possible: less code, fewer steps, fewer moving parts.
 
 ## Shaping a solution
 
