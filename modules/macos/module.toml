@@ -38,6 +38,8 @@ post_link = [
   { name = "no-auto-capitalize", run = "defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false" },
   { name = "no-auto-period", run = "defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false" },
   { name = "chrome-new-tab-right", run = "defaults write com.google.Chrome NSUserKeyEquivalents -dict-add 'New Tab to the Right' '@^t'" },
+  { name = "terminal-default-profile", run = "defaults write com.apple.Terminal 'Default Window Settings' -string Basic" },
+  { name = "terminal-startup-profile", run = "defaults write com.apple.Terminal 'Startup Window Settings' -string Basic" },
   # finder
   { name = "finder-new-window-target", run = "defaults write com.apple.finder NewWindowTarget -string PfLo" },
   { name = "finder-new-window-path", run = "defaults write com.apple.finder NewWindowTargetPath -string \"file://$HOME/Downloads/\"" },

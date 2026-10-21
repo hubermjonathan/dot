@@ -52,7 +52,7 @@ go test ./...        # run unit tests
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
 | `handy`   | Handy speech-to-text: seeds `settings_store.json` (parakeet model, right-option hotkey, ollama post-processing) |
-| `macos`   | Dock, Finder, menu bar, dark mode, monday week start, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
+| `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `tmux`    | `.tmux.conf` |
