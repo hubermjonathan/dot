@@ -19,4 +19,4 @@ One Cobra subcommand per file. Shared helpers live in `link.go` (`getModules`, `
 
 ## Gotchas
 
-- `interactive.go` is the root handler. It calls `runInstall` and then `runLink` in the same process, so an install error prints a warning and link still runs.
+- `interactive.go` is the root handler. It calls `runInstall` and then `runLink` in the same process, so link still runs after an install error, and the command still exits `2`.

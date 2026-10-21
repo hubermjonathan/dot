@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/hubermjonathan/dotfiles/internal/tui"
@@ -43,8 +43,6 @@ func runInteractive() error {
 	}
 
 	fmt.Println()
-	if err := runInstall(nil, selected); err != nil {
-		fmt.Fprintf(os.Stderr, "install errors (continuing): %v\n", err)
-	}
-	return runLink(nil, selected)
+	installErr := runInstall(nil, selected)
+	return errors.Join(installErr, runLink(nil, selected))
 }
