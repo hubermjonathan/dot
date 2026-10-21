@@ -22,7 +22,7 @@ caf() {
     echo "Your Mac is now caffeinated"
   else
     sudo launchctl kill TERM system/dot.caf
-    sudo pmset -a disablesleep 0
+    sudo pmset -a sleep 1 disablesleep 0
     echo "Your Mac has been decaffeinated"
   fi
 }
