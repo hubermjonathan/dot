@@ -5,7 +5,7 @@ description = "Applications"
 brew = ["dust", "ollama"]
 
 [apps]
-cask = ["ankerwork", "bitwarden", "google-chrome", "spotify"]
+cask = ["ankerwork", "bitwarden", "google-chrome", "screens-connect", "spotify"]
 
 [setup]
 provision = [
