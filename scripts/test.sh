@@ -52,10 +52,15 @@ mkdir -p "$HOME/Pictures" "$HOME/.t3/worktrees/dot/feat/modules/alpha" && echo w
 ln -s "$R/modules/alpha/a.txt" "$HOME/Pictures/old copy.txt"
 ln -s "$HOME/gone/dot/modules/x" "$HOME/Pictures/dangling"
 ln -s "$HOME/.t3/worktrees/dot/feat/modules/alpha/a.txt" "$HOME/Pictures/t3.txt"
+ln -s "$HOME/gone/dot/node_modules/x" "$HOME/Pictures/npm"
 o=$(dot status --orphans); code=$?
 ok "orphans finds undeclared and dangling links" '[ $code = 1 ] && echo "$o" | grep -q "old copy.txt ->" && echo "$o" | grep -q dangling'
 ok "orphans finds links into T3 Code worktrees" 'echo "$o" | grep -q t3.txt'
 ok "orphans ignores a skipped module's links" '! echo "$o" | grep -q b.txt'
+ok "orphans ignores links into a node_modules folder" '! echo "$o" | grep -q npm'
+mkdir "$R/modules/broken" && echo 'if then' > "$R/modules/broken/module.sh"
+ok "orphans fails on a broken module.sh" '! dot status --orphans >/dev/null 2>&1 && dot status --orphans 2>/dev/null | grep -q "does not parse"'
+rm -r "$R/modules/broken"
 
 mkdir "$R/modules/notes" && rm "$HOME/a.txt"
 o=$(dot status)

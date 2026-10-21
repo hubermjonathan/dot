@@ -45,10 +45,14 @@ install)
   each_module "$@" ;;
 status)
   if [ "${1:-}" = --orphans ]; then
-    declared=$(for f in "$REPO"/modules/*/module.sh; do (link() { printf '%s\n' "$2"; }; . "$f"); done)
+    # A skipped module's links still count as declared.
+    skips= declared=
+    link() { declared="$declared$2
+"; }
+    each_module
     # The while loop runs in a subshell, so the last grep tells whether it printed an orphan.
     find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune \
-      -o -type l -lname '*/dot/*modules/*' -print 2>/dev/null | grep -vxF "$declared" |
+      -o -type l \( -lname '*/dot/modules/*' -o -lname '*/dot/*/modules/*' \) -print 2>/dev/null | grep -vxF "$declared" |
       while IFS= read -r l; do printf '✗ orphan: %s -> %s\n' "$l" "$(readlink "$l")"; done | grep . && failures=1
   else
     link() {
