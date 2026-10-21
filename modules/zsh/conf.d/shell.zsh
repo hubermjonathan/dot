@@ -1,7 +1,6 @@
 # path
 export PATH="$HOME/.local/bin:$PATH"
-# dot's bin/. ~/.config/zsh links into the dot repo, so this file's real path finds it.
-export PATH="${${(%):-%x}:A:h:h:h:h}/bin:$PATH"
+export PATH="${${(%):-%x}:A:h:h:h:h}/bin:$PATH" # dot bin
 
 # tab renaming
 tab() {
@@ -35,7 +34,5 @@ function rmscratch() {
 
 # aliases
 alias ..="cd .."
-alias rr="reset"
 alias pbc="pbcopy"
 alias pbp="pbpaste"
-alias c="claude"

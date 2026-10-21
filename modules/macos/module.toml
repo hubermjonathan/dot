@@ -5,7 +5,7 @@ description = "macOS system preferences"
 "wallpaper.jpg" = "~/Pictures/wallpaper.jpg"
 
 [deps]
-brew = ["desktoppr"]
+brew = ["defaultbrowser", "desktoppr"]
 
 [setup]
 interactive = true
@@ -38,6 +38,10 @@ post_link = [
   { name = "no-auto-capitalize", run = "defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false" },
   { name = "no-auto-period", run = "defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false" },
   { name = "chrome-new-tab-right", run = "defaults write com.google.Chrome NSUserKeyEquivalents -dict-add 'New Tab to the Right' '@^t'" },
+  { name = "terminal-default-profile", run = "defaults write com.apple.Terminal 'Default Window Settings' -string Basic" },
+  { name = "terminal-startup-profile", run = "defaults write com.apple.Terminal 'Startup Window Settings' -string Basic" },
+  # defaultbrowser can't detect the current default here, so it would show the confirm dialog on every link
+  { name = "default-browser", run = "osascript -l JavaScript -e 'ObjC.import(\"AppKit\"); $.NSWorkspace.sharedWorkspace.URLForApplicationToOpenURL($.NSURL.URLWithString(\"https:\")).path.js' | grep -q 'Google Chrome' || defaultbrowser chrome", check = "command_succeeds:osascript -l JavaScript -e 'ObjC.import(\"AppKit\"); $.NSWorkspace.sharedWorkspace.URLForApplicationToOpenURL($.NSURL.URLWithString(\"https:\")).path.js' | grep -q 'Google Chrome'" },
   # finder
   { name = "finder-new-window-target", run = "defaults write com.apple.finder NewWindowTarget -string PfLo" },
   { name = "finder-new-window-path", run = "defaults write com.apple.finder NewWindowTargetPath -string \"file://$HOME/Downloads/\"" },

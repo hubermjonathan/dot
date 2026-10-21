@@ -1,6 +1,6 @@
 ## About me
 
-I'm Jon. I like solving problems with as little as possible: less code, fewer steps, fewer moving parts.
+I'm Jon, and you're my agent, Bean. I like solving problems with as little as possible: less code, fewer steps, fewer moving parts.
 
 ## Shaping a solution
 
@@ -34,14 +34,14 @@ This machine is set up by `~/Code/dot` (`hubermjonathan/dot`). Dot is how I take
 - **Change anything dot manages through dot.** That covers editing config and installing new apps or CLI tools. Many config files under `~` are symlinks into the repo; `readlink` tells you.
 - **Install software with Homebrew.** Prefer a formula or a cask over a curl script, a language package manager, or a manual download.
 - **Every dot change lands as a PR in `hubermjonathan/dot`.** If an open PR for that change already exists, push to it instead of opening another.
-- **Work machine config lives in dot-work.** Dot's repo is public, so private config for the work machine goes in `~/Code/dot-work` (`hubermjonathan/dot-work`, private), such as private skills, personal details, or config that fits only that machine. After a skill change in either repo, run `~/Code/skills/scripts/sync-plugins.sh ~/Code/skills ~/Code/dot-work`, which syncs both and checks that no skill name repeats across the two. Every dot-work change lands as a PR in `hubermjonathan/dot-work`, the same way. A skill change reaches an agent after it merges and the plugin updates.
+- **Work machine config lives in dot-work.** Dot's repo is public, so private config for the work machine goes in `~/Code/dot-work` (`hubermjonathan/dot-work`, private), such as personal details or config that fits only that machine. Every dot-work change lands as a PR in `hubermjonathan/dot-work`, the same way.
+- **Global skills live in skills and skills-work.** Work skills go in `~/Code/skills-work` (`hubermjonathan/skills-work`, private). Every other global skill goes in `~/Code/skills` (`hubermjonathan/skills`, public). A skill for one project stays in that project's repo. Every change to skills or skills-work lands as a PR in its repo.
 - **Secrets never go in a repo.** They go in `~/.zshrc.secrets`, which loads in every shell. dot-work tracks each secret's name, never its value, so add a new secret's name there too.
 - **My dot machines and personal devices share a Tailscale network.** Dot's `tailscale` module installs it and joins the machine. Each one reaches the others by its Tailscale name, which `tailscale status` lists. To let me open something you serve here from my phone or another machine, bind the server to all interfaces, not only `localhost`, and give me `http://<this machine's Tailscale name>:<port>`.
 
 ## Other
 
 - **Temporary files go in `.scratch`.** Use the `.scratch` dir at the repo or folder root for files that support the work but aren't part of it: handoff prompts, test plans, scratch notes. It's in the global gitignore, so nothing there gets committed by accident. Docs and files that belong in the project go where the project keeps them.
-- **Name a new T3 Code thread after its ticket and task.** Use `<ticket number>-<kebab-case task>`, with the ticket's number but not its project key, as in `123-fix-login-redirect` for ABC-123. With no ticket, use the task alone.
 - **Keep agent tooling agent agnostic.** I want to swap harnesses and models at any time, so skills, instructions, and config for agents shouldn't depend on one of them. That usually means covering three cases: Claude Code, Codex, and a generic agent that loads plain `SKILL.md` files, such as one set up with `npx skills add`. A repo's agent instructions go in `AGENTS.md`, with `CLAUDE.md` as a symlink to it, so every agent reads the same file.
 
 Read and follow machine-specific preferences here: @~/.agents/AGENTS.local.md

@@ -46,19 +46,17 @@ go test ./...        # run unit tests
 | Module    | Description |
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `apps`    | Brew + cask bundle: dust, ollama; ankerwork, bitwarden, google-chrome, spotify; pulls gemma4:12b-mlx on install |
+| `agents`  | Coding agent config: the global instructions (`instructions.md`, linked as `~/.claude/CLAUDE.md`) and, under `claude/`, Claude Code's versioned `settings.json`, statusline, the `technical-writing` and `t3-thread-name` hooks, and three plugin marketplaces, each with `autoUpdate` on: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/skills-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou`. It also registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
+| `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `blue-bubbles` | The [blue-bubbles](https://github.com/hubermjonathan/blue-bubbles) iMessage gateway, for the Mac signed in to the agent's Apple ID: `imsg`, the gateway signed with a self-signed `blue-bubbles` certificate so its Full Disk Access survives upgrades, and its launch agent. Needs `~/.config/blue-bubbles/config.yaml` and a one-time Full Disk Access grant for `~/go/bin/blue-bubbles` |
-| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, the `technical-writing` hook, and three plugin marketplaces: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/dot-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou`, and the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
-| `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
-| `handy`   | Handy speech-to-text: seeds `settings_store.json` (parakeet model, right-option hotkey, ollama post-processing) |
-| `macos`   | Dock, Finder, menu bar, dark mode, monday week start, wallpaper, profile picture; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
-| `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
+| `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
+| `t3code`  | T3 Code app and its server `settings.json` |
 | `tmux`    | `.tmux.conf` |
 | `vim`     | `.vimrc`, noir colorscheme, Vundle and its plugins |
-| `zsh`     | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
+| `zsh`     | `.zshrc`, `.zshenv`, the `conf.d/` auto-discovery directory, and the `dot.caf` LaunchDaemon behind `caf` |
 
 ## Module schema (`module.toml`)
 
@@ -126,13 +124,15 @@ apps                  # a whole module
 
 ### post_link vs provision
 
-- `post_link` runs every `dot link`. Idempotent: safe to re-run. Use for things like creating placeholder files, running `osacompile`, or applying `defaults write`.
+- `post_link` runs every `dot link`. Idempotent: safe to re-run. Use for things like creating placeholder files, applying `defaults write`, or copying a file that can't be a symlink.
 - `provision` runs only on `dot install`. Use for one-time bootstrap that talks to a remote (e.g. `gh auth login`).
 - Set `interactive = true` when commands need stdin/stdout (auth flows, prompts).
 
 ## Zsh config
 
-Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every file in it on shell start. No `module.toml` change required.
+Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every `.zsh` file in it on shell start. No `module.toml` change required.
+
+`caf [on|off|status]` keeps the Mac awake: no idle sleep, no lid-close sleep, display on. The `dot.caf` LaunchDaemon does the work, so `caf` also turns on at every boot. `dot link zsh` copies `conf.d/caf.plist` to `/Library/LaunchDaemons/dot.caf.plist` with `sudo` and loads it, whenever the two differ or the job isn't loaded. `caf off` turns idle sleep and lid-close sleep back on until the next boot.
 
 `.zshenv` sources `~/.zshrc.secrets`, then `~/.zshenv.local`, the machine-local file for environment every shell needs, such as a JDK on `PATH`. zsh reads `.zshenv` in every shell, including the non-interactive `zsh -c` that agents run, so both reach those shells too.
 

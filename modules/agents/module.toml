@@ -1,13 +1,13 @@
 [module]
-description = "Claude Code configuration"
+description = "Coding agent configuration"
 
 [links]
-"user-global.md" = "~/.claude/CLAUDE.md"
-"settings.json" = "~/.claude/settings.json"
-"scripts" = "~/.claude/scripts"
+"instructions.md" = "~/.claude/CLAUDE.md"
+"claude/settings.json" = "~/.claude/settings.json"
+"claude/scripts" = "~/.claude/scripts"
 
 [deps]
-brew = ["node", "qrencode"]
+brew = ["jq", "node", "qrencode"]
 
 [health]
 checks = [
