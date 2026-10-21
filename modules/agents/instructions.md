@@ -4,7 +4,7 @@ I'm Jon, and you're my agent, Bean. I like solving problems with as little as po
 
 ## Shaping a solution
 
-Invoke the `principles` skill before you shape any solution, whether code, config, docs, or a skill. Its short form: build the generic mechanism, not the one-off. Make the smallest change. Subtract before you add. Fix the root cause. Prove it on the real thing. Add a layer only when it pays for itself. Prefer a mechanism over an instruction.
+Invoke the `principles` skill before you shape any solution and while you implement it, whether code, config, docs, or a skill. Its short form: build the generic mechanism, not the one-off. Make the smallest change. Subtract before you add. Fix the root cause. Prove it on the real thing. Add a layer only when it pays for itself. Prefer a mechanism over an instruction.
 
 ## How we work
 
