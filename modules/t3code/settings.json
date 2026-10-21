@@ -1,0 +1,37 @@
+{
+  "storageCleanup": {
+    "worktreeSettledAfterDays": 0,
+    "worktreeOnMerge": true,
+    "worktreeOnDelete": true,
+    "worktreeUnchanged": true
+  },
+  "defaultAutoPull": true,
+  "defaultModelSelection": {
+    "instanceId": "claudeAgent",
+    "model": "claude-opus-5-5",
+    "options": [
+      {
+        "id": "effort",
+        "value": "xhigh"
+      }
+    ]
+  },
+  "projectSettingsFolded": true,
+  "sidebarAutoSettleAfterDays": null,
+  "sidebarAutoSettleOnMerge": false,
+  "defaultThreadEnvMode": "local",
+  "pullRequestMergeMethod": "squash",
+  "providerInstances": {
+    "codex": {
+      "driver": "codex",
+      "enabled": true,
+      "config": {
+        "binaryPath": "codex",
+        "homePath": "",
+        "shadowHomePath": "",
+        "launchArgs": "",
+        "customModels": []
+      }
+    }
+  }
+}
