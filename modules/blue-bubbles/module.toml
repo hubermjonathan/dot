@@ -1,0 +1,19 @@
+[module]
+description = "blue-bubbles iMessage gateway, for the Mac signed in to the agent's Apple ID"
+
+[links]
+"launch-agent.plist" = "~/.config/blue-bubbles/launch-agent.plist"
+
+[deps]
+brew = ["steipete/tap/imsg"]
+
+[health]
+checks = [
+  { name = "config", check = "file_exists:~/.config/blue-bubbles/config.yaml" },
+]
+
+[setup]
+provision = [
+  { name = "install-gateway", run = "test -x ~/go/bin/blue-bubbles || go install github.com/hubermjonathan/blue-bubbles@latest", check = "file_exists:~/go/bin/blue-bubbles" },
+  { name = "start-launch-agent", run = "launchctl print gui/$(id -u)/com.hubermjonathan.blue-bubbles >/dev/null 2>&1 || { sed \"s|~|$HOME|g\" ~/.config/blue-bubbles/launch-agent.plist > ~/Library/LaunchAgents/com.hubermjonathan.blue-bubbles.plist && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.hubermjonathan.blue-bubbles.plist; }", check = "command_succeeds:launchctl print gui/$(id -u)/com.hubermjonathan.blue-bubbles" },
+]

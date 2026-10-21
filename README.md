@@ -47,7 +47,8 @@ go test ./...        # run unit tests
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `apps`    | Brew + cask bundle: dust, ollama; ankerwork, bitwarden, google-chrome, spotify; pulls gemma4:12b-mlx on install |
-| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, the `technical-writing` hook, and three plugin marketplaces: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/dot-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou` |
+| `blue-bubbles` | The [blue-bubbles](https://github.com/hubermjonathan/blue-bubbles) iMessage gateway, for the Mac signed in to the agent's Apple ID: `imsg`, the gateway, and its launch agent. Needs `~/.config/blue-bubbles/config.yaml` and a Full Disk Access grant for `~/go/bin/blue-bubbles` |
+| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, the `technical-writing` hook, and three plugin marketplaces: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/dot-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou`, and the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
