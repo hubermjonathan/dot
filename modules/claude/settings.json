@@ -55,19 +55,22 @@
       "source": {
         "source": "github",
         "repo": "hubermjonathan/skills"
-      }
+      },
+      "autoUpdate": true
     },
     "hubermjonathan-work": {
       "source": {
         "source": "github",
         "repo": "hubermjonathan/skills-work"
-      }
+      },
+      "autoUpdate": true
     },
     "ou-claude-plugins": {
       "source": {
         "source": "github",
         "repo": "OfferUp/claude-plugins-ou"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "outputStyle": "Concise",
