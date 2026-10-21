@@ -3,10 +3,8 @@ description = "Vim editor configuration"
 
 [links]
 ".vimrc" = "~/.vimrc"
-"noir.vim" = "~/.vim/colors/noir.vim"
 
 [setup]
 post_link = [
-  { name = "install-vundle", run = "test -d ~/.vim/bundle/Vundle.vim || git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim" },
-  { name = "install-plugins", run = "vim -E -s -u ~/.vimrc +PluginInstall +qall" },
+  { name = "install-plugins", run = "for p in preservim/nerdtree itchyny/lightline.vim andreasvc/vim-256noir; do d=\"$HOME/.vim/pack/plugins/start/${p#*/}\"; test -d \"$d\" || git clone -q --depth 1 \"https://github.com/$p\" \"$d\" || exit 1; done" },
 ]

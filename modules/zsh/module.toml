@@ -6,9 +6,6 @@ description = "Zsh shell configuration"
 ".zshenv" = "~/.zshenv"
 "conf.d" = "~/.config/zsh"
 
-[deps]
-brew = ["zsh"]
-
 # launchd only loads a root-owned daemon plist, so caf.plist is copied, not linked.
 [setup]
 interactive = true

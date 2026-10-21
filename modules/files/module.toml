@@ -1,9 +1,0 @@
-[module]
-description = "Common files shared across machines"
-
-[links]
-"profile-picture.jpg" = "~/Pictures/profile-picture.jpg"
-"zoom-background.jpg" = "~/Pictures/zoom-background.jpg"
-
-[setup]
-post_link = [{ name = "create-code-dir", run = "mkdir -p ~/Code" }]

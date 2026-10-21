@@ -20,18 +20,5 @@
   "sidebarAutoSettleAfterDays": null,
   "sidebarAutoSettleOnMerge": false,
   "defaultThreadEnvMode": "local",
-  "pullRequestMergeMethod": "squash",
-  "providerInstances": {
-    "codex": {
-      "driver": "codex",
-      "enabled": true,
-      "config": {
-        "binaryPath": "codex",
-        "homePath": "",
-        "shadowHomePath": "",
-        "launchArgs": "",
-        "customModels": []
-      }
-    }
-  }
+  "pullRequestMergeMethod": "squash"
 }

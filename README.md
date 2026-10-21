@@ -13,7 +13,7 @@ Each subdirectory under `modules/` is a self-contained module: a `module.toml` p
    curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh | bash
    ```
 
-   `install.sh` installs the Xcode command line tools, so `git` exists, and clones this repo into `~/Code/dot`. It then runs `bootstrap.sh`, which installs Homebrew and Go, builds `bin/dot`, and runs `dot install` and then `dot link` for every module. To clone somewhere else, set `DOT_DEST=<path>` or `DOT_REPO=<owner>/<name>`.
+   `install.sh` installs the Xcode command line tools, so `git` exists, and clones this repo into `~/Code/dot`. It then runs `bootstrap.sh`, which installs Homebrew and Go, builds `bin/dot`, and runs `dot install` and then `dot link` for every module.
 
 ## Commands
 
@@ -27,7 +27,7 @@ dot doctor --orphans         # Walk for stale repo symlinks (slow); --fix remove
 dot status [mod...] [--diff] # Per-module link state; --diff shows divergence vs repo
 ```
 
-The `zsh` module puts the repo's `bin/` on `PATH`, and `dot` finds the repo from its own path, so it runs from any directory.
+The `zsh` module puts `~/Code/dot/bin` on `PATH`, and `dot` finds the repo from its own path, so it runs from any directory.
 
 Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `diverged`, `unlinked`, `no-links`), the same as `dot status`.
 
@@ -49,13 +49,12 @@ go test ./...        # run unit tests
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `agents`  | Coding agent config: installs Claude Code, links the global instructions (`instructions.md`, as `~/.claude/CLAUDE.md`) and, from `claude/`, Claude Code's `settings.json` (hooks, plugin marketplaces) and `scripts/` (statusline, hooks), creates `~/.agents/AGENTS.local.md`, and registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
-| `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
-| `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
+| `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, and Zoom background images under `~/Pictures`, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `t3code`  | T3 Code app and its server `settings.json` |
 | `tmux`    | `.tmux.conf` |
-| `vim`     | `.vimrc`, noir colorscheme, Vundle and its plugins |
+| `vim`     | `.vimrc` and its plugins, including the 256noir colorscheme, cloned as Vim packages |
 | `zsh`     | `.zshrc`, `.zshenv`, the `conf.d/` auto-discovery directory, and the `dot.caf` LaunchDaemon behind `caf` |
 
 ## Module schema (`module.toml`)

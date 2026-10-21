@@ -3,6 +3,7 @@ function gp() {
 }
 
 function gm() {
+  local branch default
   branch=$(git symbolic-ref --short -q HEAD)
   if git show-ref --verify --quiet refs/heads/main; then
     default=main
