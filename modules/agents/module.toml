@@ -5,6 +5,7 @@ description = "Coding agent configuration"
 "instructions.md" = "~/.claude/CLAUDE.md"
 "claude/settings.json" = "~/.claude/settings.json"
 "claude/scripts" = "~/.claude/scripts"
+"hooks" = "~/.agents/hooks"
 
 [deps]
 brew = ["jq", "node", "qrencode"]
