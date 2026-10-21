@@ -46,19 +46,16 @@ go test ./...        # run unit tests
 | Module    | Description |
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `apps`    | Brew + cask bundle: dust, ollama; ankerwork, bitwarden, google-chrome, spotify; pulls gemma4:12b-mlx on install |
-| `claude`  | Claude Code config: versioned `settings.json`, global `CLAUDE.md`, statusline, the `technical-writing` and `t3-thread-name` hooks, and two plugin marketplaces, each with `autoUpdate` on: `hubermjonathan` from `hubermjonathan/skills` and `hubermjonathan-work` from `hubermjonathan/skills-work` |
+| `agents`  | Coding agent config: the global instructions (`instructions.md`, linked as `~/.claude/CLAUDE.md`) and, under `claude/`, Claude Code's versioned `settings.json`, statusline, the `technical-writing` and `t3-thread-name` hooks, and two plugin marketplaces, each with `autoUpdate` on: `hubermjonathan` from `hubermjonathan/skills` and `hubermjonathan-work` from `hubermjonathan/skills-work` |
+| `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
-| `ghostty` | Ghostty terminal emulator + config |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
-| `handy`   | Handy speech-to-text: seeds `settings_store.json` (parakeet model, right-option hotkey, ollama post-processing) |
 | `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
-| `scripts` | AppleScript utilities compiled to `.app` bundles (Caffeinate, Format JSON, Connect AirPods) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `t3code`  | T3 Code app and its server `settings.json` |
 | `tmux`    | `.tmux.conf` |
 | `vim`     | `.vimrc`, noir colorscheme, Vundle and its plugins |
-| `zsh`     | `.zshrc`, `.zshenv`, and the `conf.d/` auto-discovery directory |
+| `zsh`     | `.zshrc`, `.zshenv`, the `conf.d/` auto-discovery directory, and the `dot.caf` LaunchDaemon behind `caf` |
 
 ## Module schema (`module.toml`)
 
@@ -126,13 +123,15 @@ apps                  # a whole module
 
 ### post_link vs provision
 
-- `post_link` runs every `dot link`. Idempotent: safe to re-run. Use for things like creating placeholder files, running `osacompile`, or applying `defaults write`.
+- `post_link` runs every `dot link`. Idempotent: safe to re-run. Use for things like creating placeholder files, applying `defaults write`, or copying a file that can't be a symlink.
 - `provision` runs only on `dot install`. Use for one-time bootstrap that talks to a remote (e.g. `gh auth login`).
 - Set `interactive = true` when commands need stdin/stdout (auth flows, prompts).
 
 ## Zsh config
 
-Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every file in it on shell start. No `module.toml` change required.
+Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every `.zsh` file in it on shell start. No `module.toml` change required.
+
+`caf [on|off|status]` keeps the Mac awake: no idle sleep, no lid-close sleep, display on. The `dot.caf` LaunchDaemon does the work, so `caf` also turns on at every boot. `dot link zsh` copies `conf.d/caf.plist` to `/Library/LaunchDaemons/dot.caf.plist` with `sudo` and loads it, whenever the two differ or the job isn't loaded. `caf off` turns idle sleep and lid-close sleep back on until the next boot.
 
 `.zshenv` sources `~/.zshrc.secrets`, then `~/.zshenv.local`, the machine-local file for environment every shell needs, such as a JDK on `PATH`. zsh reads `.zshenv` in every shell, including the non-interactive `zsh -c` that agents run, so both reach those shells too.
 

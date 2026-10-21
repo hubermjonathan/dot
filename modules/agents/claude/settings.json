@@ -73,7 +73,6 @@
       "autoUpdate": true
     }
   },
-  "outputStyle": "Concise",
   "viewMode": "focus",
   "effortLevel": "xhigh",
   "promptSuggestionEnabled": false,
