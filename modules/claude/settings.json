@@ -18,6 +18,15 @@
             "command": "bash ~/.claude/scripts/technical-writing.sh"
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/scripts/t3-thread-name.sh"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
