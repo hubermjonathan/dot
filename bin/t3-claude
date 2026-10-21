@@ -1,0 +1,5 @@
+#!/bin/zsh
+# T3 Code copies only a fixed list of variables from the login shell into the
+# agents it starts. zsh reads ~/.zshenv before running this script, so Claude
+# gets the same secrets and work variables as in a terminal.
+exec claude "$@"

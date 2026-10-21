@@ -32,6 +32,13 @@
         "launchArgs": "",
         "customModels": []
       }
+    },
+    "claudeAgent": {
+      "driver": "claudeAgent",
+      "enabled": true,
+      "config": {
+        "binaryPath": "t3-claude"
+      }
     }
   }
 }
