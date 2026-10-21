@@ -53,13 +53,15 @@
       "source": {
         "source": "github",
         "repo": "hubermjonathan/skills"
-      }
+      },
+      "autoUpdate": true
     },
     "hubermjonathan-work": {
       "source": {
         "source": "github",
-        "repo": "hubermjonathan/dot-work"
-      }
+        "repo": "hubermjonathan/skills-work"
+      },
+      "autoUpdate": true
     }
   },
   "outputStyle": "Concise",
