@@ -1,0 +1,5 @@
+link .zshrc ~/.zshrc
+link .zshenv ~/.zshenv
+link conf.d ~/.config/zsh
+# launchd only loads a root-owned daemon plist, so caf.plist is copied, not linked.
+post_link caf-daemon 'cmp -s ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist && launchctl print system/dot.caf >/dev/null 2>&1 || { sudo launchctl bootout system/dot.caf 2>/dev/null; sudo install -m 644 -o root -g wheel ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist && sudo launchctl bootstrap system /Library/LaunchDaemons/dot.caf.plist; }' 'cmp -s ~/.config/zsh/caf.plist /Library/LaunchDaemons/dot.caf.plist && launchctl print system/dot.caf >/dev/null'

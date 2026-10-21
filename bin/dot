@@ -1,0 +1,70 @@
+#!/bin/sh
+REPO=$(cd "$(dirname "$(realpath "$0")")/.." && pwd)
+skips=$(sed 's/#.*//' "$HOME/.dot-skips" 2>/dev/null | tr -s ' \t\n' ' ')
+failures=0 shown=
+
+skipped() { case " $skips " in *" $1 "*) ;; *) return 1 ;; esac; }
+say() { [ "$shown" = "$mod" ] || echo "▸ $mod"; shown=$mod; printf '  %s\n' "$*"; }
+fail() { say "✗ $*"; failures=$((failures + 1)); }
+step() { skipped "$mod/$1" && return; say "$1"; sh -c "$2" || fail "$1 failed"; }
+health() { skipped "$mod/$1" || sh -c "$2" </dev/null >/dev/null 2>&1 || fail "$1: $2"; }
+
+link() { :; }; formula() { :; }; cask() { :; }; post_link() { :; }; provision() { :; }; check() { :; }
+
+each_module() {
+  [ $# -gt 0 ] || set -- $(cd "$REPO/modules" && ls -d */module.sh | cut -d/ -f1)
+  for mod; do
+    f=$REPO/modules/$mod/module.sh
+    if [ ! -f "$f" ]; then fail "no such module"
+    elif skipped "$mod"; then :
+    elif sh -n "$f"; then . "$f"
+    else fail "module.sh does not parse"; fi
+  done
+}
+
+cmd=${1:-}; [ $# -gt 0 ] && shift
+case $cmd in
+link)
+  link() {
+    src=$REPO/modules/$mod/$1 dst=$2
+    [ "$(readlink "$dst")" = "$src" ] && return
+    mkdir -p "$(dirname "$dst")"
+    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+      bak=$HOME/.dotfiles-backup/$mod/$(basename "$dst").$(date -u +%Y%m%dT%H%M%S)
+      mkdir -p "$(dirname "$bak")" && [ ! -e "$bak" ] && mv "$dst" "$bak" || { fail "could not back up $dst"; return; }
+      say "moved $dst to $bak"
+    fi
+    ln -sfn "$src" "$dst" && say "linked $dst" || fail "could not link $dst"
+  }
+  post_link() { step "$@"; }
+  each_module "$@" ;;
+install)
+  formula() { say "brew install $*"; brew install "$@" || fail "brew install $* failed"; }
+  cask() { formula --cask "$@"; }
+  provision() { step "$@"; }
+  each_module "$@" ;;
+status)
+  if [ "${1:-}" = --orphans ]; then
+    declared=$(for f in "$REPO"/modules/*/module.sh; do (link() { printf '%s\n' "$2"; }; . "$f"); done)
+    # The while loop runs in a subshell, so the last grep tells whether it printed an orphan.
+    find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune \
+      -o -type l -lname '*/dot/*modules/*' -print 2>/dev/null | grep -vxF "$declared" |
+      while IFS= read -r l; do printf '✗ orphan: %s -> %s\n' "$l" "$(readlink "$l")"; done | grep . && failures=1
+  else
+    link() {
+      src=$REPO/modules/$mod/$1 dst=$2
+      if [ ! -e "$dst" ] && [ ! -L "$dst" ]; then fail "$dst is missing"
+      elif [ ! -L "$dst" ]; then fail "$dst is not a symlink"; diff -u "$src" "$dst"
+      elif [ "$(readlink "$dst")" != "$src" ]; then fail "$dst points to $(readlink "$dst")"
+      elif [ ! -e "$dst" ]; then fail "$dst is broken"; fi
+    }
+    post_link() { [ $# -lt 3 ] || health "$1" "$3"; }
+    provision() { post_link "$@"; }
+    check() { health "$@"; }
+    each_module "$@"
+  fi
+  [ $failures -gt 0 ] || echo "all healthy" ;;
+*)
+  echo "usage: dot link|install [module...] | dot status [--orphans | module...]" >&2; exit 1 ;;
+esac
+[ $failures -eq 0 ]
