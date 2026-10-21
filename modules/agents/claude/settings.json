@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/technical-writing.sh"
+            "command": "bash ~/.agents/hooks/technical-writing.sh"
           }
         ]
       },
@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/t3-thread-name.sh"
+            "command": "bash ~/.agents/hooks/t3-thread-name.sh"
           }
         ]
       }
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/scripts/technical-writing.sh"
+            "command": "bash ~/.agents/hooks/technical-writing.sh"
           }
         ]
       }
