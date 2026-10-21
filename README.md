@@ -46,7 +46,7 @@ go test ./...        # run unit tests
 | Module    | Description |
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `agents`  | Coding agent config: the global instructions (`instructions.md`, linked as `~/.claude/CLAUDE.md`) and, under `claude/`, Claude Code's versioned `settings.json`, statusline, the `technical-writing` and `t3-thread-name` hooks, and three plugin marketplaces, each with `autoUpdate` on: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/skills-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou` |
+| `agents`  | Coding agent config: the global instructions (`instructions.md`, linked as `~/.claude/CLAUDE.md`) and, under `claude/`, Claude Code's versioned `settings.json`, statusline, the `technical-writing` and `t3-thread-name` hooks, and three plugin marketplaces, each with `autoUpdate` on: `hubermjonathan` from `hubermjonathan/skills`, `hubermjonathan-work` from `hubermjonathan/skills-work`, and `ou-claude-plugins` from `OfferUp/claude-plugins-ou`. It also registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `files`   | Shared images (profile, zoom background) under `~/Pictures` |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
