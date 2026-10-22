@@ -1,7 +1,9 @@
 #!/bin/sh
 REPO=$(cd "$(dirname "$(realpath "$0")")/.." && pwd)
-WORK=$HOME/Code/dot-work
-skips=$(sed 's/#.*//' "$HOME/.dot-skips" 2>/dev/null | tr -s ' \t\n' ' ')
+# In ~/.dot.local, a line that starts with ~/ or / names a repo whose modules load beside dot's. Every other line is a skip.
+conf=$(sed 's/#.*//' "$HOME/.dot.local" 2>/dev/null)
+repos="$REPO $(echo "$conf" | sed -e "s|^[[:space:]]*~/|$HOME/|" -e '/^[[:space:]]*\//!d' | tr -s ' \t\n' ' ')"
+skips=$(echo "$conf" | grep -v '^[[:space:]]*[~/]' | tr -s ' \t\n' ' ')
 failures=0 shown=
 
 skipped() { case " $skips " in *" $1 "*) ;; *) return 1 ;; esac; }
@@ -13,10 +15,10 @@ health() { skipped "$mod/$1" || sh -c "$2" </dev/null >/dev/null 2>&1 || fail "$
 link() { :; }; formula() { :; }; cask() { :; }; post_link() { :; }; provision() { :; }; check() { :; }
 
 each_module() {
-  [ $# -gt 0 ] || set -- $(for r in "$REPO" "$WORK"; do (cd "$r/modules" 2>/dev/null && ls -d */module.sh); done | cut -d/ -f1 | sort -u)
+  [ $# -gt 0 ] || set -- $(for r in $repos; do (cd "$r/modules" 2>/dev/null && ls -d */module.sh 2>/dev/null); done | cut -d/ -f1 | sort -u)
   for mod; do
     found=
-    for r in "$REPO" "$WORK"; do
+    for r in $repos; do
       dir=$r/modules/$mod f=$r/modules/$mod/module.sh
       [ -f "$f" ] || continue
       found=1
@@ -59,9 +61,12 @@ status)
     link() { declared="$declared$2
 "; }
     each_module
+    # Match links into any checkout or worktree of dot or a listed repo, by the repo's folder name.
+    set --
+    for n in dot $(for r in $repos; do echo "${r##*/}"; done | sed 1d); do set -- "$@" -o -lname "*/$n/modules/*" -o -lname "*/$n/*/modules/*"; done
+    shift
     # The while loop runs in a subshell, so the last grep tells whether it printed an orphan.
-    find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune -o -type l \
-      \( -lname '*/dot/modules/*' -o -lname '*/dot/*/modules/*' -o -lname '*/dot-work/modules/*' -o -lname '*/dot-work/*/modules/*' \) \
+    find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune -o -type l \( "$@" \) \
       -print 2>/dev/null | grep -vxF "$declared" |
       while IFS= read -r l; do printf '✗ orphan: %s -> %s\n' "$l" "$(readlink "$l")"; done | grep . && failures=1
   else
@@ -75,6 +80,7 @@ status)
     post_link() { [ $# -lt 3 ] || health "$1" "$3"; }
     provision() { post_link "$@"; }
     check() { health "$@"; }
+    for r in $repos; do [ -d "$r" ] || { mod='~/.dot.local'; fail "$r is missing"; }; done
     each_module "$@"
   fi
   [ $failures -gt 0 ] || echo "all healthy" ;;
