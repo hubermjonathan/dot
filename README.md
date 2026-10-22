@@ -2,11 +2,11 @@
 
 Personal macOS configuration managed by `dot`, a POSIX shell script that handles symlinks, Homebrew installs, and health checks for a set of pluggable modules.
 
-Each subdirectory under `modules/` is a self-contained module: a `module.sh` plus its config files. `dot` walks that directory at runtime, so adding a new tool means adding a folder, with no code changes. Private config for the work machine lives in [hubermjonathan/dot-work](https://github.com/hubermjonathan/dot-work).
+Each subdirectory under `modules/` is a self-contained module: a `module.sh` plus its config files. `dot` walks that directory at runtime, so adding a new tool means adding a folder, with no code changes. Another repo can add modules of its own, such as [hubermjonathan/dot-work](https://github.com/hubermjonathan/dot-work), which holds the work machine's private config. List it in [`~/.dot.local`](#one-machines-dotlocal), and `dot` loads its `modules/` beside these.
 
 ## Set up a machine
 
-1. To skip modules or steps on this machine, create `~/.dot-skips` first, as [Skipping on one machine](#skipping-on-one-machine) describes.
+1. To add a repo's modules or skip some of dot's on this machine, create `~/.dot.local` first, as [One machine's `.dot.local`](#one-machines-dotlocal) describes.
 2. Run the installer:
 
    ```bash
@@ -21,7 +21,7 @@ Each subdirectory under `modules/` is a self-contained module: a `module.sh` plu
 dot link [module...]      # Create symlinks, then run post_link steps
 dot install [module...]   # Install brew formulae and casks, then run provision steps
 dot status [module...]    # Check every link and health check, and print only problems
-dot status --orphans      # List stray symlinks into dot's modules (slow)
+dot status --orphans      # List stray symlinks into dot's and listed repos' modules (slow)
 ```
 
 The `zsh` module puts `~/Code/dot/bin` on `PATH`, and `dot` finds the repo from its own path, so it runs from any directory.
@@ -32,7 +32,7 @@ Each step prints its name, and its output streams to the terminal. It reads from
 
 `dot status` prints nothing for what's healthy. Each problem gets one `✗` line under its module's name: a link that's missing, points somewhere else, is broken, or isn't a symlink, and each health check that fails. When a real file sits where a link should be, it also prints `diff -u` of the repo file against it. With no problems, it prints `all healthy`.
 
-`dot status --orphans` walks `~`, except `~/Library`, for symlinks into the `modules/` of any dot checkout or worktree, such as T3 Code's under `~/.t3/worktrees/dot`, that no module declares. A skipped module's links count as declared. It only reports them. Remove one with `rm`.
+`dot status --orphans` walks `~`, except `~/Library`, for symlinks into the `modules/` of any checkout or worktree of dot or a listed repo, such as T3 Code's under `~/.t3/worktrees/dot`, that no module declares. It matches a checkout by its folder's name. A skipped module's links count as declared. It only reports them. Remove one with `rm`.
 
 Exit codes: `0` when everything succeeded and `status` found no problem. `1` for anything else: a failed step, a problem, a name with no module, a `module.sh` that doesn't parse, or a usage error.
 
@@ -80,22 +80,25 @@ provision auth 'mytool auth login' 'mytool auth status'
 | `provision <name> <cmd> [<check>]` | | runs `cmd` | runs `check` |
 | `check <name> <cmd>` | | | runs `cmd` |
 
-Calls run in file order. Give every step and check a kebab-case name that's unique within the module, so `~/.dot-skips` can name it. A command or a check is one string that `sh -c` runs, from the directory you ran `dot` in. A check passes when it exits `0`. It gets no stdin, and its output is hidden. Skipping a step skips its check too.
+Calls run in file order. Give every step and check a kebab-case name that's unique within the module, so `~/.dot.local` can name it. A command or a check is one string that `sh -c` runs, from the module's folder, so it can name the module's own files by relative path. A check passes when it exits `0`. It gets no stdin, and its output is hidden. Skipping a step skips its check too.
 
 Leave a link target unquoted, so its `~` expands. Put a command or a check in single quotes, so `~` and `$HOME` expand when it runs, not when `dot` sources the file. A command that contains a single quote can use double quotes instead, with `"`, `$`, `` ` ``, and `\` escaped by a backslash, as `macos` does.
 
-### Skipping on one machine
+### One machine's `.dot.local`
 
-`~/.dot-skips` lists what dot skips on this machine, one entry per line. It isn't tracked in the repo, and a missing file skips nothing.
+`~/.dot.local` says how this machine differs, one entry per line. It isn't tracked in this repo, and a missing file changes nothing.
 
 ```
 # work Mac
+~/Code/dot-work       # a repo whose modules/ load beside dot's
 macos/sudo-touchid    # one step, plus its check
 apps/google-chrome    # one package, such as an app the company's management software installs
 apps                  # a whole module
 ```
 
-`install`, `link`, and `status` all leave skipped modules, steps, and packages out. An entry that matches no module or step does nothing.
+A line that starts with `~/` or `/` names a repo. dot loads that repo's `modules/` beside its own, so every command covers them, and `dot status` reports a listed repo that's missing. A repo's path can't contain a space.
+
+Every other line is a skip. `install`, `link`, and `status` all leave skipped modules, steps, and packages out. An entry that matches nothing does nothing.
 
 ### Symlink behavior
 
