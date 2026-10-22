@@ -14,4 +14,4 @@
 
 ## Where a rule goes
 
-- `modules/agents/instructions.md` loads in every session on every machine, and this repo is public. Keep only what most sessions need there, and nothing private. A rule for the work machine goes in dot-work's `agents/AGENTS.local.md`, and a rule for one kind of task goes in a skill.
+- `modules/agents/instructions.md` loads in every session on every machine, and this repo is public. Keep only what most sessions need there, and nothing private. A rule for the work machine goes in dot-work's `modules/work/agents/AGENTS.local.md`, and a rule for one kind of task goes in a skill.

@@ -2,7 +2,7 @@
 
 Personal macOS configuration managed by `dot`, a POSIX shell script that handles symlinks, Homebrew installs, and health checks for a set of pluggable modules.
 
-Each subdirectory under `modules/` is a self-contained module: a `module.sh` plus its config files. `dot` walks that directory at runtime, so adding a new tool means adding a folder, with no code changes. Private config for the work machine lives in [hubermjonathan/dot-work](https://github.com/hubermjonathan/dot-work).
+Each subdirectory under `modules/` is a self-contained module: a `module.sh` plus its config files. `dot` walks that directory at runtime, so adding a new tool means adding a folder, with no code changes. Private config for the work machine lives in [hubermjonathan/dot-work](https://github.com/hubermjonathan/dot-work). When `~/Code/dot-work/modules` exists, `dot` loads its modules beside these, so every command covers both repos.
 
 ## Set up a machine
 
@@ -32,7 +32,7 @@ Each step prints its name, and its output streams to the terminal. It reads from
 
 `dot status` prints nothing for what's healthy. Each problem gets one `✗` line under its module's name: a link that's missing, points somewhere else, is broken, or isn't a symlink, and each health check that fails. When a real file sits where a link should be, it also prints `diff -u` of the repo file against it. With no problems, it prints `all healthy`.
 
-`dot status --orphans` walks `~`, except `~/Library`, for symlinks into the `modules/` of any dot checkout or worktree, such as T3 Code's under `~/.t3/worktrees/dot`, that no module declares. A skipped module's links count as declared. It only reports them. Remove one with `rm`.
+`dot status --orphans` walks `~`, except `~/Library`, for symlinks into the `modules/` of any dot or dot-work checkout or worktree, such as T3 Code's under `~/.t3/worktrees/dot`, that no module declares. A skipped module's links count as declared. It only reports them. Remove one with `rm`.
 
 Exit codes: `0` when everything succeeded and `status` found no problem. `1` for anything else: a failed step, a problem, a name with no module, a `module.sh` that doesn't parse, or a usage error.
 
@@ -80,7 +80,7 @@ provision auth 'mytool auth login' 'mytool auth status'
 | `provision <name> <cmd> [<check>]` | | runs `cmd` | runs `check` |
 | `check <name> <cmd>` | | | runs `cmd` |
 
-Calls run in file order. Give every step and check a kebab-case name that's unique within the module, so `~/.dot-skips` can name it. A command or a check is one string that `sh -c` runs, from the directory you ran `dot` in. A check passes when it exits `0`. It gets no stdin, and its output is hidden. Skipping a step skips its check too.
+Calls run in file order. Give every step and check a kebab-case name that's unique within the module, so `~/.dot-skips` can name it. A command or a check is one string that `sh -c` runs, from the module's folder, so it can name the module's own files by relative path. A check passes when it exits `0`. It gets no stdin, and its output is hidden. Skipping a step skips its check too.
 
 Leave a link target unquoted, so its `~` expands. Put a command or a check in single quotes, so `~` and `$HOME` expand when it runs, not when `dot` sources the file. A command that contains a single quote can use double quotes instead, with `"`, `$`, `` ` ``, and `\` escaped by a backslash, as `macos` does.
 

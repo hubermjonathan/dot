@@ -1,5 +1,6 @@
 #!/bin/sh
 REPO=$(cd "$(dirname "$(realpath "$0")")/.." && pwd)
+WORK=$HOME/Code/dot-work
 skips=$(sed 's/#.*//' "$HOME/.dot-skips" 2>/dev/null | tr -s ' \t\n' ' ')
 failures=0 shown=
 
@@ -12,13 +13,18 @@ health() { skipped "$mod/$1" || sh -c "$2" </dev/null >/dev/null 2>&1 || fail "$
 link() { :; }; formula() { :; }; cask() { :; }; post_link() { :; }; provision() { :; }; check() { :; }
 
 each_module() {
-  [ $# -gt 0 ] || set -- $(cd "$REPO/modules" && ls -d */module.sh | cut -d/ -f1)
+  [ $# -gt 0 ] || set -- $(for r in "$REPO" "$WORK"; do (cd "$r/modules" 2>/dev/null && ls -d */module.sh); done | cut -d/ -f1 | sort -u)
   for mod; do
-    f=$REPO/modules/$mod/module.sh
-    if [ ! -f "$f" ]; then fail "no such module"
-    elif skipped "$mod"; then :
-    elif sh -n "$f"; then . "$f"
-    else fail "module.sh does not parse"; fi
+    found=
+    for r in "$REPO" "$WORK"; do
+      dir=$r/modules/$mod f=$r/modules/$mod/module.sh
+      [ -f "$f" ] || continue
+      found=1
+      if skipped "$mod"; then :
+      elif sh -n "$f"; then cd "$dir" && . "$f"
+      else fail "module.sh does not parse"; fi
+    done
+    [ -n "$found" ] || fail "no such module"
   done
 }
 
@@ -26,7 +32,7 @@ cmd=${1:-}; [ $# -gt 0 ] && shift
 case $cmd in
 link)
   link() {
-    src=$REPO/modules/$mod/$1 dst=$2
+    src=$dir/$1 dst=$2
     [ "$(readlink "$dst")" = "$src" ] && return
     mkdir -p "$(dirname "$dst")"
     if [ -e "$dst" ] && [ ! -L "$dst" ]; then
@@ -51,12 +57,13 @@ status)
 "; }
     each_module
     # The while loop runs in a subshell, so the last grep tells whether it printed an orphan.
-    find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune \
-      -o -type l \( -lname '*/dot/modules/*' -o -lname '*/dot/*/modules/*' \) -print 2>/dev/null | grep -vxF "$declared" |
+    find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune -o -type l \
+      \( -lname '*/dot/modules/*' -o -lname '*/dot/*/modules/*' -o -lname '*/dot-work/modules/*' -o -lname '*/dot-work/*/modules/*' \) \
+      -print 2>/dev/null | grep -vxF "$declared" |
       while IFS= read -r l; do printf '✗ orphan: %s -> %s\n' "$l" "$(readlink "$l")"; done | grep . && failures=1
   else
     link() {
-      src=$REPO/modules/$mod/$1 dst=$2
+      src=$dir/$1 dst=$2
       if [ ! -e "$dst" ] && [ ! -L "$dst" ]; then fail "$dst is missing"
       elif [ ! -L "$dst" ]; then fail "$dst is not a symlink"; diff -u "$src" "$dst"
       elif [ "$(readlink "$dst")" != "$src" ]; then fail "$dst points to $(readlink "$dst")"
