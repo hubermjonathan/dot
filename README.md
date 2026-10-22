@@ -30,7 +30,7 @@ The `zsh` module puts `~/Code/dot/bin` on `PATH`, and `dot` finds the repo from 
 
 Module args are optional. Omit them to act on every module. A name with no module is an error.
 
-Each step prints its name, and its output streams to the terminal. It reads from the terminal too, so prompts work. Without a terminal, as under the `dot.pull` agent, no one can answer a prompt, so a step gets 120 seconds, or `DOT_STEP_SECONDS`. Then `dot` ends the step and every process it started, and prints `timed out after <n> seconds`. When a step fails, `dot` prints `✗ <step> failed` and goes on with the next step and module.
+Each step prints its name, and its output streams to the terminal. It reads from the terminal too, so prompts work. When the run has no terminal at all, as under the `dot.pull` agent, no one can answer a prompt, so a step gets 120 seconds, or `DOT_STEP_SECONDS`. Then `dot` kills the step and the processes it started, and prints `timed out after <n> seconds`. When a step fails, `dot` prints `✗ <step> failed` and goes on with the next step and module.
 
 `dot status` prints nothing for what's healthy. Each problem gets one `✗` line under its module's name: a link that's missing, points somewhere else, is broken, or isn't a symlink, and each health check that fails. When a real file sits where a link should be, it also prints `diff -u` of the repo file against it. With no problems, it prints `all healthy`.
 
