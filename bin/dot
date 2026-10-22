@@ -1,7 +1,9 @@
 #!/bin/sh
 REPO=$(cd "$(dirname "$(realpath "$0")")/.." && pwd)
-WORK=$HOME/Code/dot-work
-skips=$(sed 's/#.*//' "$HOME/.dot-skips" 2>/dev/null | tr -s ' \t\n' ' ')
+# In ~/.dot.local, a line that starts with ~/ or / names a repo whose modules load beside dot's. Every other line is a skip.
+conf=$(sed 's/#.*//' "$HOME/.dot.local" 2>/dev/null)
+repos="$REPO $(echo "$conf" | sed -e "s|^[[:space:]]*~/|$HOME/|" -e '/^[[:space:]]*\//!d' | tr -s ' \t\n' ' ')"
+skips=$(echo "$conf" | grep -v '^[[:space:]]*[~/]' | tr -s ' \t\n' ' ')
 failures=0 shown=
 
 skipped() { case " $skips " in *" $1 "*) ;; *) return 1 ;; esac; }
@@ -13,10 +15,10 @@ health() { skipped "$mod/$1" || sh -c "$2" </dev/null >/dev/null 2>&1 || fail "$
 link() { :; }; formula() { :; }; cask() { :; }; post_link() { :; }; provision() { :; }; check() { :; }
 
 each_module() {
-  [ $# -gt 0 ] || set -- $(for r in "$REPO" "$WORK"; do (cd "$r/modules" 2>/dev/null && ls -d */module.sh); done | cut -d/ -f1 | sort -u)
+  [ $# -gt 0 ] || set -- $(for r in $repos; do (cd "$r/modules" 2>/dev/null && ls -d */module.sh 2>/dev/null); done | cut -d/ -f1 | sort -u)
   for mod; do
     found=
-    for r in "$REPO" "$WORK"; do
+    for r in $repos; do
       dir=$r/modules/$mod f=$r/modules/$mod/module.sh
       [ -f "$f" ] || continue
       found=1
@@ -45,7 +47,10 @@ link)
   post_link() { step "$@"; }
   each_module "$@" ;;
 install)
-  formula() { say "brew install $*"; brew install "$@" || fail "brew install $* failed"; }
+  formula() {
+    set -- $(for p; do skipped "$mod/$p" || echo "$p"; done)
+    [ $# -eq 0 ] || [ "$*" = --cask ] || { say "brew install $*"; brew install "$@" || fail "brew install $* failed"; }
+  }
   cask() { formula --cask "$@"; }
   provision() { step "$@"; }
   each_module "$@" ;;
@@ -56,9 +61,12 @@ status)
     link() { declared="$declared$2
 "; }
     each_module
+    # Match links into any checkout or worktree of dot or a listed repo, by the repo's folder name.
+    set --
+    for n in dot $(for r in $repos; do echo "${r##*/}"; done | sed 1d); do set -- "$@" -o -lname "*/$n/modules/*" -o -lname "*/$n/*/modules/*"; done
+    shift
     # The while loop runs in a subshell, so the last grep tells whether it printed an orphan.
-    find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune -o -type l \
-      \( -lname '*/dot/modules/*' -o -lname '*/dot/*/modules/*' -o -lname '*/dot-work/modules/*' -o -lname '*/dot-work/*/modules/*' \) \
+    find "$HOME" \( -path "$HOME/Library" -o -name .Trash -o -name node_modules -o -name .git \) -prune -o -type l \( "$@" \) \
       -print 2>/dev/null | grep -vxF "$declared" |
       while IFS= read -r l; do printf '✗ orphan: %s -> %s\n' "$l" "$(readlink "$l")"; done | grep . && failures=1
   else
@@ -72,12 +80,13 @@ status)
     post_link() { [ $# -lt 3 ] || health "$1" "$3"; }
     provision() { post_link "$@"; }
     check() { health "$@"; }
+    for r in $repos; do [ -d "$r" ] || { mod='~/.dot.local'; fail "$r is missing"; }; done
     each_module "$@"
   fi
   [ $failures -gt 0 ] || echo "all healthy" ;;
 pull)
   changed=
-  for r in "$REPO" "$WORK"; do
+  for r in $repos; do
     [ -e "$r/.git" ] || continue
     mod=${r##*/} old=$(git -C "$r" rev-parse HEAD)
     if [ "$(git -C "$r" branch --show-current)" != main ]; then fail "not on main"; continue; fi
@@ -88,7 +97,7 @@ pull)
       { git -C "$r" reset -q --hard; fail "uncommitted changes conflicted with main, so they are in the stash"; }
     [ "$(git -C "$r" rev-parse HEAD)" = "$old" ] || changed="$changed $(git -C "$r" diff --name-only "$old" HEAD -- modules | cut -d/ -f2)"
   done
-  mods=$(for m in $changed; do [ -f "$REPO/modules/$m/module.sh" ] || [ -f "$WORK/modules/$m/module.sh" ] && echo "$m"; done | sort -u)
+  mods=$(for m in $changed; do for r in $repos; do [ -f "$r/modules/$m/module.sh" ] && echo "$m"; done; done | sort -u)
   if [ -n "$mods" ]; then
     HOMEBREW_NO_INSTALL_UPGRADE=1 "$REPO/bin/dot" install $mods || failures=$((failures + 1))
     "$REPO/bin/dot" link $mods || failures=$((failures + 1))
@@ -96,7 +105,7 @@ pull)
 push)
   [ $# -gt 0 ] || { echo "usage: dot push <message>" >&2; exit 1; }
   msg=$* branch=jon/$(printf %s "$*" | tr -cs '[:alnum:]' - | tr '[:upper:]' '[:lower:]' | sed 's/^-*//; s/-*$//' | cut -c1-40)
-  for r in "$REPO" "$WORK"; do
+  for r in $repos; do
     [ -e "$r/.git" ] && [ -n "$(git -C "$r" status --porcelain)" ] || continue
     mod=${r##*/} idx=$(mktemp)
     # A temporary index commits the changes without touching the checkout, so they stay in use until the PR merges.
