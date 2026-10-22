@@ -9,7 +9,13 @@ failures=0 shown=
 skipped() { case " $skips " in *" $1 "*) ;; *) return 1 ;; esac; }
 say() { [ "$shown" = "$mod" ] || echo "▸ $mod"; shown=$mod; printf '  %s\n' "$*"; }
 fail() { say "✗ $*"; failures=$((failures + 1)); }
-step() { skipped "$mod/$1" && return; say "$1"; sh -c "$2" || fail "$1 failed"; }
+# Without a terminal, no one can answer a prompt, so a step that waits for one would stall the run. This kills
+# the step's whole process group once the time is up.
+limit='$t = shift; $p = fork // exit 1; unless ($p) { setpgrp; exec @ARGV; exit 127 } $SIG{ALRM} = sub { print STDERR "timed out after $t seconds\n"; kill KILL => -$p }; alarm $t; waitpid $p, 0; exit($? && 1)'
+step() {
+  skipped "$mod/$1" && return; say "$1"
+  if { true </dev/tty; } 2>/dev/null; then sh -c "$2"; else perl -e "$limit" "${DOT_STEP_SECONDS:-120}" sh -c "$2"; fi || fail "$1 failed"
+}
 health() { skipped "$mod/$1" || sh -c "$2" </dev/null >/dev/null 2>&1 || fail "$1: $2"; }
 
 link() { :; }; formula() { :; }; cask() { :; }; post_link() { :; }; provision() { :; }; check() { :; }
