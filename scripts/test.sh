@@ -42,6 +42,8 @@ ok "status reports a failing check" '! dot status alpha >/dev/null && dot status
 
 printf 'alpha/has-x\nalpha/auth  # comment\n' > "$HOME/.dot-skips"
 ok "skips drop steps and their checks" 'dot status alpha | grep -q "all healthy"'
+printf 'alpha/jq\nalpha/rectangle\n' >> "$HOME/.dot-skips"
+ok "skips drop packages" '! dot install alpha | grep -q "brew install"'
 rm "$HOME/b.txt" && echo local > "$HOME/b.txt"
 ok "status diffs a real file" '! dot status beta >/dev/null && dot status beta | grep -q "^+local"'
 ok "status sends no color codes into a pipe" '! dot status beta | grep -q "$(printf "\033")"'
