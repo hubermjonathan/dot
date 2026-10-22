@@ -84,7 +84,39 @@ status)
     each_module "$@"
   fi
   [ $failures -gt 0 ] || echo "all healthy" ;;
+pull)
+  changed=
+  for r in $repos; do
+    [ -e "$r/.git" ] || continue
+    mod=${r##*/} old=$(git -C "$r" rev-parse HEAD)
+    if [ "$(git -C "$r" branch --show-current)" != main ]; then fail "not on main"; continue; fi
+    git -C "$r" fetch -q origin main && git -C "$r" merge -q --ff-only --autostash origin/main || { fail "could not fast-forward main"; continue; }
+    # When uncommitted changes conflict with the new main, git keeps them in the stash and writes conflict
+    # markers, which would break live config. Going back to main leaves the changes safe in the stash.
+    [ -z "$(git -C "$r" ls-files -u)" ] ||
+      { git -C "$r" reset -q --hard; fail "uncommitted changes conflicted with main, so they are in the stash"; }
+    [ "$(git -C "$r" rev-parse HEAD)" = "$old" ] || changed="$changed $(git -C "$r" diff --name-only "$old" HEAD -- modules | cut -d/ -f2)"
+  done
+  mods=$(for m in $changed; do for r in $repos; do [ -f "$r/modules/$m/module.sh" ] && echo "$m"; done; done | sort -u)
+  if [ -n "$mods" ]; then
+    HOMEBREW_NO_INSTALL_UPGRADE=1 "$REPO/bin/dot" install $mods || failures=$((failures + 1))
+    "$REPO/bin/dot" link $mods || failures=$((failures + 1))
+  fi ;;
+push)
+  [ $# -gt 0 ] || { echo "usage: dot push <message>" >&2; exit 1; }
+  msg=$* branch=jon/$(printf %s "$*" | tr -cs '[:alnum:]' - | tr '[:upper:]' '[:lower:]' | sed 's/^-*//; s/-*$//' | cut -c1-40)
+  for r in $repos; do
+    [ -e "$r/.git" ] && [ -n "$(git -C "$r" status --porcelain)" ] || continue
+    mod=${r##*/} idx=$(mktemp)
+    # A temporary index commits the changes without touching the checkout, so they stay in use until the PR merges.
+    if GIT_INDEX_FILE=$idx git -C "$r" read-tree HEAD && GIT_INDEX_FILE=$idx git -C "$r" add -A &&
+      tree=$(GIT_INDEX_FILE=$idx git -C "$r" write-tree) && c=$(git -C "$r" commit-tree "$tree" -p HEAD -m "$msg") &&
+      git -C "$r" push -q origin "$c:refs/heads/$branch" &&
+      url=$(cd "$r" && gh pr create --head "$branch" --base main --title "$msg" --body "Local changes from $(hostname -s), pushed with \`dot push\`.")
+    then say "opened $url"; else fail "could not open a PR"; fi
+    rm -f "$idx"
+  done ;;
 *)
-  echo "usage: dot link|install [module...] | dot status [--orphans | module...]" >&2; exit 1 ;;
+  echo "usage: dot link|install [module...] | dot status [--orphans | module...] | dot pull | dot push <message>" >&2; exit 1 ;;
 esac
 [ $failures -eq 0 ]

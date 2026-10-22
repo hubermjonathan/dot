@@ -22,6 +22,8 @@ dot link [module...]      # Create symlinks, then run post_link steps
 dot install [module...]   # Install brew formulae and casks, then run provision steps
 dot status [module...]    # Check every link and health check, and print only problems
 dot status --orphans      # List stray symlinks into dot's and listed repos' modules (slow)
+dot pull                  # Fast-forward main in dot and each listed repo, then apply the modules that changed
+dot push <message>        # Open a PR from each checkout's uncommitted changes
 ```
 
 The `zsh` module puts `~/Code/dot/bin` on `PATH`, and `dot` finds the repo from its own path, so it runs from any directory.
@@ -33,6 +35,12 @@ Each step prints its name, and its output streams to the terminal. It reads from
 `dot status` prints nothing for what's healthy. Each problem gets one `✗` line under its module's name: a link that's missing, points somewhere else, is broken, or isn't a symlink, and each health check that fails. When a real file sits where a link should be, it also prints `diff -u` of the repo file against it. With no problems, it prints `all healthy`.
 
 `dot status --orphans` walks `~`, except `~/Library`, for symlinks into the `modules/` of any checkout or worktree of dot or a listed repo, such as T3 Code's under `~/.t3/worktrees/dot`, that no module declares. It matches a checkout by its folder's name. A skipped module's links count as declared. It only reports them. Remove one with `rm`.
+
+`dot pull` fetches `main` in dot and in each repo `~/.dot.local` lists, and fast-forwards it to `origin/main`. A listed repo that isn't a git checkout is left out. It never checks out another branch or an open PR. It then runs `dot install` and `dot link` for each module whose files changed, with `HOMEBREW_NO_INSTALL_UPGRADE=1`, so it installs new packages without upgrading the ones already installed. Homebrew can still upgrade a new package's dependencies. Run `dot install` to upgrade. Uncommitted changes stay in place, unless they conflict with the new `main`: then the checkout goes back to `main`, the changes stay in the stash, and the pull fails. It also fails for a checkout that isn't on `main` or can't fast-forward.
+
+The `dot` module's launch agent, `dot.pull`, runs `dot pull` every 30 minutes. launchd holds the agent's timer while the login session is idle, so a pull can wait until you're back at the Mac. A failed pull leaves its output in `~/Library/Logs/dot-pull.log`, and every new shell prints a notice until a pull succeeds. To apply a change to `pull.plist`, run `launchctl bootout gui/$(id -u)/dot.pull`, then `dot link dot`.
+
+`dot push <message>` commits each checkout's uncommitted changes, new files included, to a new branch, `jon/<message in kebab case>`, cut to 40 characters after `jon/`. It pushes the branch and opens a PR against `main` with `gh`. It doesn't touch the checkout, so the changes stay uncommitted and in use until the PR merges and a pull brings them in. Each run opens a new PR, so give each run a new message: a branch that already exists makes the push fail.
 
 Exit codes: `0` when everything succeeded and `status` found no problem. `1` for anything else: a failed step, a problem, a name with no module, a `module.sh` that doesn't parse, or a usage error.
 
@@ -49,6 +57,7 @@ scripts/test.sh   # runs bin/dot against a fixture repo and a temporary HOME
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `agents`  | Coding agent config: installs Claude Code, links the global instructions (`instructions.md`, as `~/.claude/CLAUDE.md`), the hook scripts any agent can run (`hooks/`, as `~/.agents/hooks`), and, from `claude/`, Claude Code's `settings.json` (hook registrations, plugin marketplaces) and `scripts/` (statusline), creates `~/.agents/AGENTS.local.md`, and registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
+| `dot`     | The `dot.pull` launch agent, which runs `dot pull` every 30 minutes |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, `gh auth login` on provision |
 | `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, and Zoom background images under `~/Pictures`, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |

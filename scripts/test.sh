@@ -6,7 +6,9 @@ R=$T/dot
 export HOME=$T/home PATH=$T/stub:$PATH
 mkdir -p "$HOME" "$T/stub" "$R/bin" "$R/modules/alpha" "$R/modules/beta" "$R/modules/broken"
 cp "$ROOT/bin/dot" "$R/bin/dot"
-printf '#!/bin/sh\necho "brew $*"\n' > "$T/stub/brew" && chmod +x "$T/stub/brew"
+printf '#!/bin/sh\necho "brew $*${HOMEBREW_NO_INSTALL_UPGRADE:+ (no upgrade)}"\n' > "$T/stub/brew" && chmod +x "$T/stub/brew"
+printf '#!/bin/sh\necho "gh $*" >> "%s/gh.log"; echo https://pr.test/1\n' "$T" > "$T/stub/gh" && chmod +x "$T/stub/gh"
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
 echo repo > "$R/modules/alpha/a.txt" && echo b > "$R/modules/beta/b.txt"
 cat > "$R/modules/alpha/module.sh" <<'EOF'
 link a.txt ~/a.txt
@@ -85,4 +87,35 @@ rm -r "$R/modules/broken"
 mkdir "$R/modules/notes" && rm "$HOME/a.txt" "$HOME/g.txt"
 o=$(dot status)
 ok "status with no module checks every module, a listed repo's too, and ignores a folder with no module.sh" 'echo "$o" | grep -q "a.txt is missing" && echo "$o" | grep -q "g.txt is missing" && ! echo "$o" | grep -q notes'
+# Each checkout gets a bare origin, and $T/up and $T/up-work stand in for PRs merged on GitHub.
+W=${W%/modules/gamma}
+for r in "$R" "$W"; do
+  git -C "$r" init -q -b main && git -C "$r" add -A && git -C "$r" commit -qm init && git clone -q --bare "$r" "$r.git" &&
+    git -C "$r" remote add origin "$r.git" && git -C "$r" fetch -q
+done
+git clone -q "$R.git" "$T/up" && git clone -q "$W.git" "$T/up-work"
+mkdir "$T/up/modules/delta" && echo d > "$T/up/modules/delta/d.txt" && printf 'link d.txt ~/d.txt\nformula tree\n' > "$T/up/modules/delta/module.sh"
+git -C "$T/up" add -A && git -C "$T/up" commit -qm delta && git -C "$T/up" push -q origin main
+mkdir "$T/up/modules/epsilon" && echo 'link e.txt ~/e.txt' > "$T/up/modules/epsilon/module.sh"
+git -C "$T/up" add -A && git -C "$T/up" commit -qm epsilon && git -C "$T/up" push -q origin HEAD:jon/open-pr && git -C "$T/up" reset -q --hard HEAD~
+echo h > "$T/up-work/modules/gamma/h.txt" && echo 'link h.txt ~/h.txt' >> "$T/up-work/modules/gamma/module.sh"
+git -C "$T/up-work" add -A && git -C "$T/up-work" commit -qm h && git -C "$T/up-work" push -q origin main
+echo local >> "$R/modules/alpha/a.txt"
+o=$(dot pull 2>&1); code=$?
+ok "pull fast-forwards main in dot and each listed repo, and applies only the modules that changed" '[ $code = 0 ] && [ -L "$HOME/d.txt" ] && [ -L "$HOME/h.txt" ] && ! echo "$o" | grep -q said'
+ok "pull installs new packages without upgrading" 'echo "$o" | grep -q "brew install tree (no upgrade)"'
+ok "pull leaves open PRs and uncommitted changes alone" '[ $code = 0 ] && [ ! -e "$R/modules/epsilon" ] && grep -q local "$R/modules/alpha/a.txt"'
+git -C "$R" switch -q -c side
+ok "pull fails for a checkout that isn't on main" '! dot pull >/dev/null && dot pull | grep -q "not on main"'
+git -C "$R" switch -q main
+echo up > "$T/up/modules/delta/d.txt" && git -C "$T/up" commit -qam up && git -C "$T/up" push -q origin main
+echo mine > "$R/modules/delta/d.txt"
+o=$(dot pull 2>&1); code=$?
+ok "pull moves conflicting uncommitted changes to the stash and leaves main checked out" '[ $code = 1 ] && echo "$o" | grep -q "in the stash" && [ "$(cat "$R/modules/delta/d.txt")" = up ] && git -C "$R" stash list | grep -q autostash && [ -z "$(git -C "$R" ls-files -u)" ]'
+
+head=$(git -C "$R" rev-parse HEAD) && echo local >> "$R/modules/alpha/a.txt" && echo new > "$R/modules/beta/new.txt"
+o=$(dot push "alpha: keep the local edit"); code=$?
+ok "push opens a PR from a new branch with every uncommitted change" '[ $code = 0 ] && grep -q "gh pr create --head jon/alpha-keep-the-local-edit --base main --title alpha: keep the local edit" "$T/gh.log" && git -C "$R.git" show jon/alpha-keep-the-local-edit:modules/alpha/a.txt | grep -q local && git -C "$R.git" show jon/alpha-keep-the-local-edit:modules/beta/new.txt >/dev/null'
+ok "push leaves the checkout on main with its changes uncommitted" '[ $code = 0 ] && [ "$(git -C "$R" rev-parse HEAD)" = "$head" ] && [ "$(git -C "$R" branch --show-current)" = main ] && git -C "$R" status --porcelain | grep -q "a.txt" && [ -z "$(git -C "$R" diff --cached)" ]'
+ok "push skips a checkout with no changes" '[ "$(grep -c "pr create" "$T/gh.log")" = 1 ]'
 echo "$pass passed, $fail failed"; [ $fail = 0 ]

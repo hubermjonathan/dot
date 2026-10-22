@@ -10,7 +10,7 @@
 
 ## Testing patterns
 
-- `scripts/test.sh` runs `bin/dot` against real files: a fixture repo and a temporary `HOME`, with a `brew` stub on `PATH`. Run it after changing `bin/dot` or a `module.sh`.
+- `scripts/test.sh` runs `bin/dot` against real files: a fixture repo and a temporary `HOME`, with `brew` and `gh` stubs on `PATH`, and bare git repos as each checkout's `origin`. Run it after changing `bin/dot` or a `module.sh`.
 
 ## Where a rule goes
 
