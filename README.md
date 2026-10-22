@@ -1,8 +1,8 @@
 # dot
 
-Personal macOS configuration managed by `dot`, a Go CLI that handles symlinks, Homebrew installs, and health checks for a set of pluggable modules.
+Personal macOS configuration managed by `dot`, a POSIX shell script that handles symlinks, Homebrew installs, and health checks for a set of pluggable modules.
 
-Each subdirectory under `modules/` is a self-contained module: a `module.toml` plus its config files. The CLI walks that directory at runtime, so adding a new tool means adding a folder, with no code changes. Private config for the work machine lives in [hubermjonathan/dot-work](https://github.com/hubermjonathan/dot-work).
+Each subdirectory under `modules/` is a self-contained module: a `module.sh` plus its config files. `dot` walks that directory at runtime, so adding a new tool means adding a folder, with no code changes. Private config for the work machine lives in [hubermjonathan/dot-work](https://github.com/hubermjonathan/dot-work).
 
 ## Set up a machine
 
@@ -10,36 +10,36 @@ Each subdirectory under `modules/` is a self-contained module: a `module.toml` p
 2. Run the installer:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh | bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/hubermjonathan/dot/main/scripts/install.sh)"
    ```
 
-   `install.sh` installs the Xcode command line tools, so `git` exists, and clones this repo into `~/Code/dot`. It then runs `bootstrap.sh`, which installs Homebrew and Go, builds `bin/dot`, and runs `dot install` and then `dot link` for every module.
+   `install.sh` installs the Xcode command line tools, so `git` exists, and clones this repo into `~/Code/dot`, or pulls it if it's already there. It then installs Homebrew if it's missing, and runs `dot install` and then `dot link` for every module. It runs `dot link` even when `dot install` fails, and exits `1` if either failed. The script is passed to `bash` as an argument, not piped in, so a step that prompts reads from the terminal.
 
 ## Commands
 
 ```bash
-dot                          # Interactive picker (TUI) — choose modules to install + link
-dot link [mod...]            # Create symlinks; runs setup.post_link after
-dot unlink [mod...]          # Remove symlinks
-dot install [mod...]         # brew/cask install + setup.provision
-dot doctor [--fix]           # Health check; --fix repairs symlinks
-dot doctor --orphans         # Walk for stale repo symlinks (slow); --fix removes them
-dot status [mod...] [--diff] # Per-module link state; --diff shows divergence vs repo
+dot link [module...]      # Create symlinks, then run post_link steps
+dot install [module...]   # Install brew formulae and casks, then run provision steps
+dot status [module...]    # Check every link and health check, and print only problems
+dot status --orphans      # List stray symlinks into dot's modules (slow)
 ```
 
 The `zsh` module puts `~/Code/dot/bin` on `PATH`, and `dot` finds the repo from its own path, so it runs from any directory.
 
-Module args are optional — omit them to act on every module. The interactive picker shows current state per module (`linked`, `partial`, `broken`, `diverged`, `unlinked`, `no-links`), the same as `dot status`.
+Module args are optional. Omit them to act on every module. A name with no module is an error.
 
-`-v` or `--verbose` works with any subcommand. Each step shows as a one-line spinner with its latest line of output. When a step succeeds, its output stays hidden unless you pass `-v`. When a step fails, its full output always prints under the status line. A module with `setup.interactive = true` runs its `post_link` and `provision` steps on the terminal with no spinner, so prompts work. Its brew and cask steps still use the spinner. Off a terminal, such as in a pipe or CI, a step prints its label in place of the spinner.
+Each step prints its name, and its output streams to the terminal. It reads from the terminal too, so prompts work. When a step fails, `dot` prints `✗ <step> failed` and goes on with the next step and module.
 
-Exit codes: `0` success. `1` when `dot doctor` leaves an issue or an orphan unfixed. `2` for any other failure, even one failed step.
+`dot status` prints nothing for what's healthy. Each problem gets one `✗` line under its module's name: a link that's missing, points somewhere else, is broken, or isn't a symlink, and each health check that fails. When a real file sits where a link should be, it also prints `diff -u` of the repo file against it. With no problems, it prints `all healthy`.
 
-## Build
+`dot status --orphans` walks `~`, except `~/Library`, for symlinks into the `modules/` of any dot checkout or worktree, such as T3 Code's under `~/.t3/worktrees/dot`, that no module declares. A skipped module's links count as declared. It only reports them. Remove one with `rm`.
+
+Exit codes: `0` when everything succeeded and `status` found no problem. `1` for anything else: a failed step, a problem, a name with no module, a `module.sh` that doesn't parse, or a usage error.
+
+## Test
 
 ```bash
-./scripts/build.sh   # writes ./bin/dot
-go test ./...        # run unit tests
+scripts/test.sh   # runs bin/dot against a fixture repo and a temporary HOME
 ```
 
 ## Modules
@@ -49,7 +49,7 @@ go test ./...        # run unit tests
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
 | `agents`  | Coding agent config: installs Claude Code, links the global instructions (`instructions.md`, as `~/.claude/CLAUDE.md`), the hook scripts any agent can run (`hooks/`, as `~/.agents/hooks`), and, from `claude/`, Claude Code's `settings.json` (hook registrations, plugin marketplaces) and `scripts/` (statusline), creates `~/.agents/AGENTS.local.md`, and registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
-| `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, interactive `gh auth login` on provision |
+| `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, `gh auth login` on provision |
 | `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, and Zoom background images under `~/Pictures`, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `t3code`  | T3 Code app and its server `settings.json`, which starts Claude through `bin/t3-claude` so Claude loads `~/.zshenv` |
@@ -57,54 +57,36 @@ go test ./...        # run unit tests
 | `vim`     | `.vimrc` and its plugins, including the 256noir colorscheme, cloned as Vim packages |
 | `zsh`     | `.zshrc`, `.zshenv`, the `conf.d/` auto-discovery directory, and the `dot.caf` LaunchDaemon behind `caf` |
 
-## Module schema (`module.toml`)
+## Module schema (`module.sh`)
 
-```toml
-[module]
-# the module's name is its folder name
-description = "What it is"
+Every command sources `module.sh`, so it holds only calls to these six functions. Each command gives them its own meaning, and the rest do nothing.
 
-[links]
-# source (relative to module dir) = target (absolute, ~ expanded at runtime)
-"config"   = "~/.config/mytool/config"
-".myrc"    = "~/.myrc"
-
-[deps]
-brew = ["mytool"]            # brew formulae
-
-[apps]
-cask = ["mytool-desktop"]    # brew casks
-
-[health]
-# Run during `dot doctor`. The check kinds are listed below.
-checks = [
-  { name = "config-dir", check = "dir_exists:~/.config/mytool" },
-]
-
-[setup]
-interactive = false          # if true, post_link/provision get tty passthrough
-post_link = [                # runs after `dot link` — MUST be idempotent
-  { name = "create-local-rc", run = "touch ~/.myrc.local" },
-]
-provision = [                # runs only on `dot install` — one-shot side effects
-  # `check` is optional; it runs in `dot doctor` and is skipped with its step
-  { name = "auth", run = "mytool auth login", check = "command_succeeds:mytool auth status" },
-]
+```sh
+link config ~/.config/mytool/config    # source (relative to the module dir), then target
+link .myrc ~/.myrc
+formula mytool                         # brew formulae
+cask mytool-desktop                    # brew casks
+check config-dir 'test -d ~/.config/mytool'
+post_link create-local-rc 'touch ~/.myrc.local'
+provision auth 'mytool auth login' 'mytool auth status'
 ```
 
-Every step and check needs a `name`: kebab-case and unique within the module. A setup step needs `run`, an `sh -c` command, and can add a `check` that `dot doctor` runs. Skipping the step skips its check too. A `[health]` check has a `check` and no `run`.
+| Call | `dot link` | `dot install` | `dot status` |
+|---|---|---|---|
+| `link <src> <dst>` | links `dst` to `src` | | checks the link |
+| `formula <name...>` | | `brew install` | |
+| `cask <name...>` | | `brew install --cask` | |
+| `post_link <name> <cmd> [<check>]` | runs `cmd` | | runs `check` |
+| `provision <name> <cmd> [<check>]` | | runs `cmd` | runs `check` |
+| `check <name> <cmd>` | | | runs `cmd` |
 
-### Health check kinds
+Calls run in file order. Give every step and check a kebab-case name that's unique within the module, so `~/.dot-skips` can name it. A command or a check is one string that `sh -c` runs, from the directory you ran `dot` in. A check passes when it exits `0`. It gets no stdin, and its output is hidden. Skipping a step skips its check too.
 
-A `check` is a `kind:arg` string. A `~/` in the argument expands to your home directory.
-
-- `file_exists:<path>`: the path exists.
-- `dir_exists:<path>`: the path exists and is a directory.
-- `command_succeeds:<command>`: `sh -c <command>` exits 0.
+Leave a link target unquoted, so its `~` expands. Put a command or a check in single quotes, so `~` and `$HOME` expand when it runs, not when `dot` sources the file. A command that contains a single quote can use double quotes instead, with `"`, `$`, `` ` ``, and `\` escaped by a backslash, as `macos` does.
 
 ### Skipping on one machine
 
-`~/.dot-skips` lists what dot skips on this machine, one entry per line. It isn't tracked in the repo. `dot install` and `dot link` create it with a comment header if it's missing, so new and existing machines both get it.
+`~/.dot-skips` lists what dot skips on this machine, one entry per line. It isn't tracked in the repo, and a missing file skips nothing.
 
 ```
 # work Mac
@@ -112,24 +94,23 @@ macos/sudo-touchid    # one step, plus its check
 apps                  # a whole module
 ```
 
-`install`, `link`, `doctor`, `status`, `unlink`, and the picker all leave skipped modules and steps out. An entry that matches no module or step prints a warning.
+`install`, `link`, and `status` all leave skipped modules and steps out. An entry that matches no module or step does nothing.
 
 ### Symlink behavior
 
 - Source paths are relative to the module directory; targets are absolute and may use `~`.
-- A source can be a directory. Every file in it then shows up at the target, so a new file needs no `[links]` change. `zsh/conf.d` works this way.
+- A source can be a directory. Every file in it then shows up at the target, so a new file needs no `module.sh` change. `zsh/conf.d` works this way.
 - A symlink that points somewhere else is replaced with no backup.
-- If a target exists and isn't a symlink, such as a file or a directory, `dot link` and `dot doctor --fix` move it to `~/.dotfiles-backup/<module>/<basename>.<utc-time>.<hash>` before linking.
+- If a target exists and isn't a symlink, such as a file or a directory, `dot link` moves it to `~/.dotfiles-backup/<module>/<basename>.<utc-time>` before linking.
 
 ### post_link vs provision
 
 - `post_link` runs every `dot link`. Idempotent: safe to re-run. Use for things like creating placeholder files, applying `defaults write`, or copying a file that can't be a symlink.
 - `provision` runs only on `dot install`. Use for one-time bootstrap that talks to a remote (e.g. `gh auth login`).
-- Set `interactive = true` when commands need stdin/stdout (auth flows, prompts).
 
 ## Zsh config
 
-Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every `.zsh` file in it on shell start. No `module.toml` change required.
+Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~/.config/zsh` and `.zshrc` sources every `.zsh` file in it on shell start. No `module.sh` change required.
 
 `caf [on|off|status]` keeps the Mac awake: no idle sleep, no lid-close sleep, display on. The `dot.caf` LaunchDaemon does the work, so `caf` also turns on at every boot. `dot link zsh` copies `conf.d/caf.plist` to `/Library/LaunchDaemons/dot.caf.plist` with `sudo` and loads it, whenever the two differ or the job isn't loaded. `caf off` turns idle sleep and lid-close sleep back on until the next boot.
 
@@ -140,10 +121,7 @@ Drop a `.zsh` file in `modules/zsh/conf.d/` — the directory is symlinked to `~
 | Path | What it is |
 |---|---|
 | `AGENTS.md` | Conventions for agents that edit this repo. Each `CLAUDE.md` links to the `AGENTS.md` beside it |
-| `scripts/install.sh` | The installer `curl` runs: the Xcode command line tools, the clone, then `bootstrap.sh` |
-| `scripts/bootstrap.sh` | First-run setup: Homebrew, Go, the build, then `dot install` and `dot link` |
-| `scripts/build.sh` | Builds `bin/dot` |
-| `cmd/dot/` | The Cobra CLI, one file per subcommand |
-| `internal/` | Module discovery, the linker, installer, doctor, and picker |
-| `modules/` | One folder per module, each with a `module.toml` |
-| `bin/` | On `PATH`: `dot`, the binary `bootstrap.sh` and `build.sh` build (gitignored), and `t3-claude` |
+| `scripts/install.sh` | The installer `curl` fetches: the Xcode command line tools, the clone, Homebrew, then `dot install` and `dot link` |
+| `scripts/test.sh` | Tests for `bin/dot`, run against a fixture repo and a temporary `HOME` |
+| `bin/` | On `PATH`: `dot`, the CLI as one POSIX shell script, and `t3-claude` |
+| `modules/` | One folder per module, each with a `module.sh` |

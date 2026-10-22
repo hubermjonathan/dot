@@ -1,6 +1,6 @@
 # dot
 
-`README.md` is the reference for this repo. The `AGENTS.md` files hold only invariants and gotchas, and `cmd/dot/`, `internal/`, and `modules/` each have one.
+`README.md` is the reference for this repo. The `AGENTS.md` files hold only invariants and gotchas, and `modules/` has one.
 
 ## Key invariants
 
@@ -10,7 +10,7 @@
 
 ## Testing patterns
 
-- Filesystem tests use real directories from `t.TempDir()`, not mocks.
+- `scripts/test.sh` runs `bin/dot` against real files: a fixture repo and a temporary `HOME`, with a `brew` stub on `PATH`. Run it after changing `bin/dot` or a `module.sh`.
 
 ## Where a rule goes
 

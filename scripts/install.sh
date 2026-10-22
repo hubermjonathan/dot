@@ -1,22 +1,25 @@
 #!/bin/bash
 set -e
-
-DEST="$HOME/Code/dot"
+DEST=$HOME/Code/dot
 
 if ! xcode-select -p &>/dev/null; then
-  echo "installing xcode command line tools..."
+  echo "installing the Xcode command line tools..."
   xcode-select --install 2>/dev/null || true
   until xcode-select -p &>/dev/null && command -v git &>/dev/null; do sleep 5; done
 fi
 
-mkdir -p "$(dirname "$DEST")"
-if [ ! -d "$DEST/.git" ]; then
-  echo "cloning hubermjonathan/dot into $DEST..."
-  git clone "https://github.com/hubermjonathan/dot" "$DEST"
-else
-  echo "$DEST already exists, pulling latest..."
+if [ -d "$DEST/.git" ]; then
   git -C "$DEST" pull --ff-only
+else
+  mkdir -p "$(dirname "$DEST")"
+  git clone https://github.com/hubermjonathan/dot "$DEST"
 fi
 
-cd "$DEST"
-exec ./scripts/bootstrap.sh
+sudo -v
+[ -x /opt/homebrew/bin/brew ] || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+rc=0
+"$DEST/bin/dot" install || rc=1
+"$DEST/bin/dot" link || rc=1
+exit $rc

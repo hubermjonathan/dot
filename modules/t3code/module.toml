@@ -1,8 +1,0 @@
-[module]
-description = "T3 Code agent GUI"
-
-[links]
-"settings.json" = "~/.t3/userdata/settings.json"
-
-[apps]
-cask = ["t3-code"]
