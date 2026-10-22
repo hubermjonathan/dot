@@ -43,6 +43,12 @@ ok "link creates the symlink" '[ "$(readlink "$HOME/a.txt")" = "$R/modules/alpha
 ok "a failed step fails the run, but later steps and modules still run" '[ $code = 1 ] && echo "$out" | grep -q said && [ -L "$HOME/b.txt" ]'
 ok "step labels print once" '[ "$(echo "$out" | grep -c "^  say$")" = 1 ] && [ "$(echo "$out" | grep -c "✗")" = 1 ]'
 ok "link with nothing to do exits 0" 'dot link beta >/dev/null'
+mkdir "$R/modules/slow" && echo "post_link nap 'sleep 3 & echo \$! > ~/nap.pid; wait'" > "$R/modules/slow/module.sh"
+t=$(date +%s); out=$(DOT_STEP_SECONDS=1 dot link slow </dev/null 2>&1); code=$? t=$(($(date +%s) - t))
+ok "without a terminal, a step past the time limit fails, and its children end" '[ $code = 1 ] && [ $t -lt 3 ] && echo "$out" | grep -q "timed out after 1 seconds" && echo "$out" | grep -q "nap failed" && ! kill -0 "$(cat "$HOME/nap.pid")" 2>/dev/null'
+out=$(DOT_STEP_SECONDS=1 script -q /dev/null "$R/bin/dot" link slow </dev/null 2>&1)
+ok "with a terminal, a step has no time limit" 'echo "$out" | grep -q nap && ! echo "$out" | grep -q -e "timed out" -e "✗"'
+rm -r "$R/modules/slow"
 ok "link covers a listed repo's modules" 'dot link gamma >/dev/null && [ "$(readlink "$HOME/g.txt")" = "$W/g.txt" ]'
 ok "steps and checks run from their module's folder" '[ -f "$HOME/g-copy.txt" ] && dot status gamma | grep -q "all healthy"'
 ok "an unlisted repo's modules don't load" 'dot link zeta | grep -q "no such module"'
