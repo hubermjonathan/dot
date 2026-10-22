@@ -91,10 +91,11 @@ Leave a link target unquoted, so its `~` expands. Put a command or a check in si
 ```
 # work Mac
 macos/sudo-touchid    # one step, plus its check
+apps/google-chrome    # one package, such as an app the company's management software installs
 apps                  # a whole module
 ```
 
-`install`, `link`, and `status` all leave skipped modules and steps out. An entry that matches no module or step does nothing.
+`install`, `link`, and `status` all leave skipped modules, steps, and packages out. An entry that matches no module or step does nothing.
 
 ### Symlink behavior
 

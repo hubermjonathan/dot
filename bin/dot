@@ -45,7 +45,10 @@ link)
   post_link() { step "$@"; }
   each_module "$@" ;;
 install)
-  formula() { say "brew install $*"; brew install "$@" || fail "brew install $* failed"; }
+  formula() {
+    set -- $(for p; do skipped "$mod/$p" || echo "$p"; done)
+    [ $# -eq 0 ] || [ "$*" = --cask ] || { say "brew install $*"; brew install "$@" || fail "brew install $* failed"; }
+  }
   cask() { formula --cask "$@"; }
   provision() { step "$@"; }
   each_module "$@" ;;
