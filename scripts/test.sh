@@ -94,7 +94,7 @@ echo local >> "$R/modules/alpha/a.txt"
 o=$(dot pull 2>&1); code=$?
 ok "pull fast-forwards main in dot and dot-work, and applies only the modules that changed" '[ $code = 0 ] && [ -L "$HOME/d.txt" ] && [ -L "$HOME/h.txt" ] && ! echo "$o" | grep -q said'
 ok "pull installs new packages without upgrading" 'echo "$o" | grep -q "brew install tree (no upgrade)"'
-ok "pull leaves open PRs and uncommitted changes alone" '[ ! -e "$R/modules/epsilon" ] && grep -q local "$R/modules/alpha/a.txt"'
+ok "pull leaves open PRs and uncommitted changes alone" '[ $code = 0 ] && [ ! -e "$R/modules/epsilon" ] && grep -q local "$R/modules/alpha/a.txt"'
 git -C "$R" switch -q -c side
 ok "pull fails for a checkout that isn't on main" '! dot pull >/dev/null && dot pull | grep -q "not on main"'
 git -C "$R" switch -q main
@@ -106,6 +106,6 @@ ok "pull moves conflicting uncommitted changes to the stash and leaves main chec
 head=$(git -C "$R" rev-parse HEAD) && echo local >> "$R/modules/alpha/a.txt" && echo new > "$R/modules/beta/new.txt"
 o=$(dot push "alpha: keep the local edit"); code=$?
 ok "push opens a PR from a new branch with every uncommitted change" '[ $code = 0 ] && grep -q "gh pr create --head jon/alpha-keep-the-local-edit --base main --title alpha: keep the local edit" "$T/gh.log" && git -C "$R.git" show jon/alpha-keep-the-local-edit:modules/alpha/a.txt | grep -q local && git -C "$R.git" show jon/alpha-keep-the-local-edit:modules/beta/new.txt >/dev/null'
-ok "push leaves the checkout on main with its changes uncommitted" '[ "$(git -C "$R" rev-parse HEAD)" = "$head" ] && [ "$(git -C "$R" branch --show-current)" = main ] && git -C "$R" status --porcelain | grep -q "a.txt" && [ -z "$(git -C "$R" diff --cached)" ]'
+ok "push leaves the checkout on main with its changes uncommitted" '[ $code = 0 ] && [ "$(git -C "$R" rev-parse HEAD)" = "$head" ] && [ "$(git -C "$R" branch --show-current)" = main ] && git -C "$R" status --porcelain | grep -q "a.txt" && [ -z "$(git -C "$R" diff --cached)" ]'
 ok "push skips a checkout with no changes" '[ "$(grep -c "pr create" "$T/gh.log")" = 1 ]'
 echo "$pass passed, $fail failed"; [ $fail = 0 ]

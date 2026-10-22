@@ -21,7 +21,7 @@ Each subdirectory under `modules/` is a self-contained module: a `module.sh` plu
 dot link [module...]      # Create symlinks, then run post_link steps
 dot install [module...]   # Install brew formulae and casks, then run provision steps
 dot status [module...]    # Check every link and health check, and print only problems
-dot status --orphans      # List stray symlinks into dot's modules (slow)
+dot status --orphans      # List stray symlinks into dot's and dot-work's modules (slow)
 dot pull                  # Fast-forward main in dot and dot-work, then apply the modules that changed
 dot push <message>        # Open a PR from each checkout's uncommitted changes
 ```
@@ -36,11 +36,11 @@ Each step prints its name, and its output streams to the terminal. It reads from
 
 `dot status --orphans` walks `~`, except `~/Library`, for symlinks into the `modules/` of any dot or dot-work checkout or worktree, such as T3 Code's under `~/.t3/worktrees/dot`, that no module declares. A skipped module's links count as declared. It only reports them. Remove one with `rm`.
 
-`dot pull` fetches `main` in `~/Code/dot` and `~/Code/dot-work` and fast-forwards it to `origin/main`. It never checks out another branch or an open PR. It then runs `dot install` and `dot link` for each module whose files changed, with `HOMEBREW_NO_INSTALL_UPGRADE=1`, so it installs new packages but upgrades none. Run `dot install` to upgrade. Uncommitted changes stay in place, unless they conflict with the new `main`: then the checkout goes back to `main`, the changes stay in the stash, and the pull fails. It also fails for a checkout that isn't on `main` or can't fast-forward.
+`dot pull` fetches `main` in `~/Code/dot` and `~/Code/dot-work` and fast-forwards it to `origin/main`. It never checks out another branch or an open PR. It then runs `dot install` and `dot link` for each module whose files changed, with `HOMEBREW_NO_INSTALL_UPGRADE=1`, so it installs new packages without upgrading the ones already installed. Homebrew can still upgrade a new package's dependencies. Run `dot install` to upgrade. Uncommitted changes stay in place, unless they conflict with the new `main`: then the checkout goes back to `main`, the changes stay in the stash, and the pull fails. It also fails for a checkout that isn't on `main` or can't fast-forward.
 
 The `dot` module's launch agent, `dot.pull`, runs `dot pull` every 30 minutes. launchd holds the agent's timer while the login session is idle, so a pull can wait until you're back at the Mac. A failed pull leaves its output in `~/Library/Logs/dot-pull.log`, and every new shell prints a notice until a pull succeeds. To apply a change to `pull.plist`, run `launchctl bootout gui/$(id -u)/dot.pull`, then `dot link dot`.
 
-`dot push <message>` commits each checkout's uncommitted changes, new files included, to a new branch, `jon/<message in kebab case>`, pushes it, and opens a PR against `main` with `gh`. It doesn't touch the checkout, so the changes stay uncommitted and in use until the PR merges and a pull brings them in. Each run opens a new PR.
+`dot push <message>` commits each checkout's uncommitted changes, new files included, to a new branch, `jon/<message in kebab case>`, cut to 40 characters after `jon/`. It pushes the branch and opens a PR against `main` with `gh`. It doesn't touch the checkout, so the changes stay uncommitted and in use until the PR merges and a pull brings them in. Each run opens a new PR, so give each run a new message: a branch that already exists makes the push fail.
 
 Exit codes: `0` when everything succeeded and `status` found no problem. `1` for anything else: a failed step, a problem, a name with no module, a `module.sh` that doesn't parse, or a usage error.
 
