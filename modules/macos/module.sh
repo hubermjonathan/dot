@@ -39,5 +39,6 @@ post_link finder-hide-recent-tags 'defaults write com.apple.finder ShowRecentTag
 post_link activate-settings '/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u'
 post_link set-wallpaper 'desktoppr ~/Pictures/wallpaper.jpg'
 post_link profile-picture 'dscl . read /Users/$USER Picture | grep -q "$HOME/Pictures/profile-picture.jpg" && dscl . read /Users/$USER JPEGPhoto 2>&1 | grep -q '\''No such key'\'' || { sudo dscl . delete /Users/$USER JPEGPhoto 2>/dev/null; sudo dscl . create /Users/$USER Picture "$HOME/Pictures/profile-picture.jpg"; }'
-post_link restart-ui 'for s in com.apple.Dock.agent com.apple.Finder com.apple.notificationcenterui.agent com.apple.SystemUIServer.agent com.apple.WindowManager.agent; do launchctl kickstart -k gui/$(id -u)/$s; done'
+# SIP refuses kickstart -k for NotificationCenter, SystemUIServer, and WindowManager, so killall stops them and kickstart starts any launchd didn't
+post_link restart-ui 'killall Dock Finder NotificationCenter SystemUIServer WindowManager 2>/dev/null; sleep 1; for s in com.apple.Dock.agent com.apple.Finder com.apple.notificationcenterui.agent com.apple.SystemUIServer.agent com.apple.WindowManager.agent; do launchctl kickstart gui/$(id -u)/$s || exit 1; done'
 provision finder-sidebar-reminder "echo 'MANUAL: Finder > Settings > Sidebar — uncheck Recents, Shared; check Pictures'"
