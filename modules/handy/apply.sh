@@ -68,15 +68,17 @@ os.replace(tmp, store_path)
 PY
 
 # Pre-place the model in the shared HF hub cache so Handy finds it instead of prompting a download.
+# Handy finds the snapshot through refs/<revision>, which `hf download --revision <sha>` doesn't write.
 CACHE="${HF_HOME:-$HOME/.cache/huggingface}/hub"
-SNAPSHOT="$CACHE/models--${MODEL_REPO//\//--}/snapshots/$MODEL_REV/$MODEL_FILE"
-if [ ! -e "$SNAPSHOT" ]; then
+REPO_DIR="$CACHE/models--${MODEL_REPO//\//--}"
+if [ ! -e "$REPO_DIR/snapshots/$MODEL_REV/$MODEL_FILE" ]; then
   if command -v hf >/dev/null; then
     hf download "$MODEL_REPO" "$MODEL_FILE" --revision "$MODEL_REV" >/dev/null
   else
     echo "hf cli not found — Handy will download $MODEL_FILE on first use"
   fi
 fi
+mkdir -p "$REPO_DIR/refs" && printf %s "$MODEL_REV" > "$REPO_DIR/refs/$MODEL_REV"
 
 open -gja Handy
 
