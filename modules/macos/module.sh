@@ -24,6 +24,8 @@ post_link clear-notification-widgets "python3 -c \"import plistlib,subprocess,te
 post_link week-starts-monday 'defaults write NSGlobalDomain AppleFirstWeekday -dict gregorian 2'
 post_link calendar-week-starts-monday "defaults write com.apple.iCal 'first day of week' -int 1"
 post_link natural-scroll-off 'defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false'
+post_link mouse-tracking-speed 'defaults write NSGlobalDomain com.apple.mouse.scaling -float 1.5'
+post_link mouse-acceleration-off 'defaults write NSGlobalDomain com.apple.mouse.linear -bool true'
 post_link fn-keys-standard 'defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true'
 post_link no-auto-capitalize 'defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false'
 post_link no-auto-period 'defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false'

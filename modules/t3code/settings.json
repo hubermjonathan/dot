@@ -17,6 +17,7 @@
     ]
   },
   "projectSettingsFolded": true,
+  "enableDeviceSupport": true,
   "sidebarAutoSettleAfterDays": null,
   "sidebarAutoSettleOnMerge": false,
   "defaultThreadEnvMode": "local",

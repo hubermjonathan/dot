@@ -40,7 +40,7 @@ Each step prints its name, and its output streams to the terminal. It reads from
 
 The `dot` module's launch agent, `dot.pull`, runs `dot pull` every 30 minutes. It loads in the user's background domain, `user/<uid>`, not the login session's `gui/<uid>`. launchd can put the login session in on-demand-only mode, and there it holds every timed run until the mode ends, which on a Mac that stays logged in can mean never. From the background domain, a step that sends Apple events, such as `macos`'s `dark-mode`, can't reach System Events, and a step that needs a privacy prompt, such as `clear-notification-widgets`, hits the time limit. Either one fails the pull and waits for a `dot link` in a terminal. A failed pull leaves its output in `~/Library/Logs/dot-pull.log`, and every new shell prints a notice until a pull succeeds. To apply a change to `pull.plist`, run `launchctl bootout user/$(id -u)/dot.pull`, then `dot link dot`.
 
-`dot push <message>` commits each checkout's uncommitted changes, new files included, to a new branch, `jon/<message in kebab case>`, cut to 40 characters after `jon/`. It pushes the branch and opens a PR against `main` with `gh`. It doesn't touch the checkout, so the changes stay uncommitted and in use until the PR merges and a pull brings them in. Each run opens a new PR, so give each run a new message: a branch that already exists makes the push fail.
+`dot push <message>` commits each checkout's uncommitted changes, new files included, to a new branch, `jon/<message in kebab case>`, cut to 40 characters after `jon/`. It pushes the branch and opens a PR against `main` with `gh`. It stages the changes in the checkout but doesn't commit them there, so they stay in use until the PR merges and a pull brings them in. They stay staged because git won't fast-forward over an untracked file, so a new file would fail that pull. Each run opens a new PR, so give each run a new message: a branch that already exists makes the push fail.
 
 Exit codes: `0` when everything succeeded and `status` found no problem. `1` for anything else: a failed step, a problem, a name with no module, a `module.sh` that doesn't parse, or a usage error.
 
@@ -59,7 +59,8 @@ scripts/test.sh   # runs bin/dot against a fixture repo and a temporary HOME
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `dot`     | The `dot.pull` launch agent, which runs `dot pull` every 30 minutes |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, `gh auth login` on provision |
-| `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, wallpaper, profile picture, and Zoom background images under `~/Pictures`, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
+| `handy`   | Handy speech-to-text: merges `handy.json` into Handy's `settings_store.json` (parakeet model, right-option hotkey, Ollama post-processing) and restarts Handy on link; installs `hf` and Ollama, and pulls `gemma4:12b-mlx`, on install |
+| `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, mouse tracking speed with pointer acceleration off, wallpaper, profile picture, and Zoom background images under `~/Pictures`, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `t3code`  | T3 Code app and its server `settings.json`, which starts Claude through `bin/t3-claude` so Claude loads `~/.zshenv` |
 | `tmux`    | `.tmux.conf` |
