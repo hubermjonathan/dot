@@ -124,6 +124,9 @@ ok "pull moves conflicting uncommitted changes to the stash and leaves main chec
 head=$(git -C "$R" rev-parse HEAD) && echo local >> "$R/modules/alpha/a.txt" && echo new > "$R/modules/beta/new.txt"
 o=$(dot push "alpha: keep the local edit"); code=$?
 ok "push opens a PR from a new branch with every uncommitted change" '[ $code = 0 ] && grep -q "gh pr create --head jon/alpha-keep-the-local-edit --base main --title alpha: keep the local edit" "$T/gh.log" && git -C "$R.git" show jon/alpha-keep-the-local-edit:modules/alpha/a.txt | grep -q local && git -C "$R.git" show jon/alpha-keep-the-local-edit:modules/beta/new.txt >/dev/null'
-ok "push leaves the checkout on main with its changes uncommitted" '[ $code = 0 ] && [ "$(git -C "$R" rev-parse HEAD)" = "$head" ] && [ "$(git -C "$R" branch --show-current)" = main ] && git -C "$R" status --porcelain | grep -q "a.txt" && [ -z "$(git -C "$R" diff --cached)" ]'
+ok "push leaves the checkout on main with its changes staged but not committed" '[ $code = 0 ] && [ "$(git -C "$R" rev-parse HEAD)" = "$head" ] && [ "$(git -C "$R" branch --show-current)" = main ] && git -C "$R" diff --cached --name-only | grep -q new.txt'
 ok "push skips a checkout with no changes" '[ "$(grep -c "pr create" "$T/gh.log")" = 1 ]'
+git -C "$R.git" update-ref refs/heads/main refs/heads/jon/alpha-keep-the-local-edit
+o=$(dot pull 2>&1)
+ok "pull fast-forwards over the new files of a merged push" '! echo "$o" | grep -q "could not fast-forward" && [ "$(git -C "$R" rev-parse HEAD)" = "$(git -C "$R.git" rev-parse main)" ] && [ -z "$(git -C "$R" status --porcelain)" ]'
 echo "$pass passed, $fail failed"; [ $fail = 0 ]

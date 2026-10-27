@@ -113,14 +113,13 @@ push)
   msg=$* branch=jon/$(printf %s "$*" | tr -cs '[:alnum:]' - | tr '[:upper:]' '[:lower:]' | sed 's/^-*//; s/-*$//' | cut -c1-40)
   for r in $repos; do
     [ -e "$r/.git" ] && [ -n "$(git -C "$r" status --porcelain)" ] || continue
-    mod=${r##*/} idx=$(mktemp)
-    # A temporary index commits the changes without touching the checkout, so they stay in use until the PR merges.
-    if GIT_INDEX_FILE=$idx git -C "$r" read-tree HEAD && GIT_INDEX_FILE=$idx git -C "$r" add -A &&
-      tree=$(GIT_INDEX_FILE=$idx git -C "$r" write-tree) && c=$(git -C "$r" commit-tree "$tree" -p HEAD -m "$msg") &&
+    mod=${r##*/}
+    # The changes stay uncommitted, so they stay in use until the PR merges. They stay staged, so the pull that
+    # brings the PR in can fast-forward: git won't overwrite an untracked file.
+    if git -C "$r" add -A && tree=$(git -C "$r" write-tree) && c=$(git -C "$r" commit-tree "$tree" -p HEAD -m "$msg") &&
       git -C "$r" push -q origin "$c:refs/heads/$branch" &&
       url=$(cd "$r" && gh pr create --head "$branch" --base main --title "$msg" --body "Local changes from $(hostname -s), pushed with \`dot push\`.")
     then say "opened $url"; else fail "could not open a PR"; fi
-    rm -f "$idx"
   done ;;
 *)
   echo "usage: dot link|install [module...] | dot status [--orphans | module...] | dot pull | dot push <message>" >&2; exit 1 ;;

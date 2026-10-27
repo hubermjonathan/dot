@@ -65,6 +65,7 @@
   },
   "viewMode": "focus",
   "effortLevel": "xhigh",
+  "autoCompactWindow": 500000,
   "promptSuggestionEnabled": false,
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
@@ -72,5 +73,5 @@
   "theme": "dark",
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "autoCompactWindow": 500000
+  "switchModelsOnFlag": false
 }
