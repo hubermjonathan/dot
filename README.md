@@ -59,7 +59,7 @@ scripts/test.sh   # runs bin/dot against a fixture repo and a temporary HOME
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `dot`     | The `dot.pull` launch agent, which runs `dot pull` every 30 minutes |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, `gh auth login` on provision |
-| `handy`   | Handy speech-to-text: merges `handy.json` into Handy's `settings_store.json` (parakeet model, right-option hotkey, Ollama post-processing) and restarts Handy on link; installs `hf` and Ollama, and pulls `gemma4:12b-mlx`, on install |
+| `handy`   | Handy speech-to-text: merges `handy.json` into Handy's `settings_store.json` (parakeet model, right-option hotkey, Ollama post-processing with a prompt that cleans up dictation) and restarts Handy on link; installs `hf` and Ollama, and pulls `gemma4:12b-mlx`, on install |
 | `macos`   | Dock, Finder, menu bar, Terminal's Basic profile, dark mode, monday week start, mouse tracking speed with pointer acceleration off, wallpaper, profile picture, and Zoom background images under `~/Pictures`, Chrome as the default browser; Touch ID for `sudo` (`pam_tid.so` in `/etc/pam.d/sudo_local`) |
 | `tailscale` | Tailscale, started at boot; joins the network on `dot install` |
 | `t3code`  | T3 Code app and its server `settings.json`, which starts Claude through `bin/t3-claude` so Claude loads `~/.zshenv` |
