@@ -55,7 +55,7 @@ scripts/test.sh   # runs bin/dot against a fixture repo and a temporary HOME
 | Module    | Description |
 |-----------|-------------|
 | `rectangle` | Rectangle window manager (grid resize + move-to-display) |
-| `agents`  | Coding agent config: installs Claude Code, links the global instructions (`instructions.md`, as `~/.claude/CLAUDE.md`), the hook scripts any agent can run (`hooks/`, as `~/.agents/hooks`), and, from `claude/`, Claude Code's `settings.json` (hook registrations, plugin marketplaces) and `scripts/` (statusline), creates `~/.agents/AGENTS.local.md`, and registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its token from `BLUE_BUBBLES_TOKEN` |
+| `agents`  | Coding agent config: installs Claude Code, links the global instructions (`instructions.md`, as `~/.claude/CLAUDE.md`), the hook scripts any agent can run (`hooks/`, as `~/.agents/hooks`), and, from `claude/`, Claude Code's `settings.json` (hook registrations, plugin marketplaces) and `scripts/` (statusline), creates `~/.agents/AGENTS.local.md`, and registers the [`blue-bubbles`](https://github.com/hubermjonathan/blue-bubbles) MCP server, which reads its URL from `BLUE_BUBBLES_URL` and its token from `BLUE_BUBBLES_TOKEN` |
 | `apps`    | Brew + cask bundle: dust; bitwarden, google-chrome, spotify |
 | `dot`     | The `dot.pull` launch agent, which runs `dot pull` every 30 minutes |
 | `git`     | `.gitconfig` (incl. `core.excludesFile`), global `.gitignore`, `gh` CLI, `gh auth login` on provision |
