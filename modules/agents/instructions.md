@@ -27,6 +27,7 @@ Invoke the `principles` skill before you shape any solution and while you implem
 ## Other
 
 - **Put files that support the work but aren't part of it in `.scratch`** at the repo or folder root, such as handoff prompts, test plans, and notes. Use it in place of a temp or harness scratchpad directory, so I can find them. The global gitignore covers it.
+- **Stop the watch on every artifact you publish.** Publishing starts one by itself. Right after each publish, stop it with `ArtifactComments` (`action: "watch"`, `on: false`, and the artifact's `url`). Watch an artifact only when I ask.
 - **Keep agent tooling agent agnostic.** Skills, instructions, and config work in Claude Code, Codex, and any agent that loads plain `SKILL.md` files. A repo's agent instructions go in `AGENTS.md`, with `CLAUDE.md` a symlink to it.
 
 Read and follow machine-specific preferences here: @~/.agents/AGENTS.local.md
